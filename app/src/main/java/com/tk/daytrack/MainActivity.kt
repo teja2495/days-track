@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
 fun DayTrackApp(viewModel: EventViewModel) {
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
+    val isEditMode by viewModel.isEditMode.collectAsState()
     
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -48,6 +51,16 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         text = "Day Track",
                         fontWeight = FontWeight.Bold
                     )
+                },
+                actions = {
+                    if (events.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.toggleEditMode() }) {
+                            Icon(
+                                imageVector = if (isEditMode) Icons.Default.Done else Icons.Default.Edit,
+                                contentDescription = if (isEditMode) "Done Editing" else "Edit Events"
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -86,6 +99,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     items(events) { event ->
                         EventListItem(
                             event = event,
+                            isEditMode = isEditMode,
                             onDelete = { eventId ->
                                 viewModel.removeEvent(eventId)
                             }

@@ -16,6 +16,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     private val _showAddDialog = MutableStateFlow(false)
     val showAddDialog: StateFlow<Boolean> = _showAddDialog.asStateFlow()
     
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
+    
     init {
         loadEvents()
     }
@@ -46,5 +49,13 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun hideAddDialog() {
         _showAddDialog.value = false
+    }
+    
+    fun toggleEditMode() {
+        _isEditMode.value = !_isEditMode.value
+    }
+    
+    fun setEditMode(editMode: Boolean) {
+        _isEditMode.value = editMode
     }
 } 

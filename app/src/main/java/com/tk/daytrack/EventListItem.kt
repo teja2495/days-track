@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EventListItem(
     event: Event,
+    isEditMode: Boolean,
     onDelete: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -72,17 +73,19 @@ fun EventListItem(
                 )
             }
             
-            IconButton(
-                onClick = { onDelete(event.id) },
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete event",
-                    modifier = Modifier.size(20.dp)
-                )
+            if (isEditMode) {
+                IconButton(
+                    onClick = { onDelete(event.id) },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete event",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
