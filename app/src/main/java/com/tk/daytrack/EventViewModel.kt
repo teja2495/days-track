@@ -28,6 +28,12 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     private val _currentSortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
     val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
     
+    private val _showUpdateDialog = MutableStateFlow(false)
+    val showUpdateDialog: StateFlow<Boolean> = _showUpdateDialog.asStateFlow()
+    
+    private val _eventToUpdate = MutableStateFlow<Event?>(null)
+    val eventToUpdate: StateFlow<Event?> = _eventToUpdate.asStateFlow()
+    
     private var _unsortedEvents = listOf<Event>()
     
     init {
@@ -63,6 +69,25 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun hideAddDialog() {
         _showAddDialog.value = false
+    }
+    
+    fun showUpdateDialog(event: Event) {
+        _eventToUpdate.value = event
+        _showUpdateDialog.value = true
+    }
+    
+    fun hideUpdateDialog() {
+        _showUpdateDialog.value = false
+        _eventToUpdate.value = null
+    }
+    
+    fun updateEventDate(newName: String, newDate: LocalDate) {
+        val eventId = _eventToUpdate.value?.id ?: return
+        viewModelScope.launch {
+            _unsortedEvents = repository.updateEvent(eventId, newName, newDate)
+            sortEvents()
+            hideUpdateDialog()
+        }
     }
     
     fun toggleEditMode() {

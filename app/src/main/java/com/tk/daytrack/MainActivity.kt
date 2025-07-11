@@ -10,8 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,8 +40,9 @@ class MainActivity : ComponentActivity() {
 fun DayTrackApp(viewModel: EventViewModel) {
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
-    val isEditMode by viewModel.isEditMode.collectAsState()
     val currentSortOption by viewModel.currentSortOption.collectAsState()
+    val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
+    val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -96,25 +95,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                             currentSortOption = currentSortOption,
                             onSortOptionSelected = { viewModel.setSortOption(it) }
                         )
-                        
-                        Surface(
-                            onClick = { viewModel.toggleEditMode() },
-                            shape = RoundedCornerShape(24.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = if (isEditMode) "Done" else "Edit",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
                     }
                     
                     LazyColumn(
@@ -125,9 +105,8 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         items(events) { event ->
                             EventListItem(
                                 event = event,
-                                isEditMode = isEditMode,
-                                onDelete = { eventId ->
-                                    viewModel.removeEvent(eventId)
+                                onUpdate = { eventToUpdate ->
+                                    viewModel.showUpdateDialog(eventToUpdate)
                                 }
                             )
                         }
@@ -142,6 +121,19 @@ fun DayTrackApp(viewModel: EventViewModel) {
             onDismiss = { viewModel.hideAddDialog() },
             onSave = { name, date ->
                 viewModel.addEvent(name, date)
+            }
+        )
+    }
+    
+    if (showUpdateDialog && eventToUpdate != null) {
+        UpdateEventDialog(
+            event = eventToUpdate!!,
+            onDismiss = { viewModel.hideUpdateDialog() },
+            onUpdate = { newName, newDate ->
+                viewModel.updateEventDate(newName, newDate)
+            },
+            onDelete = { eventId ->
+                viewModel.removeEvent(eventId)
             }
         )
     }

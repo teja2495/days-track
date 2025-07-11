@@ -56,4 +56,15 @@ class EventRepository(context: Context) {
         saveEvents(currentEvents)
         return currentEvents
     }
+    
+    fun updateEvent(eventId: String, newName: String, newDate: LocalDate): List<Event> {
+        val currentEvents = loadEvents().toMutableList()
+        val index = currentEvents.indexOfFirst { it.id == eventId }
+        if (index != -1) {
+            val event = currentEvents[index]
+            currentEvents[index] = event.copy(name = newName.trim(), date = newDate)
+            saveEvents(currentEvents)
+        }
+        return currentEvents
+    }
 } 

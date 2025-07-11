@@ -2,8 +2,6 @@ package com.tk.daytrack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,8 +16,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EventListItem(
     event: Event,
-    isEditMode: Boolean,
-    onDelete: (String) -> Unit,
+    onUpdate: (Event) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val timeDifference = DateUtils.formatTimeDifference(event.date)
@@ -33,7 +30,8 @@ fun EventListItem(
         colors = CardDefaults.cardColors(
             containerColor = DarkerSurfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = { onUpdate(event) }
     ) {
         Row(
             modifier = Modifier
@@ -43,7 +41,7 @@ fun EventListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
@@ -71,21 +69,6 @@ fun EventListItem(
                         else -> MaterialTheme.colorScheme.secondary
                     }
                 )
-            }
-            
-            if (isEditMode) {
-                IconButton(
-                    onClick = { onDelete(event.id) },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete event",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
             }
         }
     }
