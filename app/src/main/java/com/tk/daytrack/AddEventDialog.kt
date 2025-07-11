@@ -6,6 +6,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -21,6 +23,7 @@ fun AddEventDialog(
     var eventName by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
     
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = java.time.ZoneId.systemDefault()
@@ -55,7 +58,9 @@ fun AddEventDialog(
                     value = eventName,
                     onValueChange = { eventName = it },
                     label = { Text("Event Name") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary
@@ -114,6 +119,11 @@ fun AddEventDialog(
                 }
             }
         }
+    }
+    
+    // Request focus when the dialog is displayed
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
     
     if (showDatePicker) {

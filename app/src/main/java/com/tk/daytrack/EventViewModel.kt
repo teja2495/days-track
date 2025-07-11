@@ -8,6 +8,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+enum class SortOption {
+    DATE_ASCENDING,
+    DATE_DESCENDING,
+    ALPHABETICAL
+}
+
 class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _events = MutableStateFlow<List<Event>>(emptyList())
@@ -19,27 +25,35 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
     
+    private val _currentSortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
+    val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
+    
+    private var _unsortedEvents = listOf<Event>()
+    
     init {
         loadEvents()
     }
     
     private fun loadEvents() {
         viewModelScope.launch {
-            _events.value = repository.loadEvents()
+            _unsortedEvents = repository.loadEvents()
+            sortEvents()
         }
     }
     
     fun addEvent(name: String, date: LocalDate) {
         viewModelScope.launch {
             val newEvent = Event(name = name.trim(), date = date)
-            _events.value = repository.addEvent(newEvent)
+            _unsortedEvents = repository.addEvent(newEvent)
+            sortEvents()
             _showAddDialog.value = false
         }
     }
     
     fun removeEvent(eventId: String) {
         viewModelScope.launch {
-            _events.value = repository.removeEvent(eventId)
+            _unsortedEvents = repository.removeEvent(eventId)
+            sortEvents()
         }
     }
     
@@ -57,5 +71,20 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun setEditMode(editMode: Boolean) {
         _isEditMode.value = editMode
+    }
+    
+    fun setSortOption(sortOption: SortOption) {
+        if (_currentSortOption.value != sortOption) {
+            _currentSortOption.value = sortOption
+            sortEvents()
+        }
+    }
+    
+    private fun sortEvents() {
+        _events.value = when (_currentSortOption.value) {
+            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { it.date }
+            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { it.date }
+            SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
+        }
     }
 } 

@@ -42,10 +42,10 @@ object DateUtils {
                 val months = days / 30
                 val remainingDays = days % 30
                 when {
-                    months == 1L && remainingDays == 0L -> "1 month ($days days) ago"
-                    months == 1L -> "1 month $remainingDays days ($days days) ago"
-                    remainingDays == 0L -> "$months months ($days days) ago"
-                    else -> "$months months $remainingDays days ($days days) ago"
+                    months == 1L && remainingDays == 0L -> "1 month ago ($days days)"
+                    months == 1L -> "1 month $remainingDays days ago ($days days)"
+                    remainingDays == 0L -> "$months months ago ($days days)"
+                    else -> "$months months $remainingDays days ago ($days days)"
                 }
             }
         }

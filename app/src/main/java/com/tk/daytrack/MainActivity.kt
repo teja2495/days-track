@@ -7,10 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val currentSortOption by viewModel.currentSortOption.collectAsState()
     
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -51,16 +54,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         text = "Day Track",
                         fontWeight = FontWeight.Bold
                     )
-                },
-                actions = {
-                    if (events.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.toggleEditMode() }) {
-                            Icon(
-                                imageVector = if (isEditMode) Icons.Default.Done else Icons.Default.Edit,
-                                contentDescription = if (isEditMode) "Done Editing" else "Edit Events"
-                            )
-                        }
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -91,19 +84,53 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(events) { event ->
-                        EventListItem(
-                            event = event,
-                            isEditMode = isEditMode,
-                            onDelete = { eventId ->
-                                viewModel.removeEvent(eventId)
-                            }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SortDropdown(
+                            currentSortOption = currentSortOption,
+                            onSortOptionSelected = { viewModel.setSortOption(it) }
                         )
+                        
+                        Surface(
+                            onClick = { viewModel.toggleEditMode() },
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = if (isEditMode) "Done" else "Edit",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                    
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(events) { event ->
+                            EventListItem(
+                                event = event,
+                                isEditMode = isEditMode,
+                                onDelete = { eventId ->
+                                    viewModel.removeEvent(eventId)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -117,6 +144,73 @@ fun DayTrackApp(viewModel: EventViewModel) {
                 viewModel.addEvent(name, date)
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SortDropdown(
+    currentSortOption: SortOption,
+    onSortOptionSelected: (SortOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    
+    val sortOptionText = when (currentSortOption) {
+        SortOption.DATE_ASCENDING -> "Date (Ascending)"
+        SortOption.DATE_DESCENDING -> "Date (Descending)"
+        SortOption.ALPHABETICAL -> "Alphabetical"
+    }
+    
+    Surface(
+        onClick = { expanded = true },
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "Sort by: $sortOptionText",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Sort options"
+            )
+        }
+        
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Date (Ascending)") },
+                onClick = {
+                    onSortOptionSelected(SortOption.DATE_ASCENDING)
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Date (Descending)") },
+                onClick = {
+                    onSortOptionSelected(SortOption.DATE_DESCENDING)
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Alphabetical") },
+                onClick = {
+                    onSortOptionSelected(SortOption.ALPHABETICAL)
+                    expanded = false
+                }
+            )
+        }
     }
 }
 
