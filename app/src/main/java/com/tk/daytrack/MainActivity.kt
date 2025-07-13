@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,6 +47,8 @@ fun DayTrackApp(viewModel: EventViewModel) {
     val currentSortOption by viewModel.currentSortOption.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
+    
+    var showSettings by remember { mutableStateOf(false) }
 
     // Playful gradient background
     Box(
@@ -61,25 +64,45 @@ fun DayTrackApp(viewModel: EventViewModel) {
                 )
             )
     ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent, // Let the gradient shine through
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Day Track",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onBackground
+        if (showSettings) {
+            SettingsScreen(
+                onBackPressed = { showSettings = false },
+                currentSortOption = currentSortOption,
+                onSortOptionSelected = { viewModel.setSortOption(it) }
+            )
+        } else {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = Color.Transparent, // Let the gradient shine through
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "Day Track",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        },
+                        actions = {
+                            Spacer(modifier = Modifier.width(8.dp)) // Add space before the icon
+                            IconButton(
+                                onClick = { showSettings = true }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings",
+                                    tint = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp)) // Add space after the icon
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                            titleContentColor = MaterialTheme.colorScheme.onBackground
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground
                     )
-                )
-            },
+                },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
                     onClick = { viewModel.showAddDialog() },
@@ -109,18 +132,18 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     )
                 } else {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            SortDropdown(
-                                currentSortOption = currentSortOption,
-                                onSortOptionSelected = { viewModel.setSortOption(it) }
-                            )
-                        }
+                        // Row(
+                        //     modifier = Modifier
+                        //         .fillMaxWidth()
+                        //         .padding(horizontal = 16.dp, vertical = 8.dp),
+                        //     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        //     verticalAlignment = Alignment.CenterVertically
+                        // ) {
+                        //     SortDropdown(
+                        //         currentSortOption = currentSortOption,
+                        //         onSortOptionSelected = { viewModel.setSortOption(it) }
+                        //     )
+                        // }
 
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
@@ -162,6 +185,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     viewModel.removeEvent(eventId)
                 }
             )
+        }
         }
     }
 }
