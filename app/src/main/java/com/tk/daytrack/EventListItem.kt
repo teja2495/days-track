@@ -57,21 +57,12 @@ fun EventListItem(
                 )
                 
                 Text(
-                    text = formattedDate,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-                
-                Text(
                     text = timeDifference,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = when {
-                        timeDifference.contains("ago") -> MaterialTheme.colorScheme.tertiary
-                        timeDifference.contains("until") -> MaterialTheme.colorScheme.primary
+                        timeDifference.contains("ago") || timeDifference.contains("until") -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.secondary
                     }
                 )
