@@ -61,16 +61,20 @@ fun DayTrackApp(viewModel: EventViewModel) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { viewModel.showAddDialog() },
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Event"
-                )
-            }
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                icon = { 
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+                },
+                text = { 
+                    Text("Add Event") 
+                }
+            )
         }
     ) { innerPadding ->
         Box(
@@ -221,7 +225,7 @@ fun EmptyEventsMessage(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Tap the + button to add your first event and start tracking important dates",
+            text = "Tap the Add Event button to add your first event and start tracking important dates",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
