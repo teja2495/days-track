@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.daytrack.ui.theme.DarkerSurfaceVariant
+import com.tk.daystrack.ui.theme.DarkerSurfaceVariant
 import java.time.format.DateTimeFormatter
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
-import com.tk.daytrack.DateUtils.toTitleCase
+import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import android.content.Context
 import android.content.SharedPreferences

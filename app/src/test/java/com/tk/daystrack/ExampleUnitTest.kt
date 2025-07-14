@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import org.junit.Test
 

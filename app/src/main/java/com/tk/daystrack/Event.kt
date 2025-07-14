@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tk.daytrack.DateUtils.toTitleCase
+import com.tk.daystrack.DateUtils.toTitleCase
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.tk.daytrack.ui.theme.DayTrackBackgroundBrush
+import com.tk.daystrack.ui.theme.DayTrackBackgroundBrush
 import androidx.compose.ui.zIndex
 
 data class Event(

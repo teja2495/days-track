@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,13 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tk.daytrack.ui.theme.DayTrackTheme
+import com.tk.daystrack.ui.theme.DayTrackTheme
+import com.tk.daystrack.EventDetailsScreen
+import com.tk.daystrack.ui.theme.DayTrackBackgroundBrush
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
-import com.tk.daytrack.EventDetailsScreen
-import com.tk.daytrack.ui.theme.DayTrackBackgroundBrush
+import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +101,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         TopAppBar(
                             title = {
                                 Text(
-                                    text = "Day Track",
+                                    text = "Days Track",
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.onBackground

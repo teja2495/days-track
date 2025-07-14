@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.tk.daytrack.DateUtils.toTitleCase
+import com.tk.daystrack.DateUtils.toTitleCase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

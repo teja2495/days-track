@@ -1,4 +1,4 @@
-package com.tk.daytrack.ui.theme
+package com.tk.daystrack.ui.theme
 
 import android.app.Activity
 import android.os.Build

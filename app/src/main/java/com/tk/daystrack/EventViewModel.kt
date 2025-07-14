@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import com.tk.daytrack.DateUtils.toTitleCase
+import com.tk.daystrack.DateUtils.toTitleCase
 
 enum class SortOption {
     DATE_ASCENDING,

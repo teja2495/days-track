@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Day Track"
+rootProject.name = "Days Track"
 include(":app")
  

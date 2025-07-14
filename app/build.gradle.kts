@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.tk.daytrack"
+    namespace = "com.tk.daystrack"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.tk.daytrack"
+        applicationId = "com.tk.daystrack"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

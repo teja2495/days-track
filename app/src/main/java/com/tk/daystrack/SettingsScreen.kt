@@ -1,4 +1,4 @@
-package com.tk.daytrack
+package com.tk.daystrack
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
