@@ -50,7 +50,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun addEvent(name: String, date: LocalDate) {
         viewModelScope.launch {
-            val newEvent = Event(name = name.trim(), date = date)
+            val newEvent = Event(name = name.trim(), dates = listOf(date))
             _unsortedEvents = repository.addEvent(newEvent)
             sortEvents()
             _showAddDialog.value = false
@@ -91,6 +91,13 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         }
     }
     
+    fun deleteEventDate(eventId: String, dateToDelete: LocalDate) {
+        viewModelScope.launch {
+            _unsortedEvents = repository.deleteEventDate(eventId, dateToDelete)
+            sortEvents()
+        }
+    }
+    
     fun toggleEditMode() {
         _isEditMode.value = !_isEditMode.value
     }
@@ -108,8 +115,8 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private fun sortEvents() {
         _events.value = when (_currentSortOption.value) {
-            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { it.date }
-            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { it.date }
+            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { it.dates.last() }
+            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { it.dates.last() }
             SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
         }
     }

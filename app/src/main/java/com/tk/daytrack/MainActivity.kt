@@ -25,6 +25,8 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
+import com.tk.daytrack.EventDetailsScreen
+import com.tk.daytrack.ui.theme.DayTrackBackgroundBrush
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,147 +52,145 @@ fun DayTrackApp(viewModel: EventViewModel) {
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     
     var showSettings by remember { mutableStateOf(false) }
+    var selectedEventForDetails by remember { mutableStateOf<Event?>(null) }
 
     // Playful gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
-                    )
-                )
-            )
+            .background(DayTrackBackgroundBrush())
     ) {
-        if (showSettings) {
-            // Handle Android back gesture to close settings
-            BackHandler(enabled = true) {
-                showSettings = false
+        when {
+            showSettings -> {
+                // Handle Android back gesture to close settings
+                BackHandler(enabled = true) {
+                    showSettings = false
+                }
+                SettingsScreen(
+                    onBackPressed = { showSettings = false },
+                    currentSortOption = currentSortOption,
+                    onSortOptionSelected = { viewModel.setSortOption(it) }
+                )
             }
-            SettingsScreen(
-                onBackPressed = { showSettings = false },
-                currentSortOption = currentSortOption,
-                onSortOptionSelected = { viewModel.setSortOption(it) }
-            )
-        } else {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                containerColor = Color.Transparent, // Let the gradient shine through
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = "Day Track",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        },
-                        actions = {
-                            Spacer(modifier = Modifier.width(8.dp)) // Add space before the icon
-                            IconButton(
-                                onClick = { showSettings = true }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Settings,
-                                    contentDescription = "Settings",
-                                    tint = MaterialTheme.colorScheme.onBackground
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp)) // Add space after the icon
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            titleContentColor = MaterialTheme.colorScheme.onBackground
-                        )
-                    )
-                },
-            floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    onClick = { viewModel.showAddDialog() },
-                    shape = RoundedCornerShape(50),
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null
-                        )
+            selectedEventForDetails != null -> {
+                BackHandler(enabled = true) {
+                    selectedEventForDetails = null
+                }
+                EventDetailsScreen(
+                    event = selectedEventForDetails!!,
+                    onBack = { selectedEventForDetails = null },
+                    onDelete = {
+                        viewModel.removeEvent(selectedEventForDetails!!.id)
+                        selectedEventForDetails = null
                     },
-                    text = {
-                        Text("Add Event")
+                    onDeleteDate = { dateToDelete ->
+                        viewModel.deleteEventDate(selectedEventForDetails!!.id, dateToDelete)
                     }
                 )
             }
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                if (events.isEmpty()) {
-                    EmptyEventsMessage(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        // Row(
-                        //     modifier = Modifier
-                        //         .fillMaxWidth()
-                        //         .padding(horizontal = 16.dp, vertical = 8.dp),
-                        //     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        //     verticalAlignment = Alignment.CenterVertically
-                        // ) {
-                        //     SortDropdown(
-                        //         currentSortOption = currentSortOption,
-                        //         onSortOptionSelected = { viewModel.setSortOption(it) }
-                        //     )
-                        // }
-
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            items(events) { event ->
-                                EventListItem(
-                                    event = event,
-                                    onUpdate = { eventToUpdate ->
-                                        viewModel.showUpdateDialog(eventToUpdate)
-                                    }
+            else -> {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Let the gradient shine through
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "Day Track",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
+                            },
+                            actions = {
+                                Spacer(modifier = Modifier.width(8.dp)) // Add space before the icon
+                                IconButton(
+                                    onClick = { showSettings = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Settings",
+                                        tint = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp)) // Add space after the icon
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        )
+                    },
+                    floatingActionButton = {
+                        ExtendedFloatingActionButton(
+                            onClick = { viewModel.showAddDialog() },
+                            shape = RoundedCornerShape(50),
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null
+                                )
+                            },
+                            text = {
+                                Text("Add Event")
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        if (events.isEmpty()) {
+                            EmptyEventsMessage(
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        } else {
+                            Column(modifier = Modifier.fillMaxSize()) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    items(events) { event ->
+                                        EventListItem(
+                                            event = event,
+                                            onUpdate = { eventToUpdate ->
+                                                viewModel.showUpdateDialog(eventToUpdate)
+                                            },
+                                            onClick = { selectedEventForDetails = event }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                // Dialogs outside Scaffold to avoid dimming issues
+                if (showAddDialog) {
+                    AddEventDialog(
+                        onDismiss = { viewModel.hideAddDialog() },
+                        onSave = { name, date ->
+                            viewModel.addEvent(name, date)
+                        }
+                    )
+                }
+                if (showUpdateDialog && eventToUpdate != null) {
+                    UpdateEventDialog(
+                        event = eventToUpdate!!,
+                        onDismiss = { viewModel.hideUpdateDialog() },
+                        onUpdate = { newName, newDate ->
+                            viewModel.updateEventDate(newName, newDate)
+                        },
+                        onDelete = { eventId ->
+                            viewModel.removeEvent(eventId)
+                        }
+                    )
+                }
             }
-        }
-
-        // Dialogs outside Scaffold to avoid dimming issues
-        if (showAddDialog) {
-            AddEventDialog(
-                onDismiss = { viewModel.hideAddDialog() },
-                onSave = { name, date ->
-                    viewModel.addEvent(name, date)
-                }
-            )
-        }
-
-        if (showUpdateDialog && eventToUpdate != null) {
-            UpdateEventDialog(
-                event = eventToUpdate!!,
-                onDismiss = { viewModel.hideUpdateDialog() },
-                onUpdate = { newName, newDate ->
-                    viewModel.updateEventDate(newName, newDate)
-                },
-                onDelete = { eventId ->
-                    viewModel.removeEvent(eventId)
-                }
-            )
-        }
         }
     }
 }

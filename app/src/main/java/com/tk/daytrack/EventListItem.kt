@@ -14,27 +14,31 @@ import java.time.format.DateTimeFormatter
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 import com.tk.daytrack.DateUtils.toTitleCase
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventListItem(
     event: Event,
     onUpdate: (Event) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
-    val timeDifference = DateUtils.formatTimeDifference(event.date)
-    val formattedDate = event.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+    val timeDifference = DateUtils.formatTimeDifference(event.dates.last())
+    val formattedDate = event.dates.last().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
     
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .let { if (onClick != null) it.clickable { onClick() } else it },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = DarkerSurfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = { onUpdate(event) }
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -44,7 +48,7 @@ fun EventListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
@@ -63,9 +67,24 @@ fun EventListItem(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = when {
-                        timeDifference == "Today" || timeDifference.contains("ago") || timeDifference.contains("until") -> MaterialTheme.colorScheme.tertiary
+                        timeDifference == "Today" ||
+                        timeDifference.contains("ago", ignoreCase = true) ||
+                        timeDifference.contains("until", ignoreCase = true) ||
+                        timeDifference.contains("days", ignoreCase = true) -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.secondary
                     }
+                )
+            }
+            IconButton(
+                onClick = { onUpdate(event) },
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Update Event",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -22,7 +22,7 @@ fun UpdateEventDialog(
     onUpdate: (String, LocalDate) -> Unit,
     onDelete: (String) -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate by remember { mutableStateOf(event.dates.lastOrNull() ?: LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
     
     val datePickerState = rememberDatePickerState(

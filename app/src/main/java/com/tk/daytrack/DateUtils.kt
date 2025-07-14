@@ -19,8 +19,8 @@ object DateUtils {
     
     private fun formatFuture(days: Long): String {
         return when {
-            days == 1L -> "1 day until"
-            days < 30 -> "$days days until"
+            days == 1L -> "1 Day Until"
+            days < 30 -> "$days Days Until"
             else -> {
                 val months = days / 30
                 val remainingDays = days % 30
@@ -36,16 +36,16 @@ object DateUtils {
     
     private fun formatPast(days: Long): String {
         return when {
-            days == 1L -> "1 day ago"
-            days < 30 -> "$days days ago"
+            days == 1L -> "1 Day Ago"
+            days < 30 -> "$days Days Ago"
             else -> {
                 val months = days / 30
                 val remainingDays = days % 30
                 when {
-                    months == 1L && remainingDays == 0L -> "1 month ago ($days days)"
-                    months == 1L -> "1 month $remainingDays days ago ($days days)"
-                    remainingDays == 0L -> "$months months ago ($days days)"
-                    else -> "$months months $remainingDays days ago ($days days)"
+                    months == 1L && remainingDays == 0L -> "1 Month Ago ($days Days)"
+                    months == 1L -> "1 Month $remainingDays Days Ago ($days Days)"
+                    remainingDays == 0L -> "$months Months Ago ($days Days)"
+                    else -> "$months Months $remainingDays Days Ago ($days Days)"
                 }
             }
         }
