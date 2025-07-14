@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.tk.daytrack.DateUtils.toTitleCase
 
 enum class SortOption {
     DATE_ASCENDING,
@@ -84,7 +85,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     fun updateEventDate(newName: String, newDate: LocalDate) {
         val eventId = _eventToUpdate.value?.id ?: return
         viewModelScope.launch {
-            _unsortedEvents = repository.updateEvent(eventId, newName, newDate)
+            _unsortedEvents = repository.updateEvent(eventId, newName.toTitleCase(), newDate)
             sortEvents()
             hideUpdateDialog()
         }

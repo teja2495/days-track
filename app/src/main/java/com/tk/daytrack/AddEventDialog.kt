@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.tk.daytrack.DateUtils.toTitleCase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +107,7 @@ fun AddEventDialog(
                     Button(
                         onClick = {
                             if (eventName.isNotBlank()) {
-                                onSave(eventName, selectedDate)
+                                onSave(eventName.toTitleCase(), selectedDate)
                             }
                         },
                         enabled = eventName.isNotBlank(),

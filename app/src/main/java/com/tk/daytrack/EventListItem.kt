@@ -13,6 +13,7 @@ import com.tk.daytrack.ui.theme.DarkerSurfaceVariant
 import java.time.format.DateTimeFormatter
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
+import com.tk.daytrack.DateUtils.toTitleCase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +48,7 @@ fun EventListItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = event.name,
+                    text = event.name.toTitleCase(),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 22.sp,
@@ -62,7 +63,7 @@ fun EventListItem(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = when {
-                        timeDifference.contains("ago") || timeDifference.contains("until") -> MaterialTheme.colorScheme.tertiary
+                        timeDifference == "Today" || timeDifference.contains("ago") || timeDifference.contains("until") -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.secondary
                     }
                 )

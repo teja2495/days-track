@@ -24,6 +24,7 @@ import com.tk.daytrack.ui.theme.DayTrackTheme
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.activity.compose.BackHandler
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +66,10 @@ fun DayTrackApp(viewModel: EventViewModel) {
             )
     ) {
         if (showSettings) {
+            // Handle Android back gesture to close settings
+            BackHandler(enabled = true) {
+                showSettings = false
+            }
             SettingsScreen(
                 onBackPressed = { showSettings = false },
                 currentSortOption = currentSortOption,

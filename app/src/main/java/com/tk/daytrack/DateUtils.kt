@@ -11,7 +11,7 @@ object DateUtils {
         val daysDifference = ChronoUnit.DAYS.between(today, eventDate)
         
         return when {
-            daysDifference == 0L -> "0 days"
+            daysDifference == 0L -> "Today"
             daysDifference > 0 -> formatFuture(daysDifference)
             else -> formatPast(abs(daysDifference))
         }
@@ -50,4 +50,9 @@ object DateUtils {
             }
         }
     }
+
+    fun String.toTitleCase(): String =
+        split(" ", "_", "-").joinToString(" ") { word ->
+            word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
 } 
