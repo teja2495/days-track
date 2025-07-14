@@ -37,6 +37,7 @@ fun EventDetailsScreen(
     onDeleteDate: ((LocalDate) -> Unit)? = null
 ) {
     val showDialog = remember { mutableStateOf(false) }
+    val showDeleteDateDialog = remember { mutableStateOf<LocalDate?>(null) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -77,7 +78,8 @@ fun EventDetailsScreen(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    event.dates.forEach { date ->
+                    val sortedDates = event.dates.sortedDescending()
+                    sortedDates.forEachIndexed { index, date ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -97,9 +99,9 @@ fun EventDetailsScreen(
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.weight(1f)
                                 )
-                                if (onDeleteDate != null && event.dates.size > 1) {
+                                if (onDeleteDate != null && sortedDates.size > 1) {
                                     IconButton(
-                                        onClick = { onDeleteDate(date) }
+                                        onClick = { showDeleteDateDialog.value = date }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
@@ -109,6 +111,30 @@ fun EventDetailsScreen(
                                     }
                                 }
                             }
+                        }
+                        
+                        // Add day interval text between consecutive dates
+                        if (index < sortedDates.size - 1) {
+                            val currentDate = date
+                            val nextDate = sortedDates[index + 1]
+                            val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
+                            
+                            val intervalText = when {
+                                daysBetween == -1L -> "1 day earlier"
+                                daysBetween < -1L -> "${-daysBetween} days earlier"
+                                daysBetween == 0L -> "Same day"
+                                else -> "$daysBetween days later"
+                            }
+                            
+                            Text(
+                                text = intervalText,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                fontWeight = FontWeight.Normal
+                            )
                         }
                     }
                 }
@@ -137,6 +163,28 @@ fun EventDetailsScreen(
                     },
                     dismissButton = {
                         TextButton(onClick = { showDialog.value = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+            
+            if (showDeleteDateDialog.value != null) {
+                val dateToDelete = showDeleteDateDialog.value!!
+                AlertDialog(
+                    onDismissRequest = { showDeleteDateDialog.value = null },
+                    title = { Text("Delete Date") },
+                    text = { Text("Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            onDeleteDate?.invoke(dateToDelete)
+                            showDeleteDateDialog.value = null
+                        }) {
+                            Text("Delete", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDateDialog.value = null }) {
                             Text("Cancel")
                         }
                     }

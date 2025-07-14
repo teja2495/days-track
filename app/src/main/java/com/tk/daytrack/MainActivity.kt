@@ -52,7 +52,12 @@ fun DayTrackApp(viewModel: EventViewModel) {
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     
     var showSettings by remember { mutableStateOf(false) }
-    var selectedEventForDetails by remember { mutableStateOf<Event?>(null) }
+    var selectedEventId by remember { mutableStateOf<String?>(null) }
+    
+    // Derive selectedEventForDetails from events list to ensure it's always up to date
+    val selectedEventForDetails = selectedEventId?.let { id ->
+        events.find { it.id == id }
+    }
 
     // Playful gradient background
     Box(
@@ -74,14 +79,15 @@ fun DayTrackApp(viewModel: EventViewModel) {
             }
             selectedEventForDetails != null -> {
                 BackHandler(enabled = true) {
-                    selectedEventForDetails = null
+                    selectedEventId = null
                 }
+                
                 EventDetailsScreen(
                     event = selectedEventForDetails!!,
-                    onBack = { selectedEventForDetails = null },
+                    onBack = { selectedEventId = null },
                     onDelete = {
                         viewModel.removeEvent(selectedEventForDetails!!.id)
-                        selectedEventForDetails = null
+                        selectedEventId = null
                     },
                     onDeleteDate = { dateToDelete ->
                         viewModel.deleteEventDate(selectedEventForDetails!!.id, dateToDelete)
@@ -161,7 +167,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                                             onUpdate = { eventToUpdate ->
                                                 viewModel.showUpdateDialog(eventToUpdate)
                                             },
-                                            onClick = { selectedEventForDetails = event }
+                                            onClick = { selectedEventId = event.id }
                                         )
                                     }
                                 }
