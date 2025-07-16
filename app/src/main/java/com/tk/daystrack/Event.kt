@@ -81,7 +81,7 @@ fun EventDetailsScreen(
             ) {
                 androidx.compose.foundation.lazy.LazyColumn(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     val sortedDates = event.dates.sortedDescending()
                     val avgFrequency = DateUtils.averageFrequency(event.dates)
@@ -98,7 +98,8 @@ fun EventDetailsScreen(
                     items(sortedDates.size) { index ->
                         val date = sortedDates[index]
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
@@ -106,7 +107,7 @@ fun EventDetailsScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
+                                    .padding(vertical = 16.dp, horizontal = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -146,7 +147,7 @@ fun EventDetailsScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    .padding(start = 8.dp, end = 8.dp, top = 10.dp),
                                 fontWeight = FontWeight.Normal
                             )
                         }
