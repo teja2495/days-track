@@ -153,7 +153,7 @@ fun CustomSortDropdown(
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = if (tempSelected == option) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (tempSelected == option) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
                             )
                         }

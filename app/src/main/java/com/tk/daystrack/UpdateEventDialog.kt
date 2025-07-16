@@ -71,8 +71,8 @@ fun UpdateEventDialog(
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
                     )
                 )
                 
@@ -95,7 +95,8 @@ fun UpdateEventDialog(
                     Button(
                         onClick = { onUpdate(event.name, selectedDate) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
                         )
                     ) {
                         Text("Update")

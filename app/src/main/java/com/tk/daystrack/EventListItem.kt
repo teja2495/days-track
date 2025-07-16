@@ -108,7 +108,7 @@ fun EventListItem(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Update Event",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
