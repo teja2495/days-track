@@ -11,7 +11,7 @@ object DateUtils {
         val daysDifference = ChronoUnit.DAYS.between(today, eventDate)
         
         return when {
-            daysDifference == 0L -> "Today"
+            daysDifference == 0L -> "today"
             daysDifference > 0 -> formatFuture(daysDifference)
             else -> formatPast(abs(daysDifference))
         }
@@ -19,16 +19,16 @@ object DateUtils {
     
     private fun formatFuture(days: Long): String {
         return when {
-            days == 1L -> "1 Day Until"
-            days < 30 -> "$days Days Until"
+            days == 1L -> "1 day until"
+            days < 30 -> "$days days until"
             else -> {
                 val months = days / 30
                 val remainingDays = days % 30
                 when {
-                    months == 1L && remainingDays == 0L -> "1 month ($days days) until"
-                    months == 1L -> "1 month $remainingDays days ($days days) until"
-                    remainingDays == 0L -> "$months months ($days days) until"
-                    else -> "$months months $remainingDays days ($days days) until"
+                    months == 1L && remainingDays == 0L -> "1 month until"
+                    months == 1L -> "1 month $remainingDays days until"
+                    remainingDays == 0L -> "$months months until"
+                    else -> "$months months $remainingDays days until"
                 }
             }
         }
@@ -36,16 +36,16 @@ object DateUtils {
     
     private fun formatPast(days: Long): String {
         return when {
-            days == 1L -> "1 Day Ago"
-            days < 30 -> "$days Days Ago"
+            days == 1L -> "1 day ago"
+            days < 30 -> "$days days ago"
             else -> {
                 val months = days / 30
                 val remainingDays = days % 30
                 when {
-                    months == 1L && remainingDays == 0L -> "1 Month Ago ($days Days)"
-                    months == 1L -> "1 Month $remainingDays Days Ago ($days Days)"
-                    remainingDays == 0L -> "$months Months Ago ($days Days)"
-                    else -> "$months Months $remainingDays Days Ago ($days Days)"
+                    months == 1L && remainingDays == 0L -> "1 month ago"
+                    months == 1L -> "1 month $remainingDays days ago"
+                    remainingDays == 0L -> "$months months ago"
+                    else -> "$months months $remainingDays days ago"
                 }
             }
         }
@@ -55,4 +55,16 @@ object DateUtils {
         split(" ", "_", "-").joinToString(" ") { word ->
             word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }
+
+    fun getDaysDifference(eventDate: LocalDate): Long {
+        val today = LocalDate.now()
+        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))
+    }
+
+    fun averageFrequency(dates: List<LocalDate>): Double? {
+        if (dates.size < 2) return null
+        val sorted = dates.sorted()
+        val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }
+        return if (intervals.isNotEmpty()) intervals.average() else null
+    }
 } 

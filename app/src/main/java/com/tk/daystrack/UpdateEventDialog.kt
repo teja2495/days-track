@@ -60,7 +60,7 @@ fun UpdateEventDialog(
                 OutlinedTextField(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                     onValueChange = { },
-                    label = { Text("New Date") },
+                    label = { Text("New Instance") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = {

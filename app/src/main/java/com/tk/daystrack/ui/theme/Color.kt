@@ -13,3 +13,4 @@ val Pink40 = Color(0xFF7D5260)
 // Darker surface variant for cards
 val DarkerSurfaceVariant = Color(0xFF2C2C33)
 val BackgroundColor = Color(0xFF1C1B1F)
+val EventDatePink = Color(0xFFEFB8C8) // Use this for all event date text

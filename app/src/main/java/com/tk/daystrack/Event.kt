@@ -21,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.tk.daystrack.ui.theme.DayTrackBackgroundBrush
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 data class Event(
     val id: String = UUID.randomUUID().toString(),
@@ -77,9 +79,24 @@ fun EventDetailsScreen(
                     .zIndex(1f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     val sortedDates = event.dates.sortedDescending()
-                    sortedDates.forEachIndexed { index, date ->
+                    val avgFrequency = DateUtils.averageFrequency(event.dates)
+                    if (avgFrequency != null) {
+                        item {
+                            Text(
+                                text = "Average frequency: ${"%.1f".format(avgFrequency)} days",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                            )
+                        }
+                    }
+                    items(sortedDates.size) { index ->
+                        val date = sortedDates[index]
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -112,20 +129,17 @@ fun EventDetailsScreen(
                                 }
                             }
                         }
-                        
                         // Add day interval text between consecutive dates
                         if (index < sortedDates.size - 1) {
                             val currentDate = date
                             val nextDate = sortedDates[index + 1]
                             val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
-                            
                             val intervalText = when {
                                 daysBetween == -1L -> "1 day earlier"
                                 daysBetween < -1L -> "${-daysBetween} days earlier"
                                 daysBetween == 0L -> "Same day"
                                 else -> "$daysBetween days later"
                             }
-                            
                             Text(
                                 text = intervalText,
                                 style = MaterialTheme.typography.bodyMedium,

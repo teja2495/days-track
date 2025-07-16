@@ -154,21 +154,19 @@ fun DayTrackApp(viewModel: EventViewModel) {
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         } else {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    items(events) { event ->
-                                        EventListItem(
-                                            event = event,
-                                            onUpdate = { eventToUpdate ->
-                                                viewModel.showUpdateDialog(eventToUpdate)
-                                            },
-                                            onClick = { selectedEventId = event.id }
-                                        )
-                                    }
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                items(events) { event ->
+                                    EventListItem(
+                                        event = event,
+                                        onUpdate = { eventToUpdate ->
+                                            viewModel.showUpdateDialog(eventToUpdate)
+                                        },
+                                        onClick = { selectedEventId = event.id }
+                                    )
                                 }
                             }
                         }
