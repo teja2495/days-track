@@ -19,16 +19,16 @@ object DateUtils {
     
     private fun formatFuture(days: Long): String {
         return when {
-            days == 1L -> "1 day until"
-            days < 30 -> "$days days until"
+            days == 1L -> "in 1 day"
+            days < 30 -> "in $days days"
             else -> {
                 val months = days / 30
                 val remainingDays = days % 30
                 when {
-                    months == 1L && remainingDays == 0L -> "1 month until"
-                    months == 1L -> "1 month $remainingDays days until"
-                    remainingDays == 0L -> "$months months until"
-                    else -> "$months months $remainingDays days until"
+                    months == 1L && remainingDays == 0L -> "in 1 month"
+                    months == 1L -> "in 1 month $remainingDays days"
+                    remainingDays == 0L -> "in $months months"
+                    else -> "in $months months $remainingDays days"
                 }
             }
         }

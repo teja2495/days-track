@@ -73,7 +73,7 @@ fun EventListItem(
                 val displayText = if (showDaysOnly) {
                     when {
                         isToday -> "today"
-                        isFuture -> "$daysOnly days until"
+                        isFuture -> "in $daysOnly days"
                         else -> "$daysOnly days ago"
                     }
                 } else {
