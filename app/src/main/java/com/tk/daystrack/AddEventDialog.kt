@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.tk.daystrack.DateUtils.toTitleCase
+import com.tk.daystrack.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,35 +36,40 @@ fun AddEventDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = Gray800
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
                     text = "Add New Event",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = White
                 )
                 
                 OutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
-                    label = { Text("Event Name") },
+                    label = { Text("Event Name", color = White.copy(alpha = 0.7f)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        cursorColor = Teal400,
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
                     ),
                     singleLine = true
                 )
@@ -72,19 +77,23 @@ fun AddEventDialog(
                 OutlinedTextField(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                     onValueChange = { },
-                    label = { Text("Event Date") },
+                    label = { Text("Event Date", color = White.copy(alpha = 0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = {
                         TextButton(
                             onClick = { showDatePicker = true }
                         ) {
-                            Text("Select")
+                            Text("Select", color = Teal400)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
                     )
                 )
                 
@@ -98,7 +107,7 @@ fun AddEventDialog(
                     ) {
                         Text(
                             "Cancel",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = White.copy(alpha = 0.7f)
                         )
                     }
                     
@@ -107,16 +116,19 @@ fun AddEventDialog(
                     Button(
                         onClick = {
                             if (eventName.isNotBlank()) {
-                                onSave(eventName.toTitleCase(), selectedDate)
+                                onSave(eventName, selectedDate)
                             }
                         },
                         enabled = eventName.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onTertiary
-                        )
+                            containerColor = Teal500,
+                            contentColor = White,
+                            disabledContainerColor = Teal500.copy(alpha = 0.5f),
+                            disabledContentColor = White.copy(alpha = 0.7f)
+                        ),
+                        shape = RoundedCornerShape(50)
                     ) {
-                        Text("Save")
+                        Text("Save", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -131,6 +143,22 @@ fun AddEventDialog(
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
+            colors = DatePickerDefaults.colors(
+                containerColor = Gray800,
+                titleContentColor = White,
+                headlineContentColor = White,
+                weekdayContentColor = White.copy(alpha = 0.7f),
+                subheadContentColor = White,
+                yearContentColor = White,
+                currentYearContentColor = Teal400,
+                selectedYearContentColor = White,
+                selectedYearContainerColor = Teal500,
+                dayContentColor = White,
+                selectedDayContentColor = White,
+                selectedDayContainerColor = Teal500,
+                todayContentColor = Teal400,
+                todayDateBorderColor = Teal400
+            ),
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -142,14 +170,14 @@ fun AddEventDialog(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK")
+                    Text("OK", color = Teal400)
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDatePicker = false }
                 ) {
-                    Text("Cancel")
+                    Text("Cancel", color = White.copy(alpha = 0.7f))
                 }
             }
         ) {

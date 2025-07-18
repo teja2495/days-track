@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.daystrack.DateUtils.toTitleCase
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import java.util.UUID
 import java.time.LocalDate
@@ -19,10 +19,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.tk.daystrack.ui.theme.DayTrackBackgroundBrush
+import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 data class Event(
     val id: String = UUID.randomUUID().toString(),
@@ -55,7 +56,7 @@ fun EventDetailsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -87,12 +88,22 @@ fun EventDetailsScreen(
                     val avgFrequency = DateUtils.averageFrequency(event.dates)
                     if (avgFrequency != null) {
                         item {
-                            Text(
-                                text = "Average frequency: ${"%.1f".format(avgFrequency)} days",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
-                            )
+                            Row(
+                                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Average frequency: ",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.Gray
+                                )
+                                Text(
+                                    text = "${"%.1f".format(avgFrequency)} days",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = White
+                                )
+                            }
                         }
                     }
                     items(sortedDates.size) { index ->
@@ -107,7 +118,7 @@ fun EventDetailsScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp, horizontal = 14.dp),
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -124,7 +135,7 @@ fun EventDetailsScreen(
                                         Icon(
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = "Delete Date",
-                                            tint = MaterialTheme.colorScheme.error
+                                            tint = Color.Gray
                                         )
                                     }
                                 }
@@ -144,7 +155,7 @@ fun EventDetailsScreen(
                             Text(
                                 text = intervalText,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = com.tk.daystrack.ui.theme.Teal400,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(start = 8.dp, end = 8.dp, top = 10.dp),
@@ -156,10 +167,14 @@ fun EventDetailsScreen(
                 if (onDelete != null) {
                     Button(
                         onClick = { showDialog.value = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                        modifier = Modifier.fillMaxWidth()
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE5D0D0)), // Rose-200 color
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(50),
+                        contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
-                        Text("Delete Event", color = MaterialTheme.colorScheme.onError)
+                        Text("Delete Event", color = Gray900, fontWeight = FontWeight.Bold)
                     }
                 }
             }

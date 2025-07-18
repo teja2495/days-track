@@ -4,19 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
+import com.tk.daystrack.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBackPressed: () -> Unit,
@@ -24,60 +22,60 @@ fun SettingsScreen(
     onSortOptionSelected: (SortOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
+            .background(Gray900)
+            .padding(horizontal = 16.dp, vertical = 32.dp)
     ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Settings",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackPressed) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(innerPadding)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        // Header with back button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onBackPressed,
+                modifier = Modifier.size(48.dp)
             ) {
-                Text(
-                    text = "Sort Events",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                )
-                CustomSortDropdown(
-                    currentSortOption = currentSortOption,
-                    onSortOptionSelected = onSortOptionSelected
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Back",
+                    tint = White,
+                    modifier = Modifier.size(28.dp)
                 )
             }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineMedium,  // Changed from headlineLarge to headlineMedium
+                fontWeight = FontWeight.Bold,
+                color = White
+            )
+        }
+        
+        // Settings content
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Sort Events",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            CustomSortDropdown(
+                currentSortOption = currentSortOption,
+                onSortOptionSelected = onSortOptionSelected
+            )
         }
     }
 }
@@ -100,31 +98,31 @@ fun CustomSortDropdown(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(64.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = Gray800
         ),
         onClick = { dialogOpen = true },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = selectedText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = White,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "Sort options",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = White
             )
         }
     }
@@ -133,8 +131,11 @@ fun CustomSortDropdown(
         var tempSelected by remember { mutableStateOf(currentSortOption) }
         AlertDialog(
             onDismissRequest = { dialogOpen = false },
+            containerColor = Gray800,
+            titleContentColor = White,
+            textContentColor = White,
             title = {
-                Text("Choose Sort Option", style = MaterialTheme.typography.titleMedium)
+                Text("Choose Sort Option", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             },
             text = {
                 Column {
@@ -143,17 +144,22 @@ fun CustomSortDropdown(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                                .padding(vertical = 8.dp)
                                 .clickable { tempSelected = option }
                         ) {
                             RadioButton(
                                 selected = tempSelected == option,
-                                onClick = { tempSelected = option }
+                                onClick = { tempSelected = option },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = Teal400,
+                                    unselectedColor = White.copy(alpha = 0.7f)
+                                )
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = if (tempSelected == option) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (tempSelected == option) Teal400 else White,
                                 fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -165,12 +171,12 @@ fun CustomSortDropdown(
                     onSortOptionSelected(tempSelected)
                     dialogOpen = false
                 }) {
-                    Text("OK")
+                    Text("OK", color = Teal400, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { dialogOpen = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = White.copy(alpha = 0.7f))
                 }
             }
         )

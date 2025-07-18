@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,9 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tk.daystrack.ui.theme.DayTrackTheme
-import com.tk.daystrack.EventDetailsScreen
-import com.tk.daystrack.ui.theme.DayTrackBackgroundBrush
+import com.tk.daystrack.ui.theme.*
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.graphics.Color
@@ -58,11 +57,11 @@ fun DayTrackApp(viewModel: EventViewModel) {
         events.find { it.id == id }
     }
 
-    // Playful gradient background
+    // Solid background color to match the design
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DayTrackBackgroundBrush())
+            .background(Gray900)
     ) {
         when {
             showSettings -> {
@@ -94,84 +93,93 @@ fun DayTrackApp(viewModel: EventViewModel) {
                 )
             }
             else -> {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent, // Let the gradient shine through
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    text = "Days Track",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                            },
-                            actions = {
-                                Spacer(modifier = Modifier.width(8.dp)) // Add space before the icon
-                                IconButton(
-                                    onClick = { showSettings = true }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Settings",
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(8.dp)) // Add space after the icon
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Color.Transparent,
-                                titleContentColor = MaterialTheme.colorScheme.onBackground
-                            )
-                        )
-                    },
-                    floatingActionButton = {
-                        ExtendedFloatingActionButton(
-                            onClick = { viewModel.showAddDialog() },
-                            shape = RoundedCornerShape(50),
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onTertiary,
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null
-                                )
-                            },
-                            text = {
-                                Text("Add Event")
-                            }
-                        )
-                    }
-                ) { innerPadding ->
-                    Box(
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 32.dp)
+                ) {
+                    // Header
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
+                            .fillMaxWidth()
+                            .padding(bottom = 32.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (events.isEmpty()) {
-                            EmptyEventsMessage(
-                                modifier = Modifier.align(Alignment.Center)
+                        Text(
+                            text = "Days Track",
+                            style = MaterialTheme.typography.headlineMedium,  // Changed from headlineLarge to headlineMedium
+                            fontWeight = FontWeight.Bold,
+                            color = White
+                        )
+                        
+                        Spacer(modifier = Modifier.weight(1f))
+                        
+                        IconButton(
+                            onClick = { showSettings = true },
+                            modifier = Modifier.padding(end = 18.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = White,
+                                modifier = Modifier.size(26.dp)
                             )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                items(events) { event ->
-                                    EventListItem(
-                                        event = event,
-                                        onUpdate = { eventToUpdate ->
-                                            viewModel.showUpdateDialog(eventToUpdate)
-                                        },
-                                        onClick = { selectedEventId = event.id }
-                                    )
-                                }
+                        }
+                    }
+                    
+                    // Events list
+                    if (events.isEmpty()) {
+                        EmptyEventsMessage(
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(events) { event ->
+                                EventListItem(
+                                    event = event,
+                                    onUpdate = { eventToUpdate ->
+                                        viewModel.showUpdateDialog(eventToUpdate)
+                                    },
+                                    onClick = { selectedEventId = event.id }
+                                )
                             }
                         }
                     }
                 }
+                
+                // FAB
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 32.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    ExtendedFloatingActionButton(
+                        onClick = { viewModel.showAddDialog() },
+                        shape = RoundedCornerShape(50),
+                        containerColor = Teal500,
+                        contentColor = Gray900,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        text = {
+                            Text(
+                                "Add Event",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    )
+                }
+                
                 // Dialogs outside Scaffold to avoid dimming issues
                 if (showAddDialog) {
                     AddEventDialog(
@@ -216,8 +224,8 @@ fun SortDropdown(
     Surface(
         onClick = { expanded = true },
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = Gray800,
+        contentColor = White,
         modifier = modifier
     ) {
         Row(
@@ -276,13 +284,13 @@ fun EmptyEventsMessage(modifier: Modifier = Modifier) {
             text = "No events yet",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = White,
             textAlign = TextAlign.Center
         )
         Text(
             text = "Tap the Add Event button to add your first event and start tracking important dates",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            color = White.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
     }

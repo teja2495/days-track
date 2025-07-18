@@ -18,28 +18,38 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = BackgroundColor,
-    surface = BackgroundColor,
-    surfaceVariant = DarkerSurfaceVariant
+    primary = White,
+    secondary = White,
+    tertiary = Teal500,
+    background = Gray900,
+    surface = Gray900,
+    surfaceVariant = Gray800,
+    onSurfaceVariant = White,
+    onBackground = White,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = White
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    background = Color(0xFFF8F8F8),
-    surface = Color(0xFFF8F8F8),
-    surfaceVariant = Color(0xFFE0E0E0)
+private val LightColorScheme = darkColorScheme(  // Force dark theme to match design
+    primary = White,
+    secondary = White,
+    tertiary = Teal500,
+    background = Gray900,
+    surface = Gray900,
+    surfaceVariant = Gray800,
+    onSurfaceVariant = White,
+    onBackground = White,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = White
 )
 
 @Composable
 fun DayTrackTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true, // Force dark theme to match design
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disable dynamic color to ensure consistent design
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -57,7 +67,13 @@ fun DayTrackTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            // Update WindowInsets instead of directly setting statusBarColor
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            // Use window insets controller to handle system bars
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = false
+                isAppearanceLightNavigationBars = false
+            }
         }
     }
 
@@ -69,12 +85,9 @@ fun DayTrackTheme(
 }
 
 @Composable
-fun DayTrackBackgroundBrush(): Brush {
+fun dayTrackBackgroundBrush(): Brush {
+    // Use solid color instead of gradient to match the design
     return Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
-        )
+        colors = listOf(Gray900, Gray900)
     )
 }

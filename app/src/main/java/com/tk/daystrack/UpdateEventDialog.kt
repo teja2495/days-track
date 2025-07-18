@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.tk.daystrack.DateUtils.toTitleCase
+import com.tk.daystrack.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,44 +35,46 @@ fun UpdateEventDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = Gray800
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = event.name.toTitleCase(),
+                    text = event.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = White,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
-                // Removed the previous date display card here
                 
                 OutlinedTextField(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                     onValueChange = { },
-                    label = { Text("New Instance") },
+                    label = { Text("New Instance", color = White.copy(alpha = 0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     trailingIcon = {
                         TextButton(
                             onClick = { showDatePicker = true }
                         ) {
-                            Text("Select")
+                            Text("Select", color = Teal400)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
                     )
                 )
                 
@@ -86,7 +88,7 @@ fun UpdateEventDialog(
                     ) {
                         Text(
                             "Cancel",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = White.copy(alpha = 0.7f)
                         )
                     }
                     
@@ -95,11 +97,12 @@ fun UpdateEventDialog(
                     Button(
                         onClick = { onUpdate(event.name, selectedDate) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onTertiary
-                        )
+                            containerColor = Teal500,
+                            contentColor = White
+                        ),
+                        shape = RoundedCornerShape(50)
                     ) {
-                        Text("Update")
+                        Text("Update", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -109,6 +112,22 @@ fun UpdateEventDialog(
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
+            colors = DatePickerDefaults.colors(
+                containerColor = Gray800,
+                titleContentColor = White,
+                headlineContentColor = White,
+                weekdayContentColor = White.copy(alpha = 0.7f),
+                subheadContentColor = White,
+                yearContentColor = White,
+                currentYearContentColor = Teal400,
+                selectedYearContentColor = White,
+                selectedYearContainerColor = Teal500,
+                dayContentColor = White,
+                selectedDayContentColor = White,
+                selectedDayContainerColor = Teal500,
+                todayContentColor = Teal400,
+                todayDateBorderColor = Teal400
+            ),
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -120,14 +139,14 @@ fun UpdateEventDialog(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK")
+                    Text("OK", color = Teal400)
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDatePicker = false }
                 ) {
-                    Text("Cancel")
+                    Text("Cancel", color = White.copy(alpha = 0.7f))
                 }
             }
         ) {

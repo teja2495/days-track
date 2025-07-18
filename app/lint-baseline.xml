@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.1)" variant="all" version="8.11.1">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="    var selectedDate by remember { mutableStateOf(LocalDate.now()) }"
+        errorLine2="                                                            ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="25"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZoneId#systemDefault`"
+        errorLine1="        initialSelectedDateMillis = java.time.ZoneId.systemDefault()"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="30"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#toEpochMilli`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="31"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#atStartOfDay`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="31"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.chrono.ChronoZonedDateTime#toInstant`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="31"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="                    value = selectedDate.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="78"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="                    value = selectedDate.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="78"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#ofEpochMilli`"
+        errorLine1="                            selectedDate = java.time.Instant.ofEpochMilli(millis)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="166"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#atZone`"
+        errorLine1="                                .atZone(java.time.ZoneId.systemDefault())"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="167"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZoneId#systemDefault`"
+        errorLine1="                                .atZone(java.time.ZoneId.systemDefault())"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="167"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZonedDateTime#toLocalDate`"
+        errorLine1="                                .toLocalDate()"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/AddEventDialog.kt"
+            line="168"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="        val today = LocalDate.now()"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="10"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#between`"
+        errorLine1="        val daysDifference = ChronoUnit.DAYS.between(today, eventDate)"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="11"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#DAYS`"
+        errorLine1="        val daysDifference = ChronoUnit.DAYS.between(today, eventDate)"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="11"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        val daysDifference = ChronoUnit.DAYS.between(today, eventDate)"
+        errorLine2="                                                     ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="11"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        val daysDifference = ChronoUnit.DAYS.between(today, eventDate)"
+        errorLine2="                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="11"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="        val today = LocalDate.now()"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="60"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#between`"
+        errorLine1="        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))"
+        errorLine2="                                                                  ~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="61"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#DAYS`"
+        errorLine1="        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="61"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))"
+        errorLine2="                                                                          ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="61"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))"
+        errorLine2="                                                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="61"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#between`"
+        errorLine1="        val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }"
+        errorLine2="                                                                     ~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="67"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.temporal.ChronoUnit#DAYS`"
+        errorLine1="        val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="67"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }"
+        errorLine2="                                                                             ~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="67"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `LocalDate` to `Temporal` requires API level 26, or core library desugaring (current min is 24)"
+        errorLine1="        val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }"
+        errorLine2="                                                                                ~">
+        <location
+            file="src/main/java/com/tk/daystrack/DateUtils.kt"
+            line="67"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="                                    text = date.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="115"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="                                    text = date.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="115"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#toEpochDay`"
+        errorLine1="                            val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="137"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#toEpochDay`"
+        errorLine1="                            val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()"
+        errorLine2="                                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="137"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="                    text = { Text(&quot;Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;))}?&quot;) },"
+        errorLine2="                                                                                  ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="192"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="                    text = { Text(&quot;Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;))}?&quot;) },"
+        errorLine2="                                                                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/Event.kt"
+            line="192"
+            column="108"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#isAfter`"
+        errorLine1="    val isFuture = event.dates.last().isAfter(java.time.LocalDate.now())"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="40"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="    val isFuture = event.dates.last().isAfter(java.time.LocalDate.now())"
+        errorLine2="                                                                  ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="40"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#isEqual`"
+        errorLine1="    val isToday = event.dates.last().isEqual(java.time.LocalDate.now())"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="41"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="    val isToday = event.dates.last().isEqual(java.time.LocalDate.now())"
+        errorLine2="                                                                 ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="41"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="                    onClick = { onUpdate(event.copy(dates = event.dates + java.time.LocalDate.now())) },"
+        errorLine2="                                                                                              ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="98"
+            column="95"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate`"
+        errorLine1="        .registerTypeAdapter(LocalDate::class.java, JsonSerializer&lt;LocalDate> { src, _, _ ->"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="21"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="            com.google.gson.JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))"
+        errorLine2="                                              ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="22"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="            com.google.gson.JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="22"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate`"
+        errorLine1="        .registerTypeAdapter(LocalDate::class.java, JsonDeserializer&lt;LocalDate> { json, _, _ ->"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="24"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#parse`"
+        errorLine1="            LocalDate.parse(json.asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                      ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="25"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="            LocalDate.parse(json.asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="25"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="                datesArray.add(date.format(DateTimeFormatter.ISO_LOCAL_DATE))"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="33"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="                datesArray.add(date.format(DateTimeFormatter.ISO_LOCAL_DATE))"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="33"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#parse`"
+        errorLine1="                    LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="47"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="                    LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="47"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#parse`"
+        errorLine1="                val date = LocalDate.parse(jsonObject.get(&quot;date&quot;).asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="52"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="                val date = LocalDate.parse(jsonObject.get(&quot;date&quot;).asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="52"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#parse`"
+        errorLine1="                    val previousDate = LocalDate.parse(jsonObject.get(&quot;previousDate&quot;).asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="58"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ISO_LOCAL_DATE`"
+        errorLine1="                    val previousDate = LocalDate.parse(jsonObject.get(&quot;previousDate&quot;).asString, DateTimeFormatter.ISO_LOCAL_DATE)"
+        errorLine2="                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="58"
+            column="97"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="    var selectedDate by remember { mutableStateOf(event.dates.lastOrNull() ?: LocalDate.now()) }"
+        errorLine2="                                                                                        ~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="25"
+            column="89"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZoneId#systemDefault`"
+        errorLine1="        initialSelectedDateMillis = java.time.ZoneId.systemDefault()"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="29"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#toEpochMilli`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="30"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#atStartOfDay`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="30"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.chrono.ChronoZonedDateTime#toInstant`"
+        errorLine1="            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="30"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#format`"
+        errorLine1="                    value = selectedDate.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="59"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="                    value = selectedDate.format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy&quot;)),"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="59"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#ofEpochMilli`"
+        errorLine1="                            selectedDate = java.time.Instant.ofEpochMilli(millis)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="135"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#atZone`"
+        errorLine1="                                .atZone(java.time.ZoneId.systemDefault())"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="136"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZoneId#systemDefault`"
+        errorLine1="                                .atZone(java.time.ZoneId.systemDefault())"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="136"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZonedDateTime#toLocalDate`"
+        errorLine1="                                .toLocalDate()"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/UpdateEventDialog.kt"
+            line="137"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="OldTargetApi"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+        errorLine1="        targetSdk = 35"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="14"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;@string/app_name&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of Gradle than 8.13 is available: 8.14.3"
+        errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/wrapper/gradle-wrapper.properties"
+            line="4"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of `compileSdkVersion` than 35 is available: 36"
+        errorLine1="    compileSdk = 35"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="9"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.9.1 is available: 2.9.2"
+        errorLine1="lifecycleRuntimeKtx = &quot;2.9.1&quot;"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="8"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.compose:compose-bom than 2024.09.00 is available: 2025.07.00"
+        errorLine1="composeBom = &quot;2024.09.00&quot;"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="10"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.9.1 is available: 2.9.2"
+        errorLine1="lifecycleViewmodelCompose = &quot;2.9.1&quot;"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="11"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlin.android than 2.0.21 is available: 2.2.0"
+        errorLine1="kotlin = &quot;2.0.21&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="3"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.0.21 is available: 2.2.0"
+        errorLine1="kotlin = &quot;2.0.21&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="3"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.code.gson:gson than 2.10.1 is available: 2.13.1"
+        errorLine1="gson = &quot;2.10.1&quot;"
+        errorLine2="       ~~~~~~~~">
+        <location
+            file="$HOME/Projects/days-track/gradle/libs.versions.toml"
+            line="12"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="fun DayTrackBackgroundBrush(): Brush {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/ui/theme/Theme.kt"
+            line="86"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_200&quot;>#FFBB86FC&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="3"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_500` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_500&quot;>#FF6200EE&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="4"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_700&quot;>#FF3700B3&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="5"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_200&quot;>#FF03DAC5&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="6"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_700&quot;>#FF018786&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.black` appears to be unused"
+        errorLine1="    &lt;color name=&quot;black&quot;>#FF000000&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="8"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.white` appears to be unused"
+        errorLine1="    &lt;color name=&quot;white&quot;>#FFFFFFFF&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="9"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs.edit().putBoolean(PREF_KEY, value).apply()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventListItem.kt"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        sharedPreferences.edit()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/tk/daystrack/EventRepository.kt"
+            line="69"
+            column="9"/>
+    </issue>
+
+</issues>
