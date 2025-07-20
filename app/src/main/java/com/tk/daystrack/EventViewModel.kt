@@ -115,8 +115,12 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private fun sortEvents() {
         _events.value = when (_currentSortOption.value) {
-            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { it.dates.last() }
-            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { it.dates.last() }
+            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { 
+                if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN 
+            }
+            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { 
+                if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN 
+            }
             SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
         }
     }

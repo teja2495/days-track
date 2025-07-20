@@ -84,8 +84,10 @@ class EventRepository(context: Context) {
     fun addEvent(event: Event): List<Event> {
         val currentEvents = loadEvents().toMutableList()
         currentEvents.add(event)
-        // Sort by date (most recent first)
-        val sortedEvents = currentEvents.sortedByDescending { it.dates.last() }
+        // Sort by date (most recent first), events with no dates go to the end
+        val sortedEvents = currentEvents.sortedByDescending { 
+            if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN
+        }
         saveEvents(sortedEvents)
         return sortedEvents
     }
@@ -102,7 +104,7 @@ class EventRepository(context: Context) {
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            val updatedDates = if (event.dates.last() != newDate) event.dates + newDate else event.dates
+            val updatedDates = if (event.dates.isEmpty() || event.dates.last() != newDate) event.dates + newDate else event.dates
             currentEvents[index] = event.copy(
                 name = newName.trim(),
                 dates = updatedDates
@@ -117,12 +119,10 @@ class EventRepository(context: Context) {
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            // Don't delete if it's the only date left
-            if (event.dates.size > 1) {
-                val updatedDates = event.dates.filter { it != dateToDelete }
-                currentEvents[index] = event.copy(dates = updatedDates)
-                saveEvents(currentEvents)
-            }
+            // Remove the specific date, even if it's the last one
+            val updatedDates = event.dates.filter { it != dateToDelete }
+            currentEvents[index] = event.copy(dates = updatedDates)
+            saveEvents(currentEvents)
         }
         return currentEvents
     }

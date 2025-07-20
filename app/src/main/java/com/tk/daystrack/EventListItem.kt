@@ -35,10 +35,13 @@ fun EventListItem(
     fun saveShowDaysOnly(value: Boolean) {
         prefs.edit().putBoolean(PREF_KEY, value).apply()
     }
-    val timeDifference = DateUtils.formatTimeDifference(event.dates.last())
-    val daysOnly = DateUtils.getDaysDifference(event.dates.last())
-    val isFuture = event.dates.last().isAfter(java.time.LocalDate.now())
-    val isToday = event.dates.last().isEqual(java.time.LocalDate.now())
+    
+    // Check if event has dates
+    val hasDates = event.dates.isNotEmpty()
+    val timeDifference = if (hasDates) DateUtils.formatTimeDifference(event.dates.last()) else ""
+    val daysOnly = if (hasDates) DateUtils.getDaysDifference(event.dates.last()) else 0
+    val isFuture = if (hasDates) event.dates.last().isAfter(java.time.LocalDate.now()) else false
+    val isToday = if (hasDates) event.dates.last().isEqual(java.time.LocalDate.now()) else false
     
     Card(
         modifier = modifier
@@ -70,26 +73,28 @@ fun EventListItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                val displayText = if (showDaysOnly) {
-                    when {
-                        isToday -> "today"
-                        isFuture -> "in $daysOnly days"
-                        else -> "$daysOnly days ago"
+                if (hasDates) {
+                    val displayText = if (showDaysOnly) {
+                        when {
+                            isToday -> "today"
+                            isFuture -> "in $daysOnly days"
+                            else -> "$daysOnly days ago"
+                        }
+                    } else {
+                        timeDifference
                     }
-                } else {
-                    timeDifference
+                    
+                    Text(
+                        text = displayText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = Teal400,
+                        modifier = Modifier.clickable {
+                            showDaysOnly = !showDaysOnly
+                            saveShowDaysOnly(showDaysOnly)
+                        }
+                    )
                 }
-                
-                Text(
-                    text = displayText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = Teal400,
-                    modifier = Modifier.clickable {
-                        showDaysOnly = !showDaysOnly
-                        saveShowDaysOnly(showDaysOnly)
-                    }
-                )
             }
             
             // Add button with circle background

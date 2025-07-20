@@ -128,7 +128,7 @@ fun EventDetailsScreen(
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.weight(1f)
                                 )
-                                if (onDeleteDate != null && sortedDates.size > 1) {
+                                if (onDeleteDate != null) {
                                     IconButton(
                                         onClick = { showDeleteDateDialog.value = date }
                                     ) {
@@ -181,6 +181,7 @@ fun EventDetailsScreen(
             if (showDialog.value) {
                 AlertDialog(
                     onDismissRequest = { showDialog.value = false },
+                    containerColor = Gray800,
                     title = { Text("Delete Event") },
                     text = { Text("Are you sure you want to delete this event?") },
                     confirmButton = {
@@ -203,8 +204,11 @@ fun EventDetailsScreen(
                 val dateToDelete = showDeleteDateDialog.value!!
                 AlertDialog(
                     onDismissRequest = { showDeleteDateDialog.value = null },
+                    containerColor = Gray800,
                     title = { Text("Delete Date") },
-                    text = { Text("Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?") },
+                    text = { 
+                        Text("Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             onDeleteDate?.invoke(dateToDelete)
