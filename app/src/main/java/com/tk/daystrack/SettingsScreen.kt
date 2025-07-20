@@ -61,7 +61,7 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(top = 0.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
@@ -152,7 +152,7 @@ fun CustomSortDropdown(
                                 onClick = { tempSelected = option },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = Teal400,
-                                    unselectedColor = White.copy(alpha = 0.7f)
+                                    unselectedColor = TextSecondary
                                 )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -175,9 +175,9 @@ fun CustomSortDropdown(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { dialogOpen = false }) {
-                    Text("Cancel", color = White.copy(alpha = 0.7f))
-                }
+                                    TextButton(onClick = { dialogOpen = false }) {
+                        Text("Cancel", color = TextSecondary)
+                    }
             }
         )
     }

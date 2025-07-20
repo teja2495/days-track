@@ -102,7 +102,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 32.dp),
+                            .padding(bottom = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -110,7 +110,8 @@ fun DayTrackApp(viewModel: EventViewModel) {
                             text = "Days Track",
                             style = MaterialTheme.typography.headlineMedium,  // Changed from headlineLarge to headlineMedium
                             fontWeight = FontWeight.Bold,
-                            color = White
+                            color = White,
+                            modifier = Modifier.padding(start = 8.dp)
                         )
                         
                         Spacer(modifier = Modifier.weight(1f))
@@ -138,13 +139,21 @@ fun DayTrackApp(viewModel: EventViewModel) {
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            items(events) { event ->
+                            items(events.size) { index ->
+                                val event = events[index]
+                                val isLastItem = index == events.size - 1
+                                
                                 EventListItem(
                                     event = event,
                                     onUpdate = { eventToUpdate ->
                                         viewModel.showUpdateDialog(eventToUpdate)
                                     },
-                                    onClick = { selectedEventId = event.id }
+                                    onClick = { selectedEventId = event.id },
+                                    modifier = if (isLastItem) {
+                                        Modifier.padding(bottom = 100.dp) // Add padding only to the last item
+                                    } else {
+                                        Modifier
+                                    }
                                 )
                             }
                         }
@@ -290,7 +299,7 @@ fun EmptyEventsMessage(modifier: Modifier = Modifier) {
         Text(
             text = "Tap the Add Event button to add your first event and start tracking important dates",
             style = MaterialTheme.typography.bodyMedium,
-            color = White.copy(alpha = 0.7f),
+            color = TextSecondary,
             textAlign = TextAlign.Center
         )
     }

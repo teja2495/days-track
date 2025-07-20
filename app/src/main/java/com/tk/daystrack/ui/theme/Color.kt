@@ -27,3 +27,11 @@ val ButtonColor = Gray700
 val EventDateColor = Teal400
 val FabColor = Teal500
 val FabHoverColor = Teal600
+
+// Additional colors for specific use cases
+val DeleteButtonColor = Color(0xFFF87171) // Red-400 for delete button
+val DeleteButtonTextColor = Color.Black
+val TextPrimary = White
+val TextSecondary = White.copy(alpha = 0.7f)
+val TextTertiary = White.copy(alpha = 0.3f)
+val BorderColor = White.copy(alpha = 0.3f)

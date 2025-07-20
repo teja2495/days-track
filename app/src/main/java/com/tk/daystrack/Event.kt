@@ -76,9 +76,9 @@ fun EventDetailsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
                     .zIndex(1f),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.Top
             ) {
                 androidx.compose.foundation.lazy.LazyColumn(
                     modifier = Modifier.weight(1f),
@@ -167,14 +167,14 @@ fun EventDetailsScreen(
                 if (onDelete != null) {
                     Button(
                         onClick = { showDialog.value = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE5D0D0)), // Rose-200 color
+                        colors = ButtonDefaults.buttonColors(containerColor = DeleteButtonColor),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         shape = RoundedCornerShape(50),
                         contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
-                        Text("Delete Event", color = Gray900, fontWeight = FontWeight.Bold)
+                        Text("Delete Event", color = DeleteButtonTextColor, fontWeight = FontWeight.Bold)
                     }
                 }
             }
