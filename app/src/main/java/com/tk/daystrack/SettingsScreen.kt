@@ -79,21 +79,34 @@ fun SettingsScreen(
                 onSortOptionSelected = onSortOptionSelected
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            // Reduce the vertical gap before backup section
+            Spacer(modifier = Modifier.height(0.dp))
 
-            Button(
-                onClick = onExportClick,
+            Text(
+                text = "Events Data Backup",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal500)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("Export Data", color = White, fontWeight = FontWeight.Bold)
-            }
-            Button(
-                onClick = onImportClick,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal400)
-            ) {
-                Text("Import Data", color = Gray900, fontWeight = FontWeight.Bold)
+                Button(
+                    onClick = onImportClick,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+                ) {
+                    Text("Import", color = White, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = onExportClick,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+                ) {
+                    Text("Export", color = White, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
