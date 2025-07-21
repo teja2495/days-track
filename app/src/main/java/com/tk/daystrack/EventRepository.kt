@@ -126,4 +126,19 @@ class EventRepository(context: Context) {
         }
         return currentEvents
     }
+
+    fun exportEventsJson(): String {
+        val events = loadEvents()
+        return gson.toJson(events)
+    }
+
+    fun importEventsJson(json: String) {
+        val type = object : TypeToken<List<Event>>() {}.type
+        val events: List<Event> = try {
+            gson.fromJson(json, type) ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+        saveEvents(events)
+    }
 } 

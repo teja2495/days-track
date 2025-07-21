@@ -25,6 +25,18 @@ import com.tk.daystrack.ui.theme.*
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.graphics.Color
+import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +46,41 @@ class MainActivity : ComponentActivity() {
             DayTrackTheme {
                 val repository = EventRepository(this)
                 val viewModel: EventViewModel = viewModel { EventViewModel(repository) }
-                DayTrackApp(viewModel = viewModel)
+
+                // State for triggering export/import
+                var exportTrigger by remember { mutableStateOf(false) }
+                var importTrigger by remember { mutableStateOf(false) }
+
+                // Export launcher
+                val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri: Uri? ->
+                    uri?.let {
+                        val json = viewModel.exportEventsJson()
+                        contentResolver.openOutputStream(it)?.use { output ->
+                            output.write(json.toByteArray())
+                        }
+                    }
+                }
+
+                // Import launcher
+                val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    uri?.let {
+                        contentResolver.openInputStream(it)?.use { input ->
+                            val json = input.bufferedReader().readText()
+                            viewModel.importEventsJson(json)
+                        }
+                    }
+                }
+
+                DayTrackAppWithExportImport(
+                    viewModel = viewModel,
+                    onExport = {
+                        val sdf = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
+                        val now = Date()
+                        val fileName = "backup-" + sdf.format(now) + ".daystrack"
+                        exportLauncher.launch(fileName)
+                    },
+                    onImport = { importLauncher.launch("application/octet-stream") }
+                )
             }
         }
     }
@@ -42,22 +88,24 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayTrackApp(viewModel: EventViewModel) {
+fun DayTrackAppWithExportImport(
+    viewModel: EventViewModel,
+    onExport: () -> Unit,
+    onImport: () -> Unit
+) {
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
     val currentSortOption by viewModel.currentSortOption.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
-    
+
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
-    
-    // Derive selectedEventForDetails from events list to ensure it's always up to date
+
     val selectedEventForDetails = selectedEventId?.let { id ->
         events.find { it.id == id }
     }
 
-    // Solid background color to match the design
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,21 +113,21 @@ fun DayTrackApp(viewModel: EventViewModel) {
     ) {
         when {
             showSettings -> {
-                // Handle Android back gesture to close settings
                 BackHandler(enabled = true) {
                     showSettings = false
                 }
                 SettingsScreen(
                     onBackPressed = { showSettings = false },
                     currentSortOption = currentSortOption,
-                    onSortOptionSelected = { viewModel.setSortOption(it) }
+                    onSortOptionSelected = { viewModel.setSortOption(it) },
+                    onExportClick = onExport,
+                    onImportClick = onImport
                 )
             }
             selectedEventForDetails != null -> {
                 BackHandler(enabled = true) {
                     selectedEventId = null
                 }
-                
                 EventDetailsScreen(
                     event = selectedEventForDetails!!,
                     onBack = { selectedEventId = null },
@@ -98,7 +146,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         .fillMaxSize()
                         .padding(horizontal = 16.dp, vertical = 32.dp)
                 ) {
-                    // Header
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -108,14 +155,12 @@ fun DayTrackApp(viewModel: EventViewModel) {
                     ) {
                         Text(
                             text = "Days Track",
-                            style = MaterialTheme.typography.headlineMedium,  // Changed from headlineLarge to headlineMedium
+                            style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
                             color = White,
                             modifier = Modifier.padding(start = 8.dp)
                         )
-                        
                         Spacer(modifier = Modifier.weight(1f))
-                        
                         IconButton(
                             onClick = { showSettings = true },
                             modifier = Modifier.padding(end = 18.dp)
@@ -128,8 +173,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                             )
                         }
                     }
-                    
-                    // Events list
                     if (events.isEmpty()) {
                         EmptyEventsMessage(
                             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -142,7 +185,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                             items(events.size) { index ->
                                 val event = events[index]
                                 val isLastItem = index == events.size - 1
-                                
                                 EventListItem(
                                     event = event,
                                     onUpdate = { eventToUpdate ->
@@ -150,7 +192,7 @@ fun DayTrackApp(viewModel: EventViewModel) {
                                     },
                                     onClick = { selectedEventId = event.id },
                                     modifier = if (isLastItem) {
-                                        Modifier.padding(bottom = 100.dp) // Add padding only to the last item
+                                        Modifier.padding(bottom = 100.dp)
                                     } else {
                                         Modifier
                                     }
@@ -159,8 +201,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         }
                     }
                 }
-                
-                // FAB
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -188,8 +228,6 @@ fun DayTrackApp(viewModel: EventViewModel) {
                         }
                     )
                 }
-                
-                // Dialogs outside Scaffold to avoid dimming issues
                 if (showAddDialog) {
                     AddEventDialog(
                         onDismiss = { viewModel.hideAddDialog() },

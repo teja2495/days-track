@@ -20,7 +20,9 @@ fun SettingsScreen(
     onBackPressed: () -> Unit,
     currentSortOption: SortOption,
     onSortOptionSelected: (SortOption) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onExportClick: () -> Unit = {},
+    onImportClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -76,6 +78,23 @@ fun SettingsScreen(
                 currentSortOption = currentSortOption,
                 onSortOptionSelected = onSortOptionSelected
             )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = onExportClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Teal500)
+            ) {
+                Text("Export Data", color = White, fontWeight = FontWeight.Bold)
+            }
+            Button(
+                onClick = onImportClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Teal400)
+            ) {
+                Text("Import Data", color = Gray900, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

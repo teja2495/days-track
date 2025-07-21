@@ -124,4 +124,16 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
         }
     }
+
+    fun exportEventsJson(): String {
+        return repository.exportEventsJson()
+    }
+
+    fun importEventsJson(json: String) {
+        viewModelScope.launch {
+            repository.importEventsJson(json)
+            _unsortedEvents = repository.loadEvents()
+            sortEvents()
+        }
+    }
 } 
