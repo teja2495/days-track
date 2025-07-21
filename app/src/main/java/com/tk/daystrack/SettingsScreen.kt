@@ -14,6 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
 import com.tk.daystrack.ui.theme.*
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
 
 @Composable
 fun SettingsScreen(
@@ -108,6 +111,55 @@ fun SettingsScreen(
                     Text("Export", color = White, fontWeight = FontWeight.Bold)
                 }
             }
+        }
+        // Remove previous feedback button and version display
+        // Add version and feedback at the bottom, side by side
+        Spacer(modifier = Modifier.weight(1f))
+        val context = LocalContext.current
+        val versionName = try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName ?: ""
+        } catch (e: Exception) {
+            ""
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Version $versionName",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+            Text(
+                text = "  •  ",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+            Text(
+                text = "Send Feedback",
+                style = MaterialTheme.typography.bodySmall,
+                color = Teal400,
+                modifier = Modifier.clickable {
+                    val androidVersion = android.os.Build.VERSION.RELEASE
+                    val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+                    val emailBody = """
+                        \n\n\n---\nApp Version: $versionName\nAndroid Version: $androidVersion\nDevice: $deviceModel
+                    """.trimIndent()
+                    val subject = "Days Track Feedback"
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(emailBody))
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Handle case where no email app is installed
+                    }
+                }
+            )
         }
     }
 }
