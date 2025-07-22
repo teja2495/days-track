@@ -15,6 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,9 @@ fun AddEventBottomSheet(
     title: String = "Add New Event",
     buttonLabel: String = "Save",
     editableName: Boolean = true,
-    dateFieldLabel: String = "Event Date"
+    dateFieldLabel: String = "Event Date",
+    previousInstanceDate: LocalDate? = null, // legacy, not used
+    allInstanceDates: List<LocalDate> = emptyList() // new param
 ) {
     var eventName by remember { mutableStateOf(initialName) }
     var selectedDate by remember { mutableStateOf(initialDate) }
@@ -62,6 +65,14 @@ fun AddEventBottomSheet(
                 fontWeight = FontWeight.Bold,
                 color = White
             )
+
+            // Timeline UI
+            if (allInstanceDates.isNotEmpty()) {
+                TimelineInstanceDates3(
+                    allDates = allInstanceDates,
+                    selectedDate = selectedDate
+                )
+            }
 
             if (editableName) {
                 OutlinedTextField(
@@ -204,6 +215,92 @@ fun AddEventBottomSheet(
                     todayDateBorderColor = Teal400
                 )
             )
+        }
+    }
+} 
+
+// Timeline composable for AddEventBottomSheet
+@Composable
+fun TimelineInstanceDates(previousDate: LocalDate, selectedDate: LocalDate) {
+    val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+    val isFuture = selectedDate.isAfter(previousDate)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentWidth(Alignment.CenterHorizontally),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (!isFuture) {
+            TimelineDateItem(date = selectedDate, label = "New Instance", highlight = true)
+            TimelineConnector()
+            TimelineDateItem(date = previousDate, label = "Previous Instance")
+        } else {
+            TimelineDateItem(date = previousDate, label = "Previous Instance")
+            TimelineConnector()
+            TimelineDateItem(date = selectedDate, label = "New Instance", highlight = true)
+        }
+    }
+}
+
+@Composable
+fun TimelineDateItem(date: LocalDate, label: String, highlight: Boolean = false, isMiddle: Boolean = false) {
+    val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = date.format(formatter),
+            color = if (highlight) Teal400 else White,
+            fontWeight = if (highlight) FontWeight.Bold else FontWeight.Normal,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        if (label.isNotBlank()) {
+            Text(
+                text = label,
+                color = White.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@Composable
+fun TimelineConnector() {
+    Box(
+        modifier = Modifier
+            .width(4.dp)
+            .height(40.dp)
+            .padding(vertical = 12.dp)
+            .background(
+                White.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(50)
+            )
+    )
+} 
+
+// Add new composable for 3-item timeline
+@Composable
+fun TimelineInstanceDates3(allDates: List<LocalDate>, selectedDate: LocalDate) {
+    val sorted = allDates.sorted()
+    val previous = sorted.filter { it.isBefore(selectedDate) }.maxOrNull()
+    val next = sorted.filter { it.isAfter(selectedDate) }.minOrNull()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentWidth(Alignment.CenterHorizontally),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (previous != null) {
+            TimelineDateItem(date = previous, label = "Previous", highlight = false, isMiddle = false)
+            TimelineConnector()
+        }
+        TimelineDateItem(date = selectedDate, label = "New", highlight = true, isMiddle = true)
+        if (next != null) {
+            TimelineConnector()
+            TimelineDateItem(date = next, label = "Next", highlight = false, isMiddle = false)
         }
     }
 } 

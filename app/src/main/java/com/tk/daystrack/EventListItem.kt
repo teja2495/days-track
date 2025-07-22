@@ -105,7 +105,7 @@ fun EventListItem(
                 modifier = Modifier.size(40.dp)
             ) {
                 IconButton(
-                    onClick = { onUpdate(event.copy(dates = event.dates + java.time.LocalDate.now())) },
+                    onClick = { onUpdate(event) },
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(

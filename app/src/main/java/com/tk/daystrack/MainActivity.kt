@@ -238,6 +238,7 @@ fun DayTrackAppWithExportImport(
                     )
                 }
                 if (eventForNewInstance != null) {
+                    val allInstanceDates = eventForNewInstance!!.dates
                     AddEventBottomSheet(
                         onDismiss = { eventForNewInstance = null },
                         onSave = { name, date ->
@@ -249,7 +250,8 @@ fun DayTrackAppWithExportImport(
                         title = eventForNewInstance!!.name,
                         buttonLabel = "Save",
                         editableName = false,
-                        dateFieldLabel = "New Instance"
+                        dateFieldLabel = "New Instance",
+                        allInstanceDates = allInstanceDates
                     )
                 }
                 if (showUpdateDialog && eventToUpdate != null) {
