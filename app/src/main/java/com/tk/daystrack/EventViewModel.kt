@@ -50,7 +50,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun addEvent(name: String, date: LocalDate) {
         viewModelScope.launch {
-            val newEvent = Event(name = name.trim(), dates = listOf(date))
+            val newEvent = Event(name = name.trim(), dates = emptyList())
             _unsortedEvents = repository.addEvent(newEvent)
             sortEvents()
             _showAddDialog.value = false

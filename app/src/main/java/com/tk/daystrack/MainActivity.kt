@@ -232,17 +232,20 @@ fun DayTrackAppWithExportImport(
                 if (showAddDialog) {
                     AddEventBottomSheet(
                         onDismiss = { viewModel.hideAddDialog() },
-                        onSave = { name, date ->
-                            viewModel.addEvent(name, date)
-                        }
+                        onSave = { name, _ ->
+                            viewModel.addEvent(name, java.time.LocalDate.now()) // date param ignored, event will have empty dates
+                        },
+                        showDateField = false,
+                        allInstanceDates = emptyList()
                     )
                 }
                 if (eventForNewInstance != null) {
-                    val allInstanceDates = eventForNewInstance!!.dates
                     AddEventBottomSheet(
                         onDismiss = { eventForNewInstance = null },
                         onSave = { name, date ->
-                            viewModel.addInstanceToEvent(eventForNewInstance!!.id, name, date)
+                            if (date != null) {
+                                viewModel.addInstanceToEvent(eventForNewInstance!!.id, name, date)
+                            }
                             eventForNewInstance = null
                         },
                         initialName = eventForNewInstance!!.name,
@@ -250,8 +253,9 @@ fun DayTrackAppWithExportImport(
                         title = eventForNewInstance!!.name,
                         buttonLabel = "Save",
                         editableName = false,
+                        showDateField = true,
                         dateFieldLabel = "New Instance",
-                        allInstanceDates = allInstanceDates
+                        allInstanceDates = eventForNewInstance!!.dates
                     )
                 }
                 if (showUpdateDialog && eventToUpdate != null) {

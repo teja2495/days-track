@@ -21,15 +21,15 @@ import androidx.compose.foundation.background
 @Composable
 fun AddEventBottomSheet(
     onDismiss: () -> Unit,
-    onSave: (String, LocalDate) -> Unit,
+    onSave: (String, LocalDate?) -> Unit,
     initialName: String = "",
     initialDate: LocalDate = LocalDate.now(),
-    title: String = "Add New Event",
+    title: String = "New Event",
     buttonLabel: String = "Save",
     editableName: Boolean = true,
+    showDateField: Boolean = false,
     dateFieldLabel: String = "Event Date",
-    previousInstanceDate: LocalDate? = null, // legacy, not used
-    allInstanceDates: List<LocalDate> = emptyList() // new param
+    allInstanceDates: List<LocalDate> = emptyList()
 ) {
     var eventName by remember { mutableStateOf(initialName) }
     var selectedDate by remember { mutableStateOf(initialDate) }
@@ -66,8 +66,7 @@ fun AddEventBottomSheet(
                 color = White
             )
 
-            // Timeline UI
-            if (allInstanceDates.isNotEmpty()) {
+            if (showDateField && allInstanceDates.isNotEmpty()) {
                 TimelineInstanceDates3(
                     allDates = allInstanceDates,
                     selectedDate = selectedDate
@@ -78,7 +77,7 @@ fun AddEventBottomSheet(
                 OutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
-                    label = { Text("Event Name", color = White.copy(alpha = 0.7f)) },
+                    label = { Text("Name", color = White.copy(alpha = 0.7f)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -95,28 +94,30 @@ fun AddEventBottomSheet(
                 )
             }
 
-            OutlinedTextField(
-                value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                onValueChange = { },
-                label = { Text(dateFieldLabel, color = White.copy(alpha = 0.7f)) },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    TextButton(
-                        onClick = { showDatePicker = true }
-                    ) {
-                        Text("Select", color = Teal400)
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Teal400,
-                    unfocusedBorderColor = White.copy(alpha = 0.3f),
-                    focusedLabelColor = Teal400,
-                    unfocusedLabelColor = White.copy(alpha = 0.7f),
-                    focusedTextColor = White,
-                    unfocusedTextColor = White
+            if (showDateField) {
+                OutlinedTextField(
+                    value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                    onValueChange = { },
+                    label = { Text(dateFieldLabel, color = White.copy(alpha = 0.7f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    trailingIcon = {
+                        TextButton(
+                            onClick = { showDatePicker = true }
+                        ) {
+                            Text("Select", color = Teal400)
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
+                    )
                 )
-            )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -138,10 +139,10 @@ fun AddEventBottomSheet(
                     onClick = {
                         if (editableName) {
                             if (eventName.isNotBlank()) {
-                                onSave(eventName, selectedDate)
+                                onSave(eventName, if (showDateField) selectedDate else null)
                             }
                         } else {
-                            onSave(initialName, selectedDate)
+                            onSave(initialName, if (showDateField) selectedDate else null)
                         }
                     },
                     enabled = if (editableName) eventName.isNotBlank() else true,
@@ -217,7 +218,7 @@ fun AddEventBottomSheet(
             )
         }
     }
-} 
+}
 
 // Timeline composable for AddEventBottomSheet
 @Composable
