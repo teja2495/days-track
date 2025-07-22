@@ -101,6 +101,7 @@ fun DayTrackAppWithExportImport(
 
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
+    var eventForNewInstance by remember { mutableStateOf<Event?>(null) }
 
     val selectedEventForDetails = selectedEventId?.let { id ->
         events.find { it.id == id }
@@ -188,7 +189,7 @@ fun DayTrackAppWithExportImport(
                                 EventListItem(
                                     event = event,
                                     onUpdate = { eventToUpdate ->
-                                        viewModel.showUpdateDialog(eventToUpdate)
+                                        eventForNewInstance = eventToUpdate
                                     },
                                     onClick = { selectedEventId = event.id },
                                     modifier = if (isLastItem) {
@@ -229,11 +230,26 @@ fun DayTrackAppWithExportImport(
                     )
                 }
                 if (showAddDialog) {
-                    AddEventDialog(
+                    AddEventBottomSheet(
                         onDismiss = { viewModel.hideAddDialog() },
                         onSave = { name, date ->
                             viewModel.addEvent(name, date)
                         }
+                    )
+                }
+                if (eventForNewInstance != null) {
+                    AddEventBottomSheet(
+                        onDismiss = { eventForNewInstance = null },
+                        onSave = { name, date ->
+                            viewModel.addInstanceToEvent(eventForNewInstance!!.id, name, date)
+                            eventForNewInstance = null
+                        },
+                        initialName = eventForNewInstance!!.name,
+                        initialDate = java.time.LocalDate.now(),
+                        title = eventForNewInstance!!.name,
+                        buttonLabel = "Save",
+                        editableName = false,
+                        dateFieldLabel = "New Instance"
                     )
                 }
                 if (showUpdateDialog && eventToUpdate != null) {
