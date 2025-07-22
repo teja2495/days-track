@@ -193,7 +193,7 @@ fun DayTrackAppWithExportImport(
                                     },
                                     onClick = { selectedEventId = event.id },
                                     modifier = if (isLastItem) {
-                                        Modifier.padding(bottom = 100.dp)
+                                        Modifier.padding(bottom = 120.dp)
                                     } else {
                                         Modifier
                                     }
@@ -205,8 +205,8 @@ fun DayTrackAppWithExportImport(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = 32.dp),
-                    contentAlignment = Alignment.BottomCenter
+                        .padding(bottom = 70.dp, end = 20.dp),
+                    contentAlignment = Alignment.BottomEnd
                 ) {
                     ExtendedFloatingActionButton(
                         onClick = { viewModel.showAddDialog() },

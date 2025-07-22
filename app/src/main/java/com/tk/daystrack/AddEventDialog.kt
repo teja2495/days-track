@@ -136,9 +136,9 @@ fun AddEventBottomSheet(
                     enabled = if (editableName) eventName.isNotBlank() else true,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Teal500,
-                        contentColor = White,
+                        contentColor = Color.Black,
                         disabledContainerColor = Teal500.copy(alpha = 0.5f),
-                        disabledContentColor = White.copy(alpha = 0.7f)
+                        disabledContentColor = Color.Black.copy(alpha = 0.7f)
                     ),
                     shape = RoundedCornerShape(50)
                 ) {
