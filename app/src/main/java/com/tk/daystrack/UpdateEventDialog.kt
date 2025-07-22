@@ -20,10 +20,12 @@ import com.tk.daystrack.ui.theme.*
 fun UpdateEventDialog(
     event: Event,
     onDismiss: () -> Unit,
-    onUpdate: (String, LocalDate) -> Unit,
+    onUpdate: (String, LocalDate, String?) -> Unit,
     onDelete: (String) -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf(event.dates.lastOrNull() ?: LocalDate.now()) }
+    val lastInstance = event.instances.lastOrNull()
+    var selectedDate by remember { mutableStateOf(lastInstance?.date ?: LocalDate.now()) }
+    var note by remember { mutableStateOf(lastInstance?.note ?: "") }
     var showDatePicker by remember { mutableStateOf(false) }
     
     val datePickerState = rememberDatePickerState(
@@ -78,6 +80,23 @@ fun UpdateEventDialog(
                         unfocusedTextColor = White
                     )
                 )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note (optional)", color = White.copy(alpha = 0.7f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        cursorColor = Teal400,
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
+                    ),
+                    singleLine = false,
+                    maxLines = 3
+                )
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -96,7 +115,7 @@ fun UpdateEventDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     
                     Button(
-                        onClick = { onUpdate(event.name, selectedDate) },
+                        onClick = { onUpdate(event.name, selectedDate, note.ifBlank { null }) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Teal500,
                             contentColor = Color.Black

@@ -24,11 +24,17 @@ import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Close
+
+data class EventInstance(
+    val date: LocalDate,
+    val note: String? = null
+)
 
 data class Event(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
-    val dates: List<LocalDate>
+    val instances: List<EventInstance>
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,34 +86,70 @@ fun EventDetailsScreen(
                     .zIndex(1f),
                 verticalArrangement = Arrangement.Top
             ) {
-                androidx.compose.foundation.lazy.LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    val sortedDates = event.dates.sortedDescending()
-                    val avgFrequency = DateUtils.averageFrequency(event.dates)
-                    if (avgFrequency != null) {
-                        item {
-                            Row(
-                                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Average frequency: ",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                                Text(
-                                    text = "${"%.1f".format(avgFrequency)} days",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = White
+                val showBanner = remember { mutableStateOf(true) }
+                // Move banner to the top
+                if (showBanner.value) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(8.dp),
+                        tonalElevation = 2.dp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Hint: Tap on a date to add a note for that instance",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.weight(1f),
+                                fontWeight = FontWeight.Medium
+                            )
+                            IconButton(onClick = { showBanner.value = false }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Dismiss",
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             }
                         }
                     }
-                    items(sortedDates.size) { index ->
-                        val date = sortedDates[index]
+                }
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    val sortedInstances = event.instances.sortedByDescending { it.date }
+                    val avgFrequency = DateUtils.averageFrequency(sortedInstances.map { it.date })
+                    if (avgFrequency != null) {
+                        item {
+                            Column {
+                                Row(
+                                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Average frequency: ",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        text = "${"%.1f".format(avgFrequency)} days",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = White
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    items(sortedInstances.size) { index ->
+                        val instance = sortedInstances[index]
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -115,36 +157,48 @@ fun EventDetailsScreen(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(horizontal = 16.dp, vertical = 10.dp)
                             ) {
-                                Text(
-                                    text = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                if (onDeleteDate != null) {
-                                    IconButton(
-                                        onClick = { showDeleteDateDialog.value = date }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Date",
-                                            tint = Color.Gray
-                                        )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = instance.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (onDeleteDate != null) {
+                                        IconButton(
+                                            onClick = { showDeleteDateDialog.value = instance.date }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete Date",
+                                                tint = Color.Gray
+                                            )
+                                        }
                                     }
+                                }
+                                if (!instance.note.isNullOrBlank()) {
+                                    Text(
+                                        text = instance.note,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(top = 4.dp, start = 2.dp)
+                                    )
                                 }
                             }
                         }
-                        // Add day interval text between consecutive dates
-                        if (index < sortedDates.size - 1) {
-                            val currentDate = date
-                            val nextDate = sortedDates[index + 1]
+                        // Add day interval text between consecutive instances
+                        if (index < sortedInstances.size - 1) {
+                            val currentDate = instance.date
+                            val nextDate = sortedInstances[index + 1].date
                             val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
                             val intervalText = when {
                                 daysBetween == -1L -> "1 day earlier"

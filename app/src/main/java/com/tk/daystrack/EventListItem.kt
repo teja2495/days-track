@@ -17,6 +17,7 @@ import androidx.compose.foundation.clickable
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import com.tk.daystrack.ui.theme.*
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,12 +37,13 @@ fun EventListItem(
         prefs.edit().putBoolean(PREF_KEY, value).apply()
     }
     
-    // Check if event has dates
-    val hasDates = event.dates.isNotEmpty()
-    val timeDifference = if (hasDates) DateUtils.formatTimeDifference(event.dates.last()) else ""
-    val daysOnly = if (hasDates) DateUtils.getDaysDifference(event.dates.last()) else 0
-    val isFuture = if (hasDates) event.dates.last().isAfter(java.time.LocalDate.now()) else false
-    val isToday = if (hasDates) event.dates.last().isEqual(java.time.LocalDate.now()) else false
+    // Check if event has instances
+    val hasInstances = event.instances.isNotEmpty()
+    val lastInstance = event.instances.lastOrNull()
+    val timeDifference = if (hasInstances) DateUtils.formatTimeDifference(lastInstance!!.date) else ""
+    val daysOnly = if (hasInstances) DateUtils.getDaysDifference(lastInstance!!.date) else 0
+    val isFuture = if (hasInstances) lastInstance!!.date.isAfter(java.time.LocalDate.now()) else false
+    val isToday = if (hasInstances) lastInstance!!.date.isEqual(java.time.LocalDate.now()) else false
     
     Card(
         modifier = modifier
@@ -73,8 +75,8 @@ fun EventListItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                if (hasDates) {
-                    val canToggle = DateUtils.isAtLeastOneMonth(event.dates.last())
+                if (hasInstances) {
+                    val canToggle = DateUtils.isAtLeastOneMonth(lastInstance!!.date)
                     val displayText = if (showDaysOnly) {
                         when {
                             isToday -> "today"
@@ -84,7 +86,6 @@ fun EventListItem(
                     } else {
                         timeDifference
                     }
-                    
                     Text(
                         text = displayText,
                         style = MaterialTheme.typography.bodyLarge,

@@ -48,9 +48,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         }
     }
     
-    fun addEvent(name: String, date: LocalDate) {
+    fun addEvent(name: String) {
         viewModelScope.launch {
-            val newEvent = Event(name = name.trim(), dates = emptyList())
+            val newEvent = Event(name = name.trim(), instances = emptyList())
             _unsortedEvents = repository.addEvent(newEvent)
             sortEvents()
             _showAddDialog.value = false
@@ -82,15 +82,6 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         _eventToUpdate.value = null
     }
     
-    fun updateEventDate(newName: String, newDate: LocalDate) {
-        val eventId = _eventToUpdate.value?.id ?: return
-        viewModelScope.launch {
-            _unsortedEvents = repository.updateEvent(eventId, newName.toTitleCase(), newDate)
-            sortEvents()
-            hideUpdateDialog()
-        }
-    }
-    
     fun deleteEventDate(eventId: String, dateToDelete: LocalDate) {
         viewModelScope.launch {
             _unsortedEvents = repository.deleteEventDate(eventId, dateToDelete)
@@ -115,11 +106,11 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private fun sortEvents() {
         _events.value = when (_currentSortOption.value) {
-            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy { 
-                if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN 
+            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy {
+                if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
             }
-            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending { 
-                if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN 
+            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending {
+                if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
             }
             SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
         }
@@ -137,9 +128,18 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         }
     }
 
-    fun addInstanceToEvent(eventId: String, name: String, date: LocalDate) {
+    fun updateEventInstance(newName: String, newDate: LocalDate, note: String?) {
+        val eventId = _eventToUpdate.value?.id ?: return
         viewModelScope.launch {
-            _unsortedEvents = repository.updateEvent(eventId, name.toTitleCase(), date)
+            _unsortedEvents = repository.updateEvent(eventId, newName.toTitleCase(), EventInstance(newDate, note))
+            sortEvents()
+            hideUpdateDialog()
+        }
+    }
+
+    fun addInstanceToEvent(eventId: String, name: String, instance: EventInstance) {
+        viewModelScope.launch {
+            _unsortedEvents = repository.updateEvent(eventId, name.toTitleCase(), instance)
             sortEvents()
         }
     }

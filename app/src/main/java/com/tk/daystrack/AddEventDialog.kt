@@ -21,7 +21,7 @@ import androidx.compose.foundation.background
 @Composable
 fun AddEventBottomSheet(
     onDismiss: () -> Unit,
-    onSave: (String, LocalDate?) -> Unit,
+    onSave: (String, LocalDate?, String?) -> Unit,
     initialName: String = "",
     initialDate: LocalDate = LocalDate.now(),
     title: String = "New Event",
@@ -35,6 +35,7 @@ fun AddEventBottomSheet(
     var selectedDate by remember { mutableStateOf(initialDate) }
     var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    var note by remember { mutableStateOf("") }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = java.time.ZoneId.systemDefault()
@@ -93,7 +94,6 @@ fun AddEventBottomSheet(
                     singleLine = true
                 )
             }
-
             if (showDateField) {
                 OutlinedTextField(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
@@ -117,6 +117,23 @@ fun AddEventBottomSheet(
                         unfocusedTextColor = White
                     )
                 )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note (optional)", color = White.copy(alpha = 0.7f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        cursorColor = Teal400,
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
+                    ),
+                    singleLine = false,
+                    maxLines = 3
+                )
             }
 
             Row(
@@ -139,10 +156,10 @@ fun AddEventBottomSheet(
                     onClick = {
                         if (editableName) {
                             if (eventName.isNotBlank()) {
-                                onSave(eventName, if (showDateField) selectedDate else null)
+                                onSave(eventName, if (showDateField) selectedDate else null, note.ifBlank { null })
                             }
                         } else {
-                            onSave(initialName, if (showDateField) selectedDate else null)
+                            onSave(initialName, if (showDateField) selectedDate else null, note.ifBlank { null })
                         }
                     },
                     enabled = if (editableName) eventName.isNotBlank() else true,

@@ -24,42 +24,60 @@ class EventRepository(context: Context) {
         .registerTypeAdapter(LocalDate::class.java, JsonDeserializer<LocalDate> { json, _, _ ->
             LocalDate.parse(json.asString, DateTimeFormatter.ISO_LOCAL_DATE)
         })
+        .registerTypeAdapter(EventInstance::class.java, JsonSerializer<EventInstance> { src, _, _ ->
+            val jsonObject = com.google.gson.JsonObject()
+            jsonObject.addProperty("date", src.date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            if (!src.note.isNullOrBlank()) jsonObject.addProperty("note", src.note)
+            jsonObject
+        })
+        .registerTypeAdapter(EventInstance::class.java, JsonDeserializer<EventInstance> { json, _, _ ->
+            val jsonObject = json.asJsonObject
+            val date = LocalDate.parse(jsonObject.get("date").asString, DateTimeFormatter.ISO_LOCAL_DATE)
+            val note = if (jsonObject.has("note")) jsonObject.get("note").asString else null
+            EventInstance(date, note)
+        })
         .registerTypeAdapter(Event::class.java, JsonSerializer<Event> { src, _, _ ->
             val jsonObject = com.google.gson.JsonObject()
             jsonObject.addProperty("id", src.id)
             jsonObject.addProperty("name", src.name)
-            val datesArray = com.google.gson.JsonArray()
-            src.dates.forEach { date ->
-                datesArray.add(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+            val instancesArray = com.google.gson.JsonArray()
+            src.instances.forEach { instance ->
+                val instanceJson = com.google.gson.JsonObject()
+                instanceJson.addProperty("date", instance.date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                if (!instance.note.isNullOrBlank()) instanceJson.addProperty("note", instance.note)
+                instancesArray.add(instanceJson)
             }
-            jsonObject.add("dates", datesArray)
+            jsonObject.add("instances", instancesArray)
             jsonObject
         })
         .registerTypeAdapter(Event::class.java, JsonDeserializer<Event> { json, _, _ ->
             val jsonObject = json.asJsonObject
             val id = jsonObject.get("id").asString
             val name = jsonObject.get("name").asString
-            
-            // Check if this is the new format (has dates array)
-            if (jsonObject.has("dates")) {
-                val datesArray = jsonObject.getAsJsonArray("dates")
-                val dates = datesArray.map { element ->
-                    LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE)
+            if (jsonObject.has("instances")) {
+                val instancesArray = jsonObject.getAsJsonArray("instances")
+                val instances = instancesArray.map { element ->
+                    val obj = element.asJsonObject
+                    val date = LocalDate.parse(obj.get("date").asString, DateTimeFormatter.ISO_LOCAL_DATE)
+                    val note = if (obj.has("note")) obj.get("note").asString else null
+                    EventInstance(date, note)
                 }
-                Event(id = id, name = name, dates = dates)
+                Event(id = id, name = name, instances = instances)
+            } else if (jsonObject.has("dates")) {
+                val datesArray = jsonObject.getAsJsonArray("dates")
+                val instances = datesArray.map { element ->
+                    EventInstance(LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE))
+                }
+                Event(id = id, name = name, instances = instances)
             } else {
-                // Old format: has date and possibly previousDate
                 val date = LocalDate.parse(jsonObject.get("date").asString, DateTimeFormatter.ISO_LOCAL_DATE)
-                val dates = mutableListOf<LocalDate>()
-                dates.add(date)
-                
-                // If there's a previousDate, add it to the list
+                val instances = mutableListOf<EventInstance>()
+                instances.add(EventInstance(date))
                 if (jsonObject.has("previousDate") && !jsonObject.get("previousDate").isJsonNull) {
                     val previousDate = LocalDate.parse(jsonObject.get("previousDate").asString, DateTimeFormatter.ISO_LOCAL_DATE)
-                    dates.add(0, previousDate) // Add at beginning since it's older
+                    instances.add(0, EventInstance(previousDate))
                 }
-                
-                Event(id = id, name = name, dates = dates)
+                Event(id = id, name = name, instances = instances)
             }
         })
         .create()
@@ -84,9 +102,8 @@ class EventRepository(context: Context) {
     fun addEvent(event: Event): List<Event> {
         val currentEvents = loadEvents().toMutableList()
         currentEvents.add(event)
-        // Sort by date (most recent first), events with no dates go to the end
-        val sortedEvents = currentEvents.sortedByDescending { 
-            if (it.dates.isNotEmpty()) it.dates.last() else java.time.LocalDate.MIN
+        val sortedEvents = currentEvents.sortedByDescending {
+            if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
         }
         saveEvents(sortedEvents)
         return sortedEvents
@@ -99,15 +116,15 @@ class EventRepository(context: Context) {
         return currentEvents
     }
     
-    fun updateEvent(eventId: String, newName: String, newDate: LocalDate): List<Event> {
+    fun updateEvent(eventId: String, newName: String, newInstance: EventInstance): List<Event> {
         val currentEvents = loadEvents().toMutableList()
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            val updatedDates = if (event.dates.isEmpty() || event.dates.last() != newDate) event.dates + newDate else event.dates
+            val updatedInstances = if (event.instances.isEmpty() || event.instances.last().date != newInstance.date) event.instances + newInstance else event.instances
             currentEvents[index] = event.copy(
                 name = newName.trim(),
-                dates = updatedDates
+                instances = updatedInstances
             )
             saveEvents(currentEvents)
         }
@@ -119,9 +136,8 @@ class EventRepository(context: Context) {
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            // Remove the specific date, even if it's the last one
-            val updatedDates = event.dates.filter { it != dateToDelete }
-            currentEvents[index] = event.copy(dates = updatedDates)
+            val updatedInstances = event.instances.filter { it.date != dateToDelete }
+            currentEvents[index] = event.copy(instances = updatedInstances)
             saveEvents(currentEvents)
         }
         return currentEvents

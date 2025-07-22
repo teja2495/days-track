@@ -232,8 +232,8 @@ fun DayTrackAppWithExportImport(
                 if (showAddDialog) {
                     AddEventBottomSheet(
                         onDismiss = { viewModel.hideAddDialog() },
-                        onSave = { name, _ ->
-                            viewModel.addEvent(name, java.time.LocalDate.now()) // date param ignored, event will have empty dates
+                        onSave = { name, _, _ ->
+                            viewModel.addEvent(name)
                         },
                         showDateField = false,
                         allInstanceDates = emptyList()
@@ -242,9 +242,13 @@ fun DayTrackAppWithExportImport(
                 if (eventForNewInstance != null) {
                     AddEventBottomSheet(
                         onDismiss = { eventForNewInstance = null },
-                        onSave = { name, date ->
+                        onSave = { name, date, note ->
                             if (date != null) {
-                                viewModel.addInstanceToEvent(eventForNewInstance!!.id, name, date)
+                                viewModel.addInstanceToEvent(
+                                    eventForNewInstance!!.id,
+                                    name,
+                                    EventInstance(date, note)
+                                )
                             }
                             eventForNewInstance = null
                         },
@@ -255,15 +259,15 @@ fun DayTrackAppWithExportImport(
                         editableName = false,
                         showDateField = true,
                         dateFieldLabel = "New Instance",
-                        allInstanceDates = eventForNewInstance!!.dates
+                        allInstanceDates = eventForNewInstance!!.instances.map { it.date }
                     )
                 }
                 if (showUpdateDialog && eventToUpdate != null) {
                     UpdateEventDialog(
                         event = eventToUpdate!!,
                         onDismiss = { viewModel.hideUpdateDialog() },
-                        onUpdate = { newName, newDate ->
-                            viewModel.updateEventDate(newName, newDate)
+                        onUpdate = { newName, newDate, note ->
+                            viewModel.updateEventInstance(newName, newDate, note)
                         },
                         onDelete = { eventId ->
                             viewModel.removeEvent(eventId)
