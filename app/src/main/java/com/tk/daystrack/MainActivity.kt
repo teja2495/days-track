@@ -102,6 +102,7 @@ fun DayTrackAppWithExportImport(
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
     var eventForNewInstance by remember { mutableStateOf<Event?>(null) }
+    var eventPendingDelete by remember { mutableStateOf<Event?>(null) } // <-- Add this
 
     val selectedEventForDetails = selectedEventId?.let { id ->
         events.find { it.id == id }
@@ -141,7 +142,8 @@ fun DayTrackAppWithExportImport(
                     },
                     onUpdateNote = { date, note ->
                         viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
-                    }
+                    },
+                    viewModel = viewModel // <-- Pass the viewModel here
                 )
             }
             else -> {
@@ -195,6 +197,7 @@ fun DayTrackAppWithExportImport(
                                         eventForNewInstance = eventToUpdate
                                     },
                                     onClick = { selectedEventId = event.id },
+                                    onLongPress = { eventPendingDelete = event }, // <-- Add this
                                     modifier = if (isLastItem) {
                                         Modifier.padding(bottom = 120.dp)
                                     } else {
@@ -274,6 +277,27 @@ fun DayTrackAppWithExportImport(
                         },
                         onDelete = { eventId ->
                             viewModel.removeEvent(eventId)
+                        }
+                    )
+                }
+                if (eventPendingDelete != null) {
+                    AlertDialog(
+                        onDismissRequest = { eventPendingDelete = null },
+                        containerColor = Gray800,
+                        title = { Text("Delete Event") },
+                        text = { Text("Are you sure you want to delete this event?") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                viewModel.removeEvent(eventPendingDelete!!.id)
+                                eventPendingDelete = null
+                            }) {
+                                Text("Delete", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { eventPendingDelete = null }) {
+                                Text("Cancel")
+                            }
                         }
                     )
                 }

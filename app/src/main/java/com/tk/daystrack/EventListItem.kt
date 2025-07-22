@@ -14,18 +14,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.graphics.Color
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun EventListItem(
     event: Event,
     onUpdate: (Event) -> Unit,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    onLongPress: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -48,7 +51,14 @@ fun EventListItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .let { if (onClick != null) it.clickable { onClick() } else it },
+            .let {
+                if (onClick != null || onLongPress != null) {
+                    it.combinedClickable(
+                        onClick = { onClick?.invoke() },
+                        onLongClick = { onLongPress?.invoke() }
+                    )
+                } else it
+            },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Gray800
