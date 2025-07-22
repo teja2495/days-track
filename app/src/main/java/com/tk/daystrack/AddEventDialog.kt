@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.tk.daystrack.ui.theme.*
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +157,7 @@ fun AddEventBottomSheet(
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             colors = DatePickerDefaults.colors(
-                containerColor = Gray800,
+                containerColor = Gray800, 
                 titleContentColor = White,
                 headlineContentColor = White,
                 weekdayContentColor = White.copy(alpha = 0.7f),
@@ -166,8 +167,6 @@ fun AddEventBottomSheet(
                 selectedYearContentColor = White,
                 selectedYearContainerColor = Teal500,
                 dayContentColor = White,
-                selectedDayContentColor = White,
-                selectedDayContainerColor = Teal500,
                 todayContentColor = Teal400,
                 todayDateBorderColor = Teal400
             ),
@@ -193,7 +192,17 @@ fun AddEventBottomSheet(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = Gray800,
+                    selectedDayContentColor = Color.Black,
+                    selectedDayContainerColor = Teal500,
+                    dayContentColor = White,
+                    todayContentColor = Teal400,
+                    todayDateBorderColor = Teal400
+                )
+            )
         }
     }
 } 
