@@ -67,4 +67,10 @@ object DateUtils {
         val intervals = sorted.zipWithNext { a, b -> ChronoUnit.DAYS.between(a, b).toDouble() }
         return if (intervals.isNotEmpty()) intervals.average() else null
     }
+
+    fun isAtLeastOneMonth(eventDate: LocalDate): Boolean {
+        val today = LocalDate.now()
+        val daysDifference = kotlin.math.abs(ChronoUnit.DAYS.between(today, eventDate))
+        return daysDifference >= 30
+    }
 } 

@@ -133,9 +133,10 @@ fun UpdateEventDialog(
                 TextButton(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
-                            selectedDate = java.time.Instant.ofEpochMilli(millis)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
+                            selectedDate = java.time.LocalDate.ofInstant(
+                                java.time.Instant.ofEpochMilli(millis),
+                                java.time.ZoneOffset.UTC
+                            )
                         }
                         showDatePicker = false
                     }

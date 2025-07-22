@@ -74,6 +74,7 @@ fun EventListItem(
                 )
                 
                 if (hasDates) {
+                    val canToggle = DateUtils.isAtLeastOneMonth(event.dates.last())
                     val displayText = if (showDaysOnly) {
                         when {
                             isToday -> "today"
@@ -89,10 +90,10 @@ fun EventListItem(
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = Teal400,
-                        modifier = Modifier.clickable {
+                        modifier = if (canToggle) Modifier.clickable {
                             showDaysOnly = !showDaysOnly
                             saveShowDaysOnly(showDaysOnly)
-                        }
+                        } else Modifier
                     )
                 }
             }
