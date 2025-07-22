@@ -25,6 +25,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Close
+import com.tk.daystrack.TimelineConnector
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.ui.platform.LocalContext
+import com.tk.daystrack.EventRepository
 
 data class EventInstance(
     val date: LocalDate,
@@ -43,10 +54,24 @@ fun EventDetailsScreen(
     event: Event, 
     onBack: () -> Unit, 
     onDelete: (() -> Unit)? = null,
-    onDeleteDate: ((LocalDate) -> Unit)? = null
+    onDeleteDate: ((LocalDate) -> Unit)? = null,
+    onUpdateNote: ((LocalDate, String) -> Unit)? = null
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val showDeleteDateDialog = remember { mutableStateOf<LocalDate?>(null) }
+    // State for bottom sheet
+    val showEditNoteSheet = remember { mutableStateOf(false) }
+    val editingNoteText = remember { mutableStateOf("") }
+    val editingNoteDate = remember { mutableStateOf<LocalDate?>(null) }
+    val initialNoteText = remember { mutableStateOf("") }
+    // Add state for delete note dialog
+    val showDeleteNoteDialog = remember { mutableStateOf<LocalDate?>(null) }
+    val context = LocalContext.current
+    val repository = remember { EventRepository(context) }
+    val showBanner = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        showBanner.value = !repository.getHasSeenNoteHintBanner()
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -86,8 +111,6 @@ fun EventDetailsScreen(
                     .zIndex(1f),
                 verticalArrangement = Arrangement.Top
             ) {
-                val showBanner = remember { mutableStateOf(true) }
-                // Move banner to the top
                 if (showBanner.value) {
                     Surface(
                         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -104,13 +127,16 @@ fun EventDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Hint: Tap on a date to add a note for that instance",
+                                text = "Hint: Tap on the date card to add a note for that instance.",
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.weight(1f),
                                 fontWeight = FontWeight.Medium
                             )
-                            IconButton(onClick = { showBanner.value = false }) {
+                            IconButton(onClick = {
+                                showBanner.value = false
+                                repository.setHasSeenNoteHintBanner(true)
+                            }) {
                                 Icon(
                                     imageVector = Icons.Filled.Close,
                                     contentDescription = "Dismiss",
@@ -152,7 +178,14 @@ fun EventDetailsScreen(
                         val instance = sortedInstances[index]
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .clickable {
+                                    val note = instance.note ?: ""
+                                    editingNoteText.value = note
+                                    initialNoteText.value = note
+                                    editingNoteDate.value = instance.date
+                                    showEditNoteSheet.value = true
+                                },
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
@@ -185,36 +218,78 @@ fun EventDetailsScreen(
                                         }
                                     }
                                 }
-                                if (!instance.note.isNullOrBlank()) {
+                            }
+                        }
+                        // Show note in a separate card extending from the date card
+                        if (!instance.note.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 12.dp, end = 12.dp)
+                                    .clickable {
+                                        val note = instance.note ?: ""
+                                        editingNoteText.value = note
+                                        initialNoteText.value = note
+                                        editingNoteDate.value = instance.date
+                                        showEditNoteSheet.value = true
+                                    },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Text(
                                         text = instance.note,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = Color.Gray,
-                                        modifier = Modifier.padding(top = 4.dp, start = 2.dp)
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 10.dp)
                                     )
+                                    IconButton(
+                                        onClick = { showDeleteNoteDialog.value = instance.date }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Delete Note",
+                                            tint = Color.Gray
+                                        )
+                                    }
                                 }
                             }
                         }
-                        // Add day interval text between consecutive instances
+                        // Centered pipe symbol and interval text
                         if (index < sortedInstances.size - 1) {
-                            val currentDate = instance.date
-                            val nextDate = sortedInstances[index + 1].date
-                            val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
-                            val intervalText = when {
-                                daysBetween == -1L -> "1 day earlier"
-                                daysBetween < -1L -> "${-daysBetween} days earlier"
-                                daysBetween == 0L -> "Same day"
-                                else -> "$daysBetween days later"
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    TimelineConnector()
+                                    val currentDate = instance.date
+                                    val nextDate = sortedInstances[index + 1].date
+                                    val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
+                                    val intervalText = when {
+                                        daysBetween == -1L -> "1 day earlier"
+                                        daysBetween < -1L -> "${-daysBetween} days earlier"
+                                        daysBetween == 0L -> "Same day"
+                                        else -> "$daysBetween days later"
+                                    }
+                                    Text(
+                                        text = intervalText,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = com.tk.daystrack.ui.theme.Teal400,
+                                        modifier = Modifier
+                                            .padding(top = 0.dp),
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
                             }
-                            Text(
-                                text = intervalText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = com.tk.daystrack.ui.theme.Teal400,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, top = 10.dp),
-                                fontWeight = FontWeight.Normal
-                            )
                         }
                     }
                 }
@@ -279,5 +354,122 @@ fun EventDetailsScreen(
                 )
             }
         }
+    }
+    // Bottom sheet for editing note
+    if (showEditNoteSheet.value && editingNoteDate.value != null) {
+        // --- Keyboard and focus logic ---
+        val focusRequester = remember { FocusRequester() }
+        val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+        androidx.compose.runtime.LaunchedEffect(showEditNoteSheet.value) {
+            if (showEditNoteSheet.value) {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
+        ModalBottomSheet(
+            onDismissRequest = {
+                showEditNoteSheet.value = false
+                editingNoteDate.value = null
+            },
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            containerColor = Gray800,
+            tonalElevation = 4.dp,
+            dragHandle = {},
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Text(
+                    text = if (initialNoteText.value.isBlank()) "Add note" else "Edit Note",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = White
+                )
+                OutlinedTextField(
+                    value = editingNoteText.value,
+                    onValueChange = { editingNoteText.value = it },
+                    label = { Text("Note", color = White.copy(alpha = 0.7f)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Teal400,
+                        unfocusedBorderColor = White.copy(alpha = 0.3f),
+                        focusedLabelColor = Teal400,
+                        unfocusedLabelColor = White.copy(alpha = 0.7f),
+                        cursorColor = Teal400,
+                        focusedTextColor = White,
+                        unfocusedTextColor = White
+                    ),
+                    singleLine = false,
+                    maxLines = 5
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = {
+                            showEditNoteSheet.value = false
+                            editingNoteDate.value = null
+                        }
+                    ) {
+                        Text(
+                            "Cancel",
+                            color = White.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            val date = editingNoteDate.value
+                            if (date != null && onUpdateNote != null) {
+                                onUpdateNote(date, editingNoteText.value)
+                            }
+                            showEditNoteSheet.value = false
+                            editingNoteDate.value = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Teal500,
+                            contentColor = Color.Black,
+                            disabledContainerColor = Teal500.copy(alpha = 0.5f),
+                            disabledContentColor = Color.Black.copy(alpha = 0.7f)
+                        ),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Text("Save", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+    // Add delete note dialog
+    if (showDeleteNoteDialog.value != null) {
+        val dateToDeleteNote = showDeleteNoteDialog.value!!
+        AlertDialog(
+            onDismissRequest = { showDeleteNoteDialog.value = null },
+            containerColor = Gray800,
+            title = { Text("Delete Note") },
+            text = {
+                Text("Are you sure you want to delete the note for ${dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onUpdateNote?.invoke(dateToDeleteNote, "")
+                    showDeleteNoteDialog.value = null
+                }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteNoteDialog.value = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 } 

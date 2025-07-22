@@ -143,4 +143,11 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             sortEvents()
         }
     }
+
+    fun updateEventInstanceNote(eventId: String, date: LocalDate, note: String) {
+        viewModelScope.launch {
+            _unsortedEvents = repository.updateEventInstanceNote(eventId, date, note)
+            sortEvents()
+        }
+    }
 } 

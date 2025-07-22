@@ -143,6 +143,20 @@ class EventRepository(context: Context) {
         return currentEvents
     }
 
+    fun updateEventInstanceNote(eventId: String, date: LocalDate, note: String): List<Event> {
+        val currentEvents = loadEvents().toMutableList()
+        val index = currentEvents.indexOfFirst { it.id == eventId }
+        if (index != -1) {
+            val event = currentEvents[index]
+            val updatedInstances = event.instances.map {
+                if (it.date == date) it.copy(note = note) else it
+            }
+            currentEvents[index] = event.copy(instances = updatedInstances)
+            saveEvents(currentEvents)
+        }
+        return currentEvents
+    }
+
     fun exportEventsJson(): String {
         val events = loadEvents()
         return gson.toJson(events)
@@ -156,5 +170,12 @@ class EventRepository(context: Context) {
             emptyList()
         }
         saveEvents(events)
+    }
+
+    fun getHasSeenNoteHintBanner(): Boolean {
+        return sharedPreferences.getBoolean("hasSeenNoteHintBanner", false)
+    }
+    fun setHasSeenNoteHintBanner(value: Boolean) {
+        sharedPreferences.edit().putBoolean("hasSeenNoteHintBanner", value).apply()
     }
 } 

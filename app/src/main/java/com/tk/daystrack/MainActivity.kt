@@ -138,6 +138,9 @@ fun DayTrackAppWithExportImport(
                     },
                     onDeleteDate = { dateToDelete ->
                         viewModel.deleteEventDate(selectedEventForDetails!!.id, dateToDelete)
+                    },
+                    onUpdateNote = { date, note ->
+                        viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
                     }
                 )
             }
