@@ -269,41 +269,46 @@ fun DayTrackAppWithExportImport(
                                 viewModel.reorderEvents(from.index, to.index)
                             }
                         )
-                        LazyColumn(
-                            modifier = if (isEditMode) {
-                                Modifier.fillMaxWidth().reorderable(reorderableState)
-                            } else {
-                                Modifier.fillMaxWidth()
-                            },
-                            state = reorderableState.listState,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.Transparent
                         ) {
-                            items(events.size, key = { events[it].id }) { index ->
-                                val event = events[index]
-                                val isLastItem = index == events.size - 1
-                                val itemModifier = if (isLastItem) Modifier.padding(bottom = 120.dp) else Modifier
-                                if (isEditMode) {
-                                    ReorderableItem(reorderableState, key = event.id) { isDragging ->
+                            LazyColumn(
+                                modifier = if (isEditMode) {
+                                    Modifier.fillMaxWidth().reorderable(reorderableState)
+                                } else {
+                                    Modifier.fillMaxWidth()
+                                },
+                                state = reorderableState.listState,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(events.size, key = { events[it].id }) { index ->
+                                    val event = events[index]
+                                    val isLastItem = index == events.size - 1
+                                    val itemModifier = if (isLastItem) Modifier.padding(bottom = 120.dp) else Modifier
+                                    if (isEditMode) {
+                                        ReorderableItem(reorderableState, key = event.id) { isDragging ->
+                                            EventListItem(
+                                                event = event,
+                                                onUpdate = { eventToUpdate -> eventPendingDelete = eventToUpdate },
+                                                onClick = null,
+                                                onLongPress = null,
+                                                modifier = itemModifier,
+                                                editMode = true,
+                                                reorderableState = reorderableState
+                                            )
+                                        }
+                                    } else {
                                         EventListItem(
                                             event = event,
-                                            onUpdate = { eventToUpdate -> eventPendingDelete = eventToUpdate },
-                                            onClick = null,
-                                            onLongPress = null,
+                                            onUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
+                                            onClick = { selectedEventId = event.id },
+                                            onLongPress = { viewModel.setEditMode(true) },
                                             modifier = itemModifier,
-                                            editMode = true,
-                                            reorderableState = reorderableState
+                                            editMode = false,
+                                            reorderableState = null
                                         )
                                     }
-                                } else {
-                                    EventListItem(
-                                        event = event,
-                                        onUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
-                                        onClick = { selectedEventId = event.id },
-                                        onLongPress = { viewModel.setEditMode(true) },
-                                        modifier = itemModifier,
-                                        editMode = false,
-                                        reorderableState = null
-                                    )
                                 }
                             }
                         }

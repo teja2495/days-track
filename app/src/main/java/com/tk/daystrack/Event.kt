@@ -93,6 +93,9 @@ fun EventDetailsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
+                actions = {
+                    // Removed delete icon from app bar
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -164,207 +167,237 @@ fun EventDetailsScreen(
                     )
                 }
             } else {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
-                        .zIndex(1f),
-                    verticalArrangement = Arrangement.Top
+                        .zIndex(1f)
                 ) {
-                    if (showBanner.value) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(16.dp),
-                            tonalElevation = 2.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp)
-                        ) {
-                            Row(
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        if (showBanner.value) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = RoundedCornerShape(16.dp),
+                                tonalElevation = 2.dp,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(bottom = 12.dp)
                             ) {
-                                Text(
-                                    text = "Hint: Tap on the date card to add a note for that instance.",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.weight(1f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                IconButton(onClick = {
-                                    showBanner.value = false
-                                    repository.setHasSeenNoteHintBanner(true)
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Dismiss",
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Hint: Tap on the date card to add a note for that instance.",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.weight(1f),
+                                        fontWeight = FontWeight.Medium
                                     )
-                                }
-                            }
-                        }
-                    }
-                    androidx.compose.foundation.lazy.LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        val sortedInstances = event.instances.sortedByDescending { it.date }
-                        val avgFrequency = DateUtils.averageFrequency(sortedInstances.map { it.date })
-                        if (avgFrequency != null) {
-                            item {
-                                Column {
-                                    Row(
-                                        modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Average frequency: ",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray
-                                        )
-                                        Text(
-                                            text = "${"%.1f".format(avgFrequency)} days",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium,
-                                            color = White
+                                    IconButton(onClick = {
+                                        showBanner.value = false
+                                        repository.setHasSeenNoteHintBanner(true)
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = "Dismiss",
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer
                                         )
                                     }
                                 }
                             }
                         }
-                        items(sortedInstances.size) { index ->
-                            val instance = sortedInstances[index]
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        val note = instance.note ?: ""
-                                        editingNoteText.value = note
-                                        initialNoteText.value = note
-                                        editingNoteDate.value = instance.date
-                                        showEditNoteSheet.value = true
-                                    },
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        // Average frequency always visible
+                        val sortedInstances = event.instances.sortedByDescending { it.date }
+                        val avgFrequency = DateUtils.averageFrequency(sortedInstances.map { it.date })
+                        if (avgFrequency != null) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = instance.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Medium,
-                                            modifier = Modifier.weight(1f)
+                                    Text(
+                                        text = "Average frequency: ",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        text = "${"%.1f".format(avgFrequency)} days",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = White
+                                    )
+                                }
+                            }
+                        }
+                        // Scrollable list with extra bottom padding and corner radius
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.Transparent
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(top = 16.dp, bottom = 140.dp)
+                            ) {
+                                if (avgFrequency == null) {
+                                    // To keep indices correct if avgFrequency is not shown
+                                }
+                                items(sortedInstances.size) { index ->
+                                    val instance = sortedInstances[index]
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                val note = instance.note ?: ""
+                                                editingNoteText.value = note
+                                                initialNoteText.value = note
+                                                editingNoteDate.value = instance.date
+                                                showEditNoteSheet.value = true
+                                            },
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant
                                         )
-                                        if (onDeleteDate != null) {
-                                            IconButton(
-                                                onClick = { showDeleteDateDialog.value = instance.date }
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp, vertical = 10.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = "Delete Date",
-                                                    tint = Color.Gray
+                                                Text(
+                                                    text = instance.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    fontWeight = FontWeight.Medium,
+                                                    modifier = Modifier.weight(1f)
+                                                )
+                                                if (onDeleteDate != null) {
+                                                    IconButton(
+                                                        onClick = { showDeleteDateDialog.value = instance.date }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Delete,
+                                                            contentDescription = "Delete Date",
+                                                            tint = Color.Gray
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Show note in a separate card extending from the date card
+                                    if (!instance.note.isNullOrBlank()) {
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 12.dp, end = 12.dp)
+                                                .clickable {
+                                                    val note = instance.note ?: ""
+                                                    editingNoteText.value = note
+                                                    initialNoteText.value = note
+                                                    editingNoteDate.value = instance.date
+                                                    showEditNoteSheet.value = true
+                                                },
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                            ),
+                                            shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = instance.note,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = Color.Gray,
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 10.dp)
+                                                )
+                                                IconButton(
+                                                    onClick = { showDeleteNoteDialog.value = instance.date }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Close,
+                                                        contentDescription = "Delete Note",
+                                                        tint = Color.Gray
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Centered pipe symbol and interval text
+                                    if (index < sortedInstances.size - 1) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                TimelineConnector()
+                                                val currentDate = instance.date
+                                                val nextDate = sortedInstances[index + 1].date
+                                                val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
+                                                val intervalText = when {
+                                                    daysBetween == -1L -> "1 day earlier"
+                                                    daysBetween < -1L -> "${-daysBetween} days earlier"
+                                                    daysBetween == 0L -> "Same day"
+                                                    else -> "$daysBetween days later"
+                                                }
+                                                Text(
+                                                    text = intervalText,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = com.tk.daystrack.ui.theme.Teal400,
+                                                    modifier = Modifier
+                                                        .padding(top = 0.dp),
+                                                    fontWeight = FontWeight.Normal
                                                 )
                                             }
                                         }
                                     }
                                 }
                             }
-                            // Show note in a separate card extending from the date card
-                            if (!instance.note.isNullOrBlank()) {
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 12.dp, end = 12.dp)
-                                        .clickable {
-                                            val note = instance.note ?: ""
-                                            editingNoteText.value = note
-                                            initialNoteText.value = note
-                                            editingNoteDate.value = instance.date
-                                            showEditNoteSheet.value = true
-                                        },
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                    ),
-                                    shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = instance.note,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray,
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 10.dp)
-                                        )
-                                        IconButton(
-                                            onClick = { showDeleteNoteDialog.value = instance.date }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = "Delete Note",
-                                                tint = Color.Gray
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            // Centered pipe symbol and interval text
-                            if (index < sortedInstances.size - 1) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        TimelineConnector()
-                                        val currentDate = instance.date
-                                        val nextDate = sortedInstances[index + 1].date
-                                        val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
-                                        val intervalText = when {
-                                            daysBetween == -1L -> "1 day earlier"
-                                            daysBetween < -1L -> "${-daysBetween} days earlier"
-                                            daysBetween == 0L -> "Same day"
-                                            else -> "$daysBetween days later"
-                                        }
-                                        Text(
-                                            text = intervalText,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = com.tk.daystrack.ui.theme.Teal400,
-                                            modifier = Modifier
-                                                .padding(top = 0.dp),
-                                            fontWeight = FontWeight.Normal
-                                        )
-                                    }
-                                }
-                            }
                         }
                     }
-                    if (onDelete != null) {
-                        Button(
-                            onClick = { showDialog.value = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = DeleteButtonColor),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(50),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            Text("Delete Event", color = DeleteButtonTextColor, fontWeight = FontWeight.Bold)
+                    // Wrap the delete button in a Box for consistent placement
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 50.dp, end = 15.dp),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        if (onDelete != null) {
+                            ExtendedFloatingActionButton(
+                                onClick = { showDialog.value = true },
+                                shape = RoundedCornerShape(50),
+                                containerColor = DeleteButtonColor,
+                                contentColor = DeleteButtonTextColor,
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete Event",
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                },
+                                text = {
+                                    Text(
+                                        "Delete Event",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            )
                         }
                     }
                 }
