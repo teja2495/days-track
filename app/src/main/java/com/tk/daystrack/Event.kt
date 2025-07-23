@@ -175,7 +175,7 @@ fun EventDetailsScreen(
                     if (showBanner.value) {
                         Surface(
                             color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             tonalElevation = 2.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
