@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
@@ -36,6 +37,7 @@ fun AddEventBottomSheet(
     var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
+    var noteFieldFocused by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = java.time.ZoneId.systemDefault()
@@ -67,7 +69,7 @@ fun AddEventBottomSheet(
                 color = White
             )
 
-            if (showDateField && allInstanceDates.isNotEmpty()) {
+            if (showDateField && allInstanceDates.isNotEmpty() && !noteFieldFocused) {
                 TimelineInstanceDates3(
                     allDates = allInstanceDates,
                     selectedDate = selectedDate
@@ -121,7 +123,9 @@ fun AddEventBottomSheet(
                     value = note,
                     onValueChange = { note = it },
                     label = { Text("Note (optional)", color = White.copy(alpha = 0.7f)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { noteFieldFocused = it.isFocused },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Teal400,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
