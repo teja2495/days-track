@@ -44,6 +44,7 @@ import org.burnoutcrew.reorderable.detectReorder
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
+import com.tk.daystrack.DateUtils
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +107,10 @@ fun DayTrackAppWithExportImport(
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
+    val showToggleDateHint by viewModel.showToggleDateHint.collectAsState()
+    val shouldShowToggleHint = showToggleDateHint && events.any { event ->
+        event.instances.isNotEmpty() && DateUtils.isAtLeastOneMonth(event.instances.last().date)
+    }
 
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
@@ -213,6 +218,38 @@ fun DayTrackAppWithExportImport(
                                     fontWeight = FontWeight.Medium
                                 )
                                 IconButton(onClick = { viewModel.dismissEventListHintBanner() }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Dismiss",
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (shouldShowToggleHint) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(16.dp),
+                            tonalElevation = 2.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Hint: Tap the date text to switch between days and months/years.",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.weight(1f),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                IconButton(onClick = { viewModel.dismissToggleDateHint() }) {
                                     Icon(
                                         imageVector = Icons.Filled.Close,
                                         contentDescription = "Dismiss",

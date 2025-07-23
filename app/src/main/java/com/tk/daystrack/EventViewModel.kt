@@ -46,6 +46,14 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         repository.setHasSeenEventListHintBanner(true)
     }
     
+    private val _showToggleDateHint = MutableStateFlow(!repository.getHasSeenToggleDateHint())
+    val showToggleDateHint: StateFlow<Boolean> = _showToggleDateHint.asStateFlow()
+
+    fun dismissToggleDateHint() {
+        _showToggleDateHint.value = false
+        repository.setHasSeenToggleDateHint(true)
+    }
+    
     init {
         loadEvents()
     }

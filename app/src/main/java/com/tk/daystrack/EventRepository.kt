@@ -185,4 +185,11 @@ class EventRepository(context: Context) {
     fun setHasSeenEventListHintBanner(value: Boolean) {
         sharedPreferences.edit().putBoolean("hasSeenEventListHintBanner", value).apply()
     }
+
+    fun getHasSeenToggleDateHint(): Boolean {
+        return sharedPreferences.getBoolean("hasSeenToggleDateHint", false)
+    }
+    fun setHasSeenToggleDateHint(value: Boolean) {
+        sharedPreferences.edit().putBoolean("hasSeenToggleDateHint", value).apply()
+    }
 } 
