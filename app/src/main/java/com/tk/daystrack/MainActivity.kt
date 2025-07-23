@@ -37,6 +37,13 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorder
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +105,7 @@ fun DayTrackAppWithExportImport(
     val currentSortOption by viewModel.currentSortOption.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
+    val isEditMode by viewModel.isEditMode.collectAsState()
 
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
@@ -155,7 +163,7 @@ fun DayTrackAppWithExportImport(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp),
+                            .padding(top = 12.dp, bottom = 22.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -168,7 +176,10 @@ fun DayTrackAppWithExportImport(
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(
-                            onClick = { showSettings = true },
+                            onClick = {
+                                if (isEditMode) viewModel.setEditMode(false)
+                                showSettings = true
+                            },
                             modifier = Modifier.padding(end = 18.dp)
                         ) {
                             Icon(
@@ -179,31 +190,84 @@ fun DayTrackAppWithExportImport(
                             )
                         }
                     }
+                    if (viewModel.showEventListHintBanner.collectAsState().value) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(16.dp),
+                            tonalElevation = 2.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Hint: Long press an event to enter edit mode, where you can delete and reorder events.",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.weight(1f),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                IconButton(onClick = { viewModel.dismissEventListHintBanner() }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Dismiss",
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
+                    }
                     if (events.isEmpty()) {
                         EmptyEventsMessage(
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     } else {
+                        val reorderableState = rememberReorderableLazyListState(
+                            onMove = { from, to ->
+                                viewModel.reorderEvents(from.index, to.index)
+                            }
+                        )
                         LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            modifier = if (isEditMode) {
+                                Modifier.fillMaxWidth().reorderable(reorderableState)
+                            } else {
+                                Modifier.fillMaxWidth()
+                            },
+                            state = reorderableState.listState,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(events.size) { index ->
+                            items(events.size, key = { events[it].id }) { index ->
                                 val event = events[index]
                                 val isLastItem = index == events.size - 1
-                                EventListItem(
-                                    event = event,
-                                    onUpdate = { eventToUpdate ->
-                                        eventForNewInstance = eventToUpdate
-                                    },
-                                    onClick = { selectedEventId = event.id },
-                                    onLongPress = { eventPendingDelete = event }, // <-- Add this
-                                    modifier = if (isLastItem) {
-                                        Modifier.padding(bottom = 120.dp)
-                                    } else {
-                                        Modifier
+                                val itemModifier = if (isLastItem) Modifier.padding(bottom = 120.dp) else Modifier
+                                if (isEditMode) {
+                                    ReorderableItem(reorderableState, key = event.id) { isDragging ->
+                                        EventListItem(
+                                            event = event,
+                                            onUpdate = { eventToUpdate -> eventPendingDelete = eventToUpdate },
+                                            onClick = null,
+                                            onLongPress = null,
+                                            modifier = itemModifier,
+                                            editMode = true,
+                                            reorderableState = reorderableState
+                                        )
                                     }
-                                )
+                                } else {
+                                    EventListItem(
+                                        event = event,
+                                        onUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
+                                        onClick = { selectedEventId = event.id },
+                                        onLongPress = { viewModel.setEditMode(true) },
+                                        modifier = itemModifier,
+                                        editMode = false,
+                                        reorderableState = null
+                                    )
+                                }
                             }
                         }
                     }
@@ -214,26 +278,49 @@ fun DayTrackAppWithExportImport(
                         .padding(bottom = 70.dp, end = 20.dp),
                     contentAlignment = Alignment.BottomEnd
                 ) {
-                    ExtendedFloatingActionButton(
-                        onClick = { viewModel.showAddDialog() },
-                        shape = RoundedCornerShape(50),
-                        containerColor = Teal500,
-                        contentColor = Gray900,
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        text = {
-                            Text(
-                                "Add Event",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    )
+                    if (isEditMode) {
+                        ExtendedFloatingActionButton(
+                            onClick = { viewModel.setEditMode(false) },
+                            shape = RoundedCornerShape(50),
+                            containerColor = Teal400,
+                            contentColor = Color.Black,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Done Editing",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            text = {
+                                Text(
+                                    "Done Editing",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        )
+                    } else {
+                        ExtendedFloatingActionButton(
+                            onClick = { viewModel.showAddDialog() },
+                            shape = RoundedCornerShape(50),
+                            containerColor = Teal500,
+                            contentColor = Gray900,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            text = {
+                                Text(
+                                    "Add Event",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        )
+                    }
                 }
                 if (showAddDialog) {
                     AddEventBottomSheet(
@@ -319,6 +406,7 @@ fun SortDropdown(
         SortOption.DATE_ASCENDING -> "Date (Ascending)"
         SortOption.DATE_DESCENDING -> "Date (Descending)"
         SortOption.ALPHABETICAL -> "Alphabetical"
+        SortOption.CUSTOM -> "Custom (Manual Order)"
     }
     
     Surface(

@@ -37,7 +37,7 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp),
+                .padding(top = 12.dp, bottom = 32.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -177,7 +177,12 @@ fun CustomSortDropdown(
         SortOption.DATE_DESCENDING to "Date (Descending)",
         SortOption.ALPHABETICAL to "Alphabetical"
     )
-    val selectedText = sortOptions.first { it.first == currentSortOption }.second
+    val selectedText = when (currentSortOption) {
+        SortOption.DATE_ASCENDING -> "Date (Ascending)"
+        SortOption.DATE_DESCENDING -> "Date (Descending)"
+        SortOption.ALPHABETICAL -> "Alphabetical"
+        SortOption.CUSTOM -> "Custom (Manual Order)"
+    }
 
     Card(
         modifier = modifier

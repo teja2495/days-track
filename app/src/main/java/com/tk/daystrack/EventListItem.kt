@@ -5,6 +5,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,8 @@ import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import org.burnoutcrew.reorderable.ReorderableLazyListState
+import org.burnoutcrew.reorderable.detectReorder
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -28,7 +32,9 @@ fun EventListItem(
     onUpdate: (Event) -> Unit,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    onLongPress: (() -> Unit)? = null
+    onLongPress: (() -> Unit)? = null,
+    editMode: Boolean = false,
+    reorderableState: ReorderableLazyListState? = null
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -72,6 +78,20 @@ fun EventListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (editMode) {
+                // 3-bar menu (drag handle)
+                Icon(
+                    imageVector = Icons.Filled.DragHandle,
+                    contentDescription = "Drag Handle",
+                    tint = White,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(end = 16.dp)
+                        .let { base ->
+                            if (reorderableState != null) base.detectReorder(reorderableState) else base
+                        }
+                )
+            }
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -84,8 +104,7 @@ fun EventListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
-                if (hasInstances) {
+                if (hasInstances && !editMode) {
                     val canToggle = DateUtils.isAtLeastOneMonth(lastInstance!!.date)
                     val displayText = if (showDaysOnly) {
                         when {
@@ -109,7 +128,7 @@ fun EventListItem(
                 }
             }
             
-            // Add button with circle background
+            // Trailing icon: + (normal) or delete (edit mode)
             Surface(
                 shape = CircleShape,
                 color = ButtonColor,
@@ -120,8 +139,8 @@ fun EventListItem(
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Update Event",
+                        imageVector = if (editMode) Icons.Default.Delete else Icons.Default.Add,
+                        contentDescription = if (editMode) "Delete Event" else "Update Event",
                         tint = White,
                         modifier = Modifier.size(24.dp)
                     )

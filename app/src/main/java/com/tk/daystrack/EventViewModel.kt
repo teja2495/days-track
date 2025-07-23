@@ -12,7 +12,8 @@ import com.tk.daystrack.DateUtils.toTitleCase
 enum class SortOption {
     DATE_ASCENDING,
     DATE_DESCENDING,
-    ALPHABETICAL
+    ALPHABETICAL,
+    CUSTOM
 }
 
 class EventViewModel(private val repository: EventRepository) : ViewModel() {
@@ -36,6 +37,14 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     val eventToUpdate: StateFlow<Event?> = _eventToUpdate.asStateFlow()
     
     private var _unsortedEvents = listOf<Event>()
+    
+    private val _showEventListHintBanner = MutableStateFlow(!repository.getHasSeenEventListHintBanner())
+    val showEventListHintBanner: StateFlow<Boolean> = _showEventListHintBanner.asStateFlow()
+
+    fun dismissEventListHintBanner() {
+        _showEventListHintBanner.value = false
+        repository.setHasSeenEventListHintBanner(true)
+    }
     
     init {
         loadEvents()
@@ -104,15 +113,32 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         }
     }
     
-    private fun sortEvents() {
-        _events.value = when (_currentSortOption.value) {
-            SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy {
-                if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+    fun reorderEvents(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            val mutableList = _unsortedEvents.toMutableList()
+            val item = mutableList.removeAt(fromIndex)
+            mutableList.add(toIndex, item)
+            _unsortedEvents = mutableList
+            repository.saveEvents(_unsortedEvents)
+            _currentSortOption.value = SortOption.CUSTOM
+            sortEvents(forceNoSort = true)
+        }
+    }
+
+    private fun sortEvents(forceNoSort: Boolean = false) {
+        _events.value = if (forceNoSort || _currentSortOption.value == SortOption.CUSTOM) {
+            _unsortedEvents
+        } else {
+            when (_currentSortOption.value) {
+                SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy {
+                    if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+                }
+                SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending {
+                    if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+                }
+                SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
+                SortOption.CUSTOM -> _unsortedEvents // fallback, should be handled above
             }
-            SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending {
-                if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
-            }
-            SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
         }
     }
 

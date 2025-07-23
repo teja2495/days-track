@@ -178,4 +178,11 @@ class EventRepository(context: Context) {
     fun setHasSeenNoteHintBanner(value: Boolean) {
         sharedPreferences.edit().putBoolean("hasSeenNoteHintBanner", value).apply()
     }
+
+    fun getHasSeenEventListHintBanner(): Boolean {
+        return sharedPreferences.getBoolean("hasSeenEventListHintBanner", false)
+    }
+    fun setHasSeenEventListHintBanner(value: Boolean) {
+        sharedPreferences.edit().putBoolean("hasSeenEventListHintBanner", value).apply()
+    }
 } 
