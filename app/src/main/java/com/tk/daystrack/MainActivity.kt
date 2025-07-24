@@ -160,6 +160,11 @@ fun DayTrackAppWithExportImport(
                 )
             }
             else -> {
+                if (isEditMode) {
+                    BackHandler(enabled = true) {
+                        viewModel.setEditMode(false)
+                    }
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -260,9 +265,13 @@ fun DayTrackAppWithExportImport(
                         }
                     }
                     if (events.isEmpty()) {
-                        EmptyEventsMessage(
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            EmptyEventsMessage()
+                        }
                     } else {
                         val reorderableState = rememberReorderableLazyListState(
                             onMove = { from, to ->
@@ -290,7 +299,13 @@ fun DayTrackAppWithExportImport(
                                         ReorderableItem(reorderableState, key = event.id) { isDragging ->
                                             EventListItem(
                                                 event = event,
-                                                onUpdate = { eventToUpdate -> eventPendingDelete = eventToUpdate },
+                                                onUpdate = { updatedEvent ->
+                                                    if (updatedEvent.name != event.name) {
+                                                        viewModel.updateEventName(event.id, updatedEvent.name)
+                                                    } else {
+                                                        eventPendingDelete = updatedEvent
+                                                    }
+                                                },
                                                 onClick = null,
                                                 onLongPress = null,
                                                 modifier = itemModifier,

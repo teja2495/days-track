@@ -67,7 +67,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     fun addEvent(name: String) {
         viewModelScope.launch {
-            val newEvent = Event(name = name.trim(), instances = emptyList())
+            val newEvent = Event(name = name.trim().toTitleCase(), instances = emptyList())
             _unsortedEvents = repository.addEvent(newEvent)
             sortEvents()
             _showAddDialog.value = false
@@ -182,6 +182,20 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _unsortedEvents = repository.updateEventInstanceNote(eventId, date, note)
             sortEvents()
+        }
+    }
+
+    fun updateEventName(eventId: String, newName: String) {
+        viewModelScope.launch {
+            val currentEvents = repository.loadEvents().toMutableList()
+            val index = currentEvents.indexOfFirst { it.id == eventId }
+            if (index != -1) {
+                val event = currentEvents[index]
+                currentEvents[index] = event.copy(name = newName.trim().toTitleCase())
+                repository.saveEvents(currentEvents)
+                _unsortedEvents = currentEvents
+                sortEvents()
+            }
         }
     }
 } 
