@@ -79,6 +79,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                // State for showing import confirmation dialog
+                var showImportConfirmDialog by remember { mutableStateOf(false) }
+
                 DayTrackAppWithExportImport(
                     viewModel = viewModel,
                     onExport = {
@@ -87,8 +90,36 @@ class MainActivity : ComponentActivity() {
                         val fileName = "backup-" + sdf.format(now) + ".daystrack"
                         exportLauncher.launch(fileName)
                     },
-                    onImport = { importLauncher.launch("application/octet-stream") }
+                    onImport = { showImportConfirmDialog = true }
                 )
+
+                // Confirmation dialog for import
+                if (showImportConfirmDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showImportConfirmDialog = false },
+                        containerColor = Gray800,
+                        title = { Text("Warning", color = White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) },
+                        text = { Text("Importing will overwrite all your existing events data. Are you sure you want to continue?", color = White) },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showImportConfirmDialog = false
+                                    importLauncher.launch("application/octet-stream")
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Teal500, contentColor = Color.Black),
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Text("Yes, Import", fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showImportConfirmDialog = false }) {
+                                Text("Cancel", color = White.copy(alpha = 0.7f))
+                            }
+                        },
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                }
             }
         }
     }
