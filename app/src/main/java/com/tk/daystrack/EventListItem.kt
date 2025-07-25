@@ -146,21 +146,35 @@ fun EventListItem(
             }
             
             // Trailing icon: + (normal) or delete (edit mode)
-            Surface(
-                shape = CircleShape,
-                color = ButtonColor,
-                modifier = Modifier.size(40.dp)
-            ) {
+            if (editMode) {
                 IconButton(
                     onClick = { onUpdate(event) },
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
-                        imageVector = if (editMode) Icons.Default.Delete else Icons.Default.Add,
-                        contentDescription = if (editMode) "Delete Event" else "Update Event",
-                        tint = White,
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Event",
+                        tint = DeleteButtonColor, // Use subtle red
                         modifier = Modifier.size(24.dp)
                     )
+                }
+            } else {
+                Surface(
+                    shape = CircleShape,
+                    color = ButtonColor,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    IconButton(
+                        onClick = { onUpdate(event) },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Update Event",
+                            tint = White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
