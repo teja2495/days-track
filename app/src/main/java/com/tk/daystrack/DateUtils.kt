@@ -2,6 +2,7 @@ package com.tk.daystrack
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.time.Period
 import kotlin.math.abs
 
 object DateUtils {
@@ -12,42 +13,40 @@ object DateUtils {
         
         return when {
             daysDifference == 0L -> "today"
-            daysDifference > 0 -> formatFuture(daysDifference)
-            else -> formatPast(abs(daysDifference))
+            daysDifference > 0 -> formatFuture(eventDate, today)
+            else -> formatPast(eventDate, today)
         }
     }
     
-    private fun formatFuture(days: Long): String {
+    private fun formatFuture(eventDate: LocalDate, today: LocalDate): String {
+        val period = Period.between(today, eventDate)
+        val months = period.months
+        val days = period.days
+        
         return when {
-            days == 1L -> "in 1 day"
-            days < 30 -> "in $days days"
-            else -> {
-                val months = days / 30
-                val remainingDays = days % 30
-                when {
-                    months == 1L && remainingDays == 0L -> "in 1 month"
-                    months == 1L -> "in 1 month $remainingDays days"
-                    remainingDays == 0L -> "in $months months"
-                    else -> "in $months months $remainingDays days"
-                }
-            }
+            months == 0 && days == 0 -> "today"
+            months == 0 && days == 1 -> "in 1 day"
+            months == 0 -> "in $days days"
+            months == 1 && days == 0 -> "in 1 month"
+            months == 1 -> "in 1 month $days days"
+            days == 0 -> "in $months months"
+            else -> "in $months months $days days"
         }
     }
     
-    private fun formatPast(days: Long): String {
+    private fun formatPast(eventDate: LocalDate, today: LocalDate): String {
+        val period = Period.between(eventDate, today)
+        val months = period.months
+        val days = period.days
+        
         return when {
-            days == 1L -> "1 day ago"
-            days < 30 -> "$days days ago"
-            else -> {
-                val months = days / 30
-                val remainingDays = days % 30
-                when {
-                    months == 1L && remainingDays == 0L -> "1 month ago"
-                    months == 1L -> "1 month $remainingDays days ago"
-                    remainingDays == 0L -> "$months months ago"
-                    else -> "$months months $remainingDays days ago"
-                }
-            }
+            months == 0 && days == 0 -> "today"
+            months == 0 && days == 1 -> "1 day ago"
+            months == 0 -> "$days days ago"
+            months == 1 && days == 0 -> "1 month ago"
+            months == 1 -> "1 month $days days ago"
+            days == 0 -> "$months months ago"
+            else -> "$months months $days days ago"
         }
     }
 
