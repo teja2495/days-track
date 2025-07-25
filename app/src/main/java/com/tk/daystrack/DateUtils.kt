@@ -52,7 +52,7 @@ object DateUtils {
     }
 
     fun String.toTitleCase(): String =
-        split(" ", "_", "-").joinToString(" ") { word ->
+        split(" ").joinToString(" ") { word ->
             word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }
 

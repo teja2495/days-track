@@ -331,11 +331,7 @@ fun DayTrackAppWithExportImport(
                                             EventListItem(
                                                 event = event,
                                                 onUpdate = { updatedEvent ->
-                                                    if (updatedEvent.name != event.name) {
-                                                        viewModel.updateEventName(event.id, updatedEvent.name)
-                                                    } else {
-                                                        eventPendingDelete = updatedEvent
-                                                    }
+                                                    viewModel.updateEventName(event.id, updatedEvent.name)
                                                 },
                                                 onClick = null,
                                                 onLongPress = null,
