@@ -94,31 +94,7 @@ fun EventDetailsScreen(
                     }
                 },
                 actions = {
-                    if (onDelete != null) {
-                        Surface(
-                            shape = RoundedCornerShape(50),
-                            color = DeleteButtonColor,
-                            tonalElevation = 2.dp,
-                            modifier = Modifier
-                                .padding(start = 4.dp, end = 24.dp, top = 8.dp, bottom = 8.dp)
-                                .height(36.dp)
-                                .clickable { showDialog.value = true }
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxHeight(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Event",
-                                    tint = DeleteButtonTextColor,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                        }
-                    }
+                    // Removed delete icon from app bar
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
@@ -164,6 +140,31 @@ fun EventDetailsScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Add Instance", color = Color.Black, fontWeight = FontWeight.Bold)
                     }
+                }
+                if (showAddInstanceSheet.value) {
+                    AddEventBottomSheet(
+                        onDismiss = { showAddInstanceSheet.value = false },
+                        onSave = { name, date, note ->
+                            if (date != null && viewModel != null) {
+                                viewModel.addInstanceToEvent(
+                                    event.id,
+                                    name,
+                                    EventInstance(date, note)
+                                )
+                            } else if (date != null) {
+                                onUpdateNote?.invoke(date, note ?: "")
+                            }
+                            showAddInstanceSheet.value = false
+                        },
+                        initialName = event.name,
+                        initialDate = java.time.LocalDate.now(),
+                        title = event.name,
+                        buttonLabel = "Save",
+                        editableName = false,
+                        showDateField = true,
+                        dateFieldLabel = "New Instance",
+                        allInstanceDates = event.instances.map { it.date }
+                    )
                 }
             } else {
                 Box(
@@ -376,27 +377,28 @@ fun EventDetailsScreen(
                             .padding(bottom = 50.dp, end = 15.dp),
                         contentAlignment = Alignment.BottomEnd
                     ) {
-                        // Replace delete button with Add Instance button
-                        ExtendedFloatingActionButton(
-                            onClick = { showAddInstanceSheet.value = true },
-                            shape = RoundedCornerShape(50),
-                            containerColor = Teal500,
-                            contentColor = Color.Black,
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Instance",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            },
-                            text = {
-                                Text(
-                                    "Add Instance",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        )
+                        if (onDelete != null) {
+                            ExtendedFloatingActionButton(
+                                onClick = { showDialog.value = true },
+                                shape = RoundedCornerShape(50),
+                                containerColor = DeleteButtonColor,
+                                contentColor = DeleteButtonTextColor,
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete Event",
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                },
+                                text = {
+                                    Text(
+                                        "Delete Event",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
                 if (showDialog.value) {
@@ -446,32 +448,6 @@ fun EventDetailsScreen(
                     )
                 }
             }
-        }
-        // Always show AddEventBottomSheet if requested
-        if (showAddInstanceSheet.value) {
-            AddEventBottomSheet(
-                onDismiss = { showAddInstanceSheet.value = false },
-                onSave = { name, date, note ->
-                    if (date != null && viewModel != null) {
-                        viewModel.addInstanceToEvent(
-                            event.id,
-                            name,
-                            EventInstance(date, note)
-                        )
-                    } else if (date != null) {
-                        onUpdateNote?.invoke(date, note ?: "")
-                    }
-                    showAddInstanceSheet.value = false
-                },
-                initialName = event.name,
-                initialDate = java.time.LocalDate.now(),
-                title = event.name,
-                buttonLabel = "Save",
-                editableName = false,
-                showDateField = true,
-                dateFieldLabel = "New Instance",
-                allInstanceDates = event.instances.map { it.date }
-            )
         }
     }
     // Bottom sheet for editing note
