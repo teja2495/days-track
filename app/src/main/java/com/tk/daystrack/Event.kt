@@ -75,6 +75,8 @@ fun EventDetailsScreen(
     LaunchedEffect(Unit) {
         showBanner.value = !repository.getHasSeenNoteHintBanner()
     }
+    // Move showAddInstanceSheet here so it's accessible in AppBar actions
+    val showAddInstanceSheet = remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -94,6 +96,17 @@ fun EventDetailsScreen(
                     }
                 },
                 actions = {
+                    // Only show + icon if there are instances
+                    if (event.instances.isNotEmpty()) {
+                        IconButton(onClick = { showAddInstanceSheet.value = true }, modifier = Modifier.padding(end = 28.dp)) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Add Instance",
+                                tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    }
                     // Removed delete icon from app bar
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -104,7 +117,6 @@ fun EventDetailsScreen(
         }
     ) { innerPadding ->
         // --- EMPTY STATE HANDLING ---
-        val showAddInstanceSheet = remember { mutableStateOf(false) }
         Box(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
@@ -140,31 +152,6 @@ fun EventDetailsScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Add Instance", color = Color.Black, fontWeight = FontWeight.Bold)
                     }
-                }
-                if (showAddInstanceSheet.value) {
-                    AddEventBottomSheet(
-                        onDismiss = { showAddInstanceSheet.value = false },
-                        onSave = { name, date, note ->
-                            if (date != null && viewModel != null) {
-                                viewModel.addInstanceToEvent(
-                                    event.id,
-                                    name,
-                                    EventInstance(date, note)
-                                )
-                            } else if (date != null) {
-                                onUpdateNote?.invoke(date, note ?: "")
-                            }
-                            showAddInstanceSheet.value = false
-                        },
-                        initialName = event.name,
-                        initialDate = java.time.LocalDate.now(),
-                        title = event.name,
-                        buttonLabel = "Save",
-                        editableName = false,
-                        showDateField = true,
-                        dateFieldLabel = "New Instance",
-                        allInstanceDates = event.instances.map { it.date }
-                    )
                 }
             } else {
                 Box(
@@ -218,6 +205,7 @@ fun EventDetailsScreen(
                         val avgFrequency = DateUtils.averageFrequency(sortedInstances.map { it.date })
                         if (avgFrequency != null) {
                             Column {
+                                // Then average frequency
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
@@ -367,6 +355,23 @@ fun EventDetailsScreen(
                                         }
                                     }
                                 }
+                                // Add total instances text at the end of the list
+                                if (sortedInstances.size > 5) {
+                                    item {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(top = 16.dp, bottom = 8.dp),
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(
+                                                text = "${sortedInstances.size} instances",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Gray
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -448,6 +453,32 @@ fun EventDetailsScreen(
                     )
                 }
             }
+        }
+        // Always show AddEventBottomSheet if requested
+        if (showAddInstanceSheet.value) {
+            AddEventBottomSheet(
+                onDismiss = { showAddInstanceSheet.value = false },
+                onSave = { name, date, note ->
+                    if (date != null && viewModel != null) {
+                        viewModel.addInstanceToEvent(
+                            event.id,
+                            name,
+                            EventInstance(date, note)
+                        )
+                    } else if (date != null) {
+                        onUpdateNote?.invoke(date, note ?: "")
+                    }
+                    showAddInstanceSheet.value = false
+                },
+                initialName = event.name,
+                initialDate = java.time.LocalDate.now(),
+                title = event.name,
+                buttonLabel = "Save",
+                editableName = false,
+                showDateField = true,
+                dateFieldLabel = "New Instance",
+                allInstanceDates = event.instances.map { it.date }
+            )
         }
     }
     // Bottom sheet for editing note
