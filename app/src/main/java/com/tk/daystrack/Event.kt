@@ -232,7 +232,7 @@ fun EventDetailsScreen(
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(top = 16.dp, bottom = 140.dp)
+                                contentPadding = PaddingValues(top = 8.dp, bottom = 140.dp)
                             ) {
                                 if (avgFrequency == null) {
                                     // To keep indices correct if avgFrequency is not shown
@@ -266,7 +266,7 @@ fun EventDetailsScreen(
                                                 Text(
                                                     text = instance.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                                                     style = MaterialTheme.typography.titleLarge,
-                                                    fontWeight = FontWeight.Medium,
+                                                    fontWeight = FontWeight.Bold,
                                                     modifier = Modifier.weight(1f)
                                                 )
                                                 if (onDeleteDate != null) {

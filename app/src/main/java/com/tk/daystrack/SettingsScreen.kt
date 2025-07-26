@@ -13,10 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import android.net.Uri
+
+data class SortOptionInfo(
+    val label: String,
+    val description: String
+)
 
 @Composable
 fun SettingsScreen(
@@ -56,7 +65,7 @@ fun SettingsScreen(
             
             Text(
                 text = "Settings",
-                style = MaterialTheme.typography.headlineMedium,  // Changed from headlineLarge to headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = White
             )
@@ -67,53 +76,57 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp) // Increased spacing between sections
         ) {
-            Text(
-                text = "Sort Events",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = White,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            CustomSortDropdown(
-                currentSortOption = currentSortOption,
-                onSortOptionSelected = onSortOptionSelected
-            )
+            // Sort Events Section
+            Column {
+                Text(
+                    text = "Sort Events",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = White,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                CustomSortDropdown(
+                    currentSortOption = currentSortOption,
+                    onSortOptionSelected = onSortOptionSelected
+                )
+            }
 
-            // Reduce the vertical gap before backup section
-            Spacer(modifier = Modifier.height(0.dp))
-
-            Text(
-                text = "Events Data Backup",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = White,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Button(
-                    onClick = onImportClick,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+            // Data Management Section
+            Column {
+                Text(
+                    text = "Events Data Backup",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = White,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("Import", color = White, fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onExportClick,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Gray800)
-                ) {
-                    Text("Export", color = White, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = onImportClick,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+                    ) {
+                        Text("Import", color = White, fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = onExportClick,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+                    ) {
+                        Text("Export", color = White, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
-        // Remove previous feedback button and version display
-        // Add version and feedback at the bottom, side by side
+        
+        // Version and feedback section
         Spacer(modifier = Modifier.weight(1f))
         val context = LocalContext.current
         val versionName = try {
@@ -172,14 +185,15 @@ fun CustomSortDropdown(
     modifier: Modifier = Modifier
 ) {
     var dialogOpen by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf(false) }
     val sortOptions = listOf(
-        SortOption.DATE_ASCENDING to "Date (Ascending)",
-        SortOption.DATE_DESCENDING to "Date (Descending)",
-        SortOption.ALPHABETICAL to "Alphabetical"
+        SortOption.DATE_ASCENDING to SortOptionInfo("Date (Oldest First)", "Events from earliest to latest"),
+        SortOption.DATE_DESCENDING to SortOptionInfo("Date (Newest First)", "Events from latest to earliest"),
+        SortOption.ALPHABETICAL to SortOptionInfo("Alphabetical", "Events A to Z by name")
     )
     val selectedText = when (currentSortOption) {
-        SortOption.DATE_ASCENDING -> "Date (Ascending)"
-        SortOption.DATE_DESCENDING -> "Date (Descending)"
+        SortOption.DATE_ASCENDING -> "Date (Oldest First)"
+        SortOption.DATE_DESCENDING -> "Date (Newest First)"
         SortOption.ALPHABETICAL -> "Alphabetical"
         SortOption.CUSTOM -> "Custom (Manual Order)"
     }
@@ -187,12 +201,26 @@ fun CustomSortDropdown(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp),
+            .height(64.dp)
+            .shadow(
+                elevation = if (isPressed) 2.dp else 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Color.Black.copy(alpha = 0.1f),
+                spotColor = Color.Black.copy(alpha = 0.1f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (dialogOpen) ThemeTextColor else Color.Transparent,
+                shape = RoundedCornerShape(16.dp)
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Gray800
         ),
-        onClick = { dialogOpen = true },
+        onClick = { 
+            dialogOpen = true
+            isPressed = true
+        },
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -211,7 +239,8 @@ fun CustomSortDropdown(
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "Sort options",
-                tint = White
+                tint = if (dialogOpen) ThemeTextColor else White,
+                modifier = Modifier.size(24.dp)
             )
         }
     }
@@ -219,7 +248,10 @@ fun CustomSortDropdown(
     if (dialogOpen) {
         var tempSelected by remember { mutableStateOf(currentSortOption) }
         AlertDialog(
-            onDismissRequest = { dialogOpen = false },
+            onDismissRequest = { 
+                dialogOpen = false
+                isPressed = false
+            },
             containerColor = Gray800,
             titleContentColor = White,
             textContentColor = White,
@@ -228,12 +260,12 @@ fun CustomSortDropdown(
             },
             text = {
                 Column {
-                    sortOptions.forEach { (option, label) ->
+                    sortOptions.forEach { (option, sortInfo) ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
+                                .padding(vertical = 12.dp)
                                 .clickable { tempSelected = option }
                         ) {
                             RadioButton(
@@ -245,12 +277,22 @@ fun CustomSortDropdown(
                                 )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = if (tempSelected == option) ThemeTextColor else White,
-                                fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
-                            )
+                            
+                            // Text content
+                            Column {
+                                Text(
+                                    text = sortInfo.label,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (tempSelected == option) ThemeTextColor else White,
+                                    fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
+                                )
+                                Text(
+                                    text = sortInfo.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (tempSelected == option) ThemeTextColor.copy(alpha = 0.7f) else TextSecondary,
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -259,14 +301,18 @@ fun CustomSortDropdown(
                 TextButton(onClick = {
                     onSortOptionSelected(tempSelected)
                     dialogOpen = false
+                    isPressed = false
                 }) {
                     Text("OK", color = ThemeTextColor, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                                    TextButton(onClick = { dialogOpen = false }) {
-                        Text("Cancel", color = TextSecondary)
-                    }
+                TextButton(onClick = { 
+                    dialogOpen = false
+                    isPressed = false
+                }) {
+                    Text("Cancel", color = TextSecondary)
+                }
             }
         )
     }

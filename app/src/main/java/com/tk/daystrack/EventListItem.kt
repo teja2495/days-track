@@ -78,7 +78,7 @@ fun EventListItem(
                     )
                 } else it
             },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Gray800
         ),
@@ -171,7 +171,9 @@ fun EventListItem(
             if (editMode) {
                 IconButton(
                     onClick = { showDeleteDialog = true },
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(start = 8.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,

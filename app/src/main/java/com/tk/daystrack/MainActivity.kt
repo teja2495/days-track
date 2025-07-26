@@ -320,12 +320,12 @@ fun DayTrackAppWithExportImport(
                                     Modifier.fillMaxWidth()
                                 },
                                 state = reorderableState.listState,
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(events.size, key = { events[it].id }) { index ->
                                     val event = events[index]
                                     val isLastItem = index == events.size - 1
-                                    val itemModifier = if (isLastItem) Modifier.padding(bottom = 120.dp) else Modifier
+                                    val itemModifier = if (isLastItem) Modifier.padding(bottom = 140.dp) else Modifier
                                     if (isEditMode) {
                                         ReorderableItem(reorderableState, key = event.id) { isDragging ->
                                             EventListItem(
