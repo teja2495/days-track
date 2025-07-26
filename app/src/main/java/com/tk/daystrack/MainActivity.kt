@@ -337,7 +337,10 @@ fun DayTrackAppWithExportImport(
                                                 onLongPress = null,
                                                 modifier = itemModifier,
                                                 editMode = true,
-                                                reorderableState = reorderableState
+                                                reorderableState = reorderableState,
+                                                onDelete = {
+                                                    viewModel.removeEvent(event.id)
+                                                }
                                             )
                                         }
                                     } else {

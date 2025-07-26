@@ -406,54 +406,82 @@ fun EventDetailsScreen(
                         }
                     }
                 }
-                if (showDialog.value) {
-                    AlertDialog(
-                        onDismissRequest = { showDialog.value = false },
-                        containerColor = Gray800,
-                        title = { Text("Delete Event") },
-                        text = { Text("Are you sure you want to delete this event?") },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showDialog.value = false
-                                onDelete?.invoke()
-                            }) {
-                                Text("Delete", color = MaterialTheme.colorScheme.error)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDialog.value = false }) {
-                                Text("Cancel")
-                            }
-                        }
-                    )
-                }
-                
-                if (showDeleteDateDialog.value != null) {
-                    val dateToDelete = showDeleteDateDialog.value!!
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDateDialog.value = null },
-                        containerColor = Gray800,
-                        title = { Text("Delete Date") },
-                        text = { 
-                            Text("Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                onDeleteDate?.invoke(dateToDelete)
-                                showDeleteDateDialog.value = null
-                            }) {
-                                Text("Delete", color = MaterialTheme.colorScheme.error)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDeleteDateDialog.value = null }) {
-                                Text("Cancel")
-                            }
-                        }
-                    )
-                }
             }
         }
+        
+        // Delete dialogs - moved outside the if-else block
+        if (showDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                containerColor = Gray800,
+                title = { Text("Delete Event") },
+                text = { Text("Are you sure you want to delete this event?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDialog.value = false
+                        onDelete?.invoke()
+                    }) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog.value = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        if (showDeleteDateDialog.value != null) {
+            val dateToDelete = showDeleteDateDialog.value!!
+            AlertDialog(
+                onDismissRequest = { showDeleteDateDialog.value = null },
+                containerColor = Gray800,
+                title = { Text("Delete Date") },
+                text = { 
+                    Text("Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeleteDate?.invoke(dateToDelete)
+                        showDeleteDateDialog.value = null
+                    }) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDateDialog.value = null }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        if (showDeleteNoteDialog.value != null) {
+            val dateToDeleteNote = showDeleteNoteDialog.value!!
+            AlertDialog(
+                onDismissRequest = { showDeleteNoteDialog.value = null },
+                containerColor = Gray800,
+                title = { Text("Delete Note") },
+                text = {
+                    Text("Are you sure you want to delete the note for ${dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onUpdateNote?.invoke(dateToDeleteNote, "")
+                        showDeleteNoteDialog.value = null
+                    }) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteNoteDialog.value = null }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
         // Always show AddEventBottomSheet if requested
         if (showAddInstanceSheet.value) {
             AddEventBottomSheet(
@@ -572,30 +600,5 @@ fun EventDetailsScreen(
                 }
             }
         }
-    }
-    // Add delete note dialog
-    if (showDeleteNoteDialog.value != null) {
-        val dateToDeleteNote = showDeleteNoteDialog.value!!
-        AlertDialog(
-            onDismissRequest = { showDeleteNoteDialog.value = null },
-            containerColor = Gray800,
-            title = { Text("Delete Note") },
-            text = {
-                Text("Are you sure you want to delete the note for ${dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?")
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onUpdateNote?.invoke(dateToDeleteNote, "")
-                    showDeleteNoteDialog.value = null
-                }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteNoteDialog.value = null }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 } 

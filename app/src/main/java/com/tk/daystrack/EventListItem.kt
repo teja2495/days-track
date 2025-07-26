@@ -36,7 +36,8 @@ fun EventListItem(
     onClick: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
     editMode: Boolean = false,
-    reorderableState: ReorderableLazyListState? = null
+    reorderableState: ReorderableLazyListState? = null,
+    onDelete: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -58,6 +59,7 @@ fun EventListItem(
     
     var showEditNameSheet by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(event.name) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     
     Card(
         modifier = modifier
@@ -148,7 +150,7 @@ fun EventListItem(
             // Trailing icon: + (normal) or delete (edit mode)
             if (editMode) {
                 IconButton(
-                    onClick = { onUpdate(event) },
+                    onClick = { showDeleteDialog = true },
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
@@ -256,5 +258,28 @@ fun EventListItem(
                 }
             }
         }
+    }
+    
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = Gray800,
+            title = { Text("Delete Event") },
+            text = { Text("Are you sure you want to delete '${event.name}'?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    onDelete?.invoke()
+                }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 } 
