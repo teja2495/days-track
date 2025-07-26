@@ -97,6 +97,10 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _unsortedEvents = repository.removeEvent(eventId)
             sortEvents()
+            // Exit edit mode if all events are removed
+            if (_unsortedEvents.isEmpty()) {
+                _isEditMode.value = false
+            }
         }
     }
     
