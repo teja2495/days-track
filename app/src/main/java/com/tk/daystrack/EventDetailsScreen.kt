@@ -35,6 +35,7 @@ import com.tk.daystrack.ui.theme.*
 import java.time.LocalDate
 import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.foundation.background
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +98,7 @@ fun EventDetailsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.cd_back), tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 actions = {
@@ -105,9 +106,9 @@ fun EventDetailsScreen(
                         IconButton(onClick = { showAddInstanceSheet.value = true }, modifier = Modifier.padding(end = 28.dp)) {
                             Icon(
                                 Icons.Default.Add,
-                                contentDescription = "Add Instance",
+                                contentDescription = context.getString(R.string.cd_add_instance),
                                 tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(Dimensions.iconSizeExtraLarge)
                             )
                         }
                     }
@@ -135,25 +136,25 @@ fun EventDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "No event dates recorded yet",
+                        text = context.getString(R.string.event_details_no_dates),
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = bodyFontSize),
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(bottom = 24.dp)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaValues.secondary),
+                        modifier = Modifier.padding(bottom = Dimensions.paddingLarge)
                     )
                     Button(
                         onClick = { showAddInstanceSheet.value = true },
-                        shape = RoundedCornerShape(50),
+                        shape = Shapes.buttonShape,
                         colors = ButtonDefaults.buttonColors(containerColor = ButtonContainerColor),
-                        contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
+                        contentPadding = PaddingValues(horizontal = Dimensions.buttonPaddingHorizontal, vertical = Dimensions.buttonPaddingVertical)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Add Instance",
+                            contentDescription = context.getString(R.string.cd_add_instance),
                             tint = Color.Black,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(Dimensions.iconSizeSmall)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Instance", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
+                        Text(context.getString(R.string.event_details_add_instance), color = Color.Black, fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
@@ -170,7 +171,7 @@ fun EventDetailsScreen(
                     ) {
                         if (showBanner.value) {
                             HintBanner(
-                                message = "Hint: Tap on the date card to add a note for that instance.",
+                                message = context.getString(R.string.event_details_note_hint),
                                 onDismiss = {
                                     showBanner.value = false
                                     repository.setHasSeenNoteHintBanner(true)
@@ -187,30 +188,24 @@ fun EventDetailsScreen(
                                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "Average frequency: ",
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                        color = Color.Gray
-                                    )
-                                    Text(
-                                        text = "${"%.1f".format(avgFrequency)} days",
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                        fontWeight = FontWeight.Medium,
-                                        color = White
-                                    )
+                                                                    Text(
+                                    text = context.getString(R.string.event_details_average_frequency, "%.1f".format(avgFrequency)),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
+                                    color = Color.Gray
+                                )
                                 }
                             }
                         }
                         
                         // Scrollable list with extra bottom padding and corner radius
                         Surface(
-                            shape = RoundedCornerShape(16.dp),
+                            shape = Shapes.cardShape,
                             color = Color.Transparent
                         ) {
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(top = 8.dp, bottom = 140.dp)
+                                verticalArrangement = Arrangement.spacedBy(Dimensions.listItemSpacing),
+                                contentPadding = PaddingValues(top = Dimensions.paddingSmall, bottom = 140.dp)
                             ) {
                                 items(sortedInstances.size) { index ->
                                     val instance = sortedInstances[index]
@@ -231,7 +226,7 @@ fun EventDetailsScreen(
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(horizontal = 16.dp, vertical = 10.dp)
+                                                .padding(horizontal = Dimensions.paddingMedium, vertical = 10.dp)
                                         ) {
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -250,7 +245,7 @@ fun EventDetailsScreen(
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Delete,
-                                                            contentDescription = "Delete Date",
+                                                            contentDescription = context.getString(R.string.cd_delete_date),
                                                             tint = Color.Gray
                                                         )
                                                     }
@@ -276,7 +271,7 @@ fun EventDetailsScreen(
                                             colors = CardDefaults.cardColors(
                                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                                             ),
-                                            shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                                            shape = RoundedCornerShape(bottomStart = Dimensions.cardCornerRadius, bottomEnd = Dimensions.cardCornerRadius)
                                         ) {
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -295,7 +290,7 @@ fun EventDetailsScreen(
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Close,
-                                                        contentDescription = "Delete Note",
+                                                        contentDescription = context.getString(R.string.cd_delete_note),
                                                         tint = Color.Gray
                                                     )
                                                 }
@@ -315,10 +310,10 @@ fun EventDetailsScreen(
                                                 val nextDate = sortedInstances[index + 1].date
                                                 val daysBetween = nextDate.toEpochDay() - currentDate.toEpochDay()
                                                 val intervalText = when {
-                                                    daysBetween == -1L -> "1 day earlier"
-                                                    daysBetween < -1L -> "${-daysBetween} days earlier"
-                                                    daysBetween == 0L -> "Same day"
-                                                    else -> "$daysBetween days later"
+                                                    daysBetween == -1L -> context.getString(R.string.event_details_interval_1_day_earlier)
+                                                    daysBetween < -1L -> context.getString(R.string.event_details_interval_days_earlier, (-daysBetween).toInt())
+                                                    daysBetween == 0L -> context.getString(R.string.event_details_interval_same_day)
+                                                    else -> context.getString(R.string.event_details_interval_days_later, daysBetween.toInt())
                                                 }
                                                 Text(
                                                     text = intervalText,
@@ -338,11 +333,11 @@ fun EventDetailsScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(top = 16.dp, bottom = 8.dp),
+                                                .padding(top = Dimensions.paddingMedium, bottom = Dimensions.paddingSmall),
                                             horizontalArrangement = Arrangement.Center
                                         ) {
                                             Text(
-                                                text = "${sortedInstances.size} instances",
+                                                text = context.getString(R.string.event_details_instances_count, sortedInstances.size),
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = Color.Gray
                                             )
@@ -376,9 +371,9 @@ fun EventDetailsScreen(
                     showDialog.value = false
                     onDelete?.invoke()
                 },
-                title = "Delete Event",
-                message = "Are you sure you want to delete this event?",
-                confirmText = "Delete"
+                title = context.getString(R.string.event_details_delete_event_title),
+                message = context.getString(R.string.event_details_delete_event_message),
+                confirmText = context.getString(R.string.event_details_delete)
             )
         }
         
@@ -390,9 +385,9 @@ fun EventDetailsScreen(
                     onDeleteDate?.invoke(dateToDelete)
                     showDeleteDateDialog.value = null
                 },
-                title = "Delete Date",
-                message = "Are you sure you want to delete ${dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?",
-                confirmText = "Delete"
+                title = context.getString(R.string.event_details_delete_date_title),
+                message = context.getString(R.string.event_details_delete_date_message, dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
+                confirmText = context.getString(R.string.event_details_delete)
             )
         }
         
@@ -404,9 +399,9 @@ fun EventDetailsScreen(
                     onUpdateNote?.invoke(dateToDeleteNote, "")
                     showDeleteNoteDialog.value = null
                 },
-                title = "Delete Note",
-                message = "Are you sure you want to delete the note for ${dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}?",
-                confirmText = "Delete"
+                title = context.getString(R.string.event_details_delete_note_title),
+                message = context.getString(R.string.event_details_delete_note_message, dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
+                confirmText = context.getString(R.string.event_details_delete)
             )
         }
         
@@ -429,10 +424,10 @@ fun EventDetailsScreen(
                 initialName = event.name,
                 initialDate = java.time.LocalDate.now(),
                 title = event.name,
-                buttonLabel = "Save",
+                buttonLabel = context.getString(R.string.event_details_save),
                 editableName = false,
                 showDateField = true,
-                dateFieldLabel = "New Instance",
+                dateFieldLabel = context.getString(R.string.add_event_new_instance_label),
                 allInstanceDates = event.instances.map { it.date }
             )
         }
@@ -455,19 +450,19 @@ fun EventDetailsScreen(
                 showEditNoteSheet.value = false
                 editingNoteDate.value = null
             },
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            shape = Shapes.bottomSheetShape,
             containerColor = Gray800,
-            tonalElevation = 4.dp,
+            tonalElevation = Elevations.bottomSheet,
             dragHandle = {},
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                    .padding(Dimensions.bottomSheetPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.spacingExtraLarge)
             ) {
                 Text(
-                    text = if (initialNoteText.value.isBlank()) "Add note" else "Edit Note",
+                    text = if (initialNoteText.value.isBlank()) context.getString(R.string.event_details_add_note) else context.getString(R.string.event_details_edit_note),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = White
@@ -476,7 +471,7 @@ fun EventDetailsScreen(
                 StyledOutlinedTextField(
                     value = editingNoteText.value,
                     onValueChange = { editingNoteText.value = it },
-                    label = "Note",
+                    label = context.getString(R.string.event_details_note_label),
                     modifier = Modifier.fillMaxWidth(),
                     focusRequester = focusRequester,
                     singleLine = false,
@@ -493,9 +488,9 @@ fun EventDetailsScreen(
                             showEditNoteSheet.value = false
                             editingNoteDate.value = null
                         },
-                        text = "Cancel"
+                        text = context.getString(R.string.action_cancel)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
                     PrimaryButton(
                         onClick = {
                             val date = editingNoteDate.value
@@ -505,7 +500,7 @@ fun EventDetailsScreen(
                             showEditNoteSheet.value = false
                             editingNoteDate.value = null
                         },
-                        text = "Save"
+                        text = context.getString(R.string.action_save)
                     )
                 }
             }

@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tk.daystrack.ui.theme.*
 
 @Composable
 fun HintBanner(
@@ -19,8 +20,8 @@ fun HintBanner(
 ) {
     Surface(
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = RoundedCornerShape(16.dp),
-        tonalElevation = 2.dp,
+        shape = Shapes.bannerShape,
+        tonalElevation = Elevations.banner,
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
@@ -28,7 +29,7 @@ fun HintBanner(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.bannerPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

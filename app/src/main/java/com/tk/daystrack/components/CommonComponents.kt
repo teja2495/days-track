@@ -31,11 +31,11 @@ fun PrimaryButton(
             disabledContainerColor = ButtonDisabledColor,
             disabledContentColor = Color.Black.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(50)
+        shape = Shapes.buttonShape
     ) {
         icon?.invoke()
         if (icon != null) {
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
         }
         Text(text, fontWeight = FontWeight.Bold)
     }
@@ -96,7 +96,7 @@ fun ConfirmationDialog(
         dismissButton = {
             SecondaryButton(onClick = onDismiss, text = dismissText)
         },
-        shape = RoundedCornerShape(24.dp)
+        shape = Shapes.dialogShape
     )
 }
 
@@ -141,7 +141,7 @@ fun SectionTitle(
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold,
         color = White,
-        modifier = modifier.padding(bottom = 12.dp)
+        modifier = modifier.padding(bottom = Dimensions.spacingLarge)
     )
 }
 
@@ -152,9 +152,9 @@ fun EmptyStateMessage(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(32.dp),
+        modifier = modifier.padding(Dimensions.paddingExtraLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimensions.paddingMedium)
     ) {
         Text(
             text = title,

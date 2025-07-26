@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import android.net.Uri
 import com.tk.daystrack.components.*
+import androidx.compose.ui.unit.dp
 
 data class SortOptionInfo(
     val label: String,
@@ -39,17 +40,18 @@ fun SettingsScreen(
     onExportClick: () -> Unit = {},
     onImportClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Gray900)
-            .padding(horizontal = 16.dp, vertical = 32.dp)
+            .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
     ) {
         // Header with back button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, bottom = 32.dp),
+                .padding(top = Dimensions.headerPaddingTop, bottom = Dimensions.paddingExtraLarge),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -58,16 +60,16 @@ fun SettingsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = context.getString(R.string.cd_back),
                     tint = White,
                     modifier = Modifier.size(28.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimensions.paddingMedium))
             
             Text(
-                text = "Settings",
+                text = context.getString(R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = White
@@ -79,11 +81,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(Dimensions.paddingLarge)
         ) {
             // Sort Events Section
             Column {
-                SectionTitle(text = "Sort Events")
+                SectionTitle(text = context.getString(R.string.settings_sort_events))
                 CustomSortDropdown(
                     currentSortOption = currentSortOption,
                     onSortOptionSelected = onSortOptionSelected
@@ -92,7 +94,7 @@ fun SettingsScreen(
 
             // Font Size Section
             Column {
-                SectionTitle(text = "Font & Card Size")
+                SectionTitle(text = context.getString(R.string.settings_font_card_size))
                 CustomFontSizeDropdown(
                     currentFontSize = currentFontSize,
                     onFontSizeSelected = onFontSizeSelected
@@ -101,25 +103,25 @@ fun SettingsScreen(
 
             // Data Management Section
             Column {
-                SectionTitle(text = "Events Data Backup")
+                SectionTitle(text = context.getString(R.string.settings_data_backup))
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.paddingMedium)
                 ) {
                     Button(
                         onClick = onImportClick,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Gray800)
                     ) {
-                        Text("Import", color = White, fontWeight = FontWeight.Bold)
+                        Text(context.getString(R.string.settings_import), color = White, fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = onExportClick,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Gray800)
                     ) {
-                        Text("Export", color = White, fontWeight = FontWeight.Bold)
+                        Text(context.getString(R.string.settings_export), color = White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -127,7 +129,6 @@ fun SettingsScreen(
         
         // Version and feedback section
         Spacer(modifier = Modifier.weight(1f))
-        val context = LocalContext.current
         val versionName = try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName ?: ""
@@ -137,12 +138,12 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 32.dp),
+                .padding(vertical = Dimensions.paddingExtraLarge),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Version $versionName",
+                text = context.getString(R.string.settings_version, versionName),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
@@ -152,18 +153,16 @@ fun SettingsScreen(
                 color = TextSecondary
             )
             Text(
-                text = "Send Feedback",
+                text = context.getString(R.string.settings_send_feedback),
                 style = MaterialTheme.typography.bodySmall,
                 color = ThemeTextColor,
                 modifier = Modifier.clickable {
                     val androidVersion = android.os.Build.VERSION.RELEASE
                     val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-                    val emailBody = """
-                        \n\n\n---\nApp Version: $versionName\nAndroid Version: $androidVersion\nDevice: $deviceModel
-                    """.trimIndent()
-                    val subject = "Days Track Feedback"
+                    val emailBody = context.getString(R.string.feedback_body_template, versionName, androidVersion, deviceModel)
+                    val subject = context.getString(R.string.feedback_subject)
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(emailBody))
+                        data = Uri.parse("mailto:${context.getString(R.string.feedback_email)}?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(emailBody))
                     }
                     try {
                         context.startActivity(intent)
@@ -185,16 +184,17 @@ fun CustomSortDropdown(
 ) {
     var dialogOpen by remember { mutableStateOf(false) }
     var isPressed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val sortOptions = listOf(
-        SortOption.DATE_ASCENDING to SortOptionInfo("Date (Oldest First)", "Events from earliest to latest"),
-        SortOption.DATE_DESCENDING to SortOptionInfo("Date (Newest First)", "Events from latest to earliest"),
-        SortOption.ALPHABETICAL to SortOptionInfo("Alphabetical", "Events A to Z by name")
+        SortOption.DATE_ASCENDING to SortOptionInfo(context.getString(R.string.sort_date_oldest_first), context.getString(R.string.sort_date_oldest_desc)),
+        SortOption.DATE_DESCENDING to SortOptionInfo(context.getString(R.string.sort_date_newest_first), context.getString(R.string.sort_date_newest_desc)),
+        SortOption.ALPHABETICAL to SortOptionInfo(context.getString(R.string.sort_alphabetical), context.getString(R.string.sort_alphabetical_desc))
     )
     val selectedText = when (currentSortOption) {
-        SortOption.DATE_ASCENDING -> "Date (Oldest First)"
-        SortOption.DATE_DESCENDING -> "Date (Newest First)"
-        SortOption.ALPHABETICAL -> "Alphabetical"
-        SortOption.CUSTOM -> "Custom (Manual Order)"
+        SortOption.DATE_ASCENDING -> context.getString(R.string.sort_date_oldest_first)
+        SortOption.DATE_DESCENDING -> context.getString(R.string.sort_date_newest_first)
+        SortOption.ALPHABETICAL -> context.getString(R.string.sort_alphabetical)
+        SortOption.CUSTOM -> context.getString(R.string.sort_custom)
     }
 
     Card(
@@ -237,9 +237,9 @@ fun CustomSortDropdown(
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Sort options",
+                contentDescription = context.getString(R.string.cd_sort_options),
                 tint = if (dialogOpen) ThemeTextColor else White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(Dimensions.iconSizeMedium)
             )
         }
     }
@@ -255,7 +255,7 @@ fun CustomSortDropdown(
             titleContentColor = White,
             textContentColor = White,
             title = {
-                Text("Choose Sort Option", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(context.getString(R.string.sort_choose_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             },
             text = {
                 Column {
@@ -302,7 +302,7 @@ fun CustomSortDropdown(
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text("OK", color = ThemeTextColor, fontWeight = FontWeight.Bold)
+                    Text(context.getString(R.string.settings_ok), color = ThemeTextColor, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -310,7 +310,7 @@ fun CustomSortDropdown(
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text(context.getString(R.string.settings_cancel), color = TextSecondary)
                 }
             }
         )
@@ -326,15 +326,16 @@ fun CustomFontSizeDropdown(
 ) {
     var dialogOpen by remember { mutableStateOf(false) }
     var isPressed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val fontSizeOptions = listOf(
-        FontSize.SMALL to "Small",
-        FontSize.MEDIUM to "Medium", 
-        FontSize.LARGE to "Large"
+        FontSize.SMALL to context.getString(R.string.settings_font_small),
+        FontSize.MEDIUM to context.getString(R.string.settings_font_medium), 
+        FontSize.LARGE to context.getString(R.string.settings_font_large)
     )
     val selectedText = when (currentFontSize) {
-        FontSize.SMALL -> "Small"
-        FontSize.MEDIUM -> "Medium"
-        FontSize.LARGE -> "Large"
+        FontSize.SMALL -> context.getString(R.string.settings_font_small)
+        FontSize.MEDIUM -> context.getString(R.string.settings_font_medium)
+        FontSize.LARGE -> context.getString(R.string.settings_font_large)
     }
 
     Card(
@@ -377,9 +378,9 @@ fun CustomFontSizeDropdown(
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Font size options",
+                contentDescription = context.getString(R.string.cd_font_size_options),
                 tint = if (dialogOpen) ThemeTextColor else White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(Dimensions.iconSizeMedium)
             )
         }
     }
@@ -395,7 +396,7 @@ fun CustomFontSizeDropdown(
             titleContentColor = White,
             textContentColor = White,
             title = {
-                Text("Choose Font & Card Size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(context.getString(R.string.settings_font_choose_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             },
             text = {
                 Column {
@@ -433,7 +434,7 @@ fun CustomFontSizeDropdown(
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text("OK", color = ThemeTextColor, fontWeight = FontWeight.Bold)
+                    Text(context.getString(R.string.settings_ok), color = ThemeTextColor, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -441,7 +442,7 @@ fun CustomFontSizeDropdown(
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text(context.getString(R.string.settings_cancel), color = TextSecondary)
                 }
             }
         )

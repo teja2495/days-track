@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter
 import com.tk.daystrack.ui.theme.*
 import com.tk.daystrack.components.*
 import androidx.compose.foundation.background
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +39,7 @@ fun AddEventBottomSheet(
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
     var noteFieldFocused by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -45,17 +47,17 @@ fun AddEventBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = Shapes.bottomSheetShape,
         containerColor = Gray800,
-        tonalElevation = 4.dp,
+        tonalElevation = Elevations.bottomSheet,
         sheetState = sheetState,
         dragHandle = {},
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(Dimensions.bottomSheetPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.spacingExtraLarge)
         ) {
             Text(
                 text = title,
@@ -75,7 +77,7 @@ fun AddEventBottomSheet(
                 StyledOutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
-                    label = "Name",
+                    label = context.getString(R.string.add_event_name_label),
                     modifier = Modifier.fillMaxWidth(),
                     focusRequester = focusRequester
                 )
@@ -95,14 +97,14 @@ fun AddEventBottomSheet(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = { showDatePicker = true }) {
-                        Text("Select Date", color = ThemeTextColor)
+                        Text(context.getString(R.string.add_event_date_label), color = ThemeTextColor)
                     }
                 }
                 
                 StyledOutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = "Note (optional)",
+                    label = context.getString(R.string.add_event_note_label),
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { noteFieldFocused = it.isFocused },
@@ -116,8 +118,8 @@ fun AddEventBottomSheet(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SecondaryButton(onClick = onDismiss, text = "Cancel")
-                Spacer(modifier = Modifier.width(8.dp))
+                SecondaryButton(onClick = onDismiss, text = context.getString(R.string.action_cancel))
+                Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
                 PrimaryButton(
                     onClick = {
                         if (editableName) {
@@ -152,6 +154,7 @@ fun AddEventBottomSheet(
 // Timeline composable for AddEventBottomSheet
 @Composable
 fun TimelineInstanceDates(previousDate: LocalDate, selectedDate: LocalDate) {
+    val context = LocalContext.current
     val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
     val isFuture = selectedDate.isAfter(previousDate)
     Column(
@@ -161,13 +164,13 @@ fun TimelineInstanceDates(previousDate: LocalDate, selectedDate: LocalDate) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (!isFuture) {
-            TimelineDateItem(date = selectedDate, label = "New Instance", highlight = true)
+            TimelineDateItem(date = selectedDate, label = context.getString(R.string.add_event_new_instance_label), highlight = true)
             TimelineConnector()
-            TimelineDateItem(date = previousDate, label = "Previous Instance")
+            TimelineDateItem(date = previousDate, label = context.getString(R.string.event_details_add_instance))
         } else {
-            TimelineDateItem(date = previousDate, label = "Previous Instance")
+            TimelineDateItem(date = previousDate, label = context.getString(R.string.event_details_add_instance))
             TimelineConnector()
-            TimelineDateItem(date = selectedDate, label = "New Instance", highlight = true)
+            TimelineDateItem(date = selectedDate, label = context.getString(R.string.add_event_new_instance_label), highlight = true)
         }
     }
 }

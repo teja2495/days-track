@@ -31,6 +31,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import com.tk.daystrack.components.*
 import com.tk.daystrack.DateUtils
 import java.time.LocalDate
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,15 +82,16 @@ class MainActivity : ComponentActivity() {
 
                 // Confirmation dialog for import
                 if (showImportConfirmDialog) {
+                    val context = LocalContext.current
                     ConfirmationDialog(
                         onDismiss = { showImportConfirmDialog = false },
                         onConfirm = {
                             showImportConfirmDialog = false
                             importLauncher.launch("application/octet-stream")
                         },
-                        title = "Warning",
-                        message = "Importing will overwrite all your existing events data. Are you sure you want to continue?",
-                        confirmText = "Yes, Import"
+                        title = context.getString(R.string.main_import_warning_title),
+                        message = context.getString(R.string.main_import_warning_message),
+                        confirmText = context.getString(R.string.main_import_confirm)
                     )
                 }
             }
@@ -175,10 +177,11 @@ fun DayTrackAppWithExportImport(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 32.dp)
+                        .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
                 ) {
+                    val context = LocalContext.current
                     AppHeader(
-                        title = "Days Track",
+                        title = context.getString(R.string.main_title),
                         onSettingsClick = {
                             if (isEditMode) viewModel.setEditMode(false)
                             showSettings = true
@@ -187,14 +190,14 @@ fun DayTrackAppWithExportImport(
                     
                     if (viewModel.showEventListHintBanner.collectAsState().value) {
                         HintBanner(
-                            message = "Hint: Long press an event to enter edit mode, where you can delete and reorder events.",
+                            message = context.getString(R.string.main_edit_hint),
                             onDismiss = { viewModel.dismissEventListHintBanner() }
                         )
                     }
                     
                     if (shouldShowToggleHint) {
                         HintBanner(
-                            message = "Hint: Tap the date text to switch between days and months/years.",
+                            message = context.getString(R.string.main_toggle_date_hint),
                             onDismiss = { viewModel.dismissToggleDateHint() }
                         )
                     }
@@ -205,8 +208,8 @@ fun DayTrackAppWithExportImport(
                             contentAlignment = Alignment.Center
                         ) {
                             EmptyStateMessage(
-                                title = "No events yet",
-                                message = "Tap the Add Event button to add your first event and start tracking important dates"
+                                title = context.getString(R.string.main_empty_state_title),
+                                message = context.getString(R.string.main_empty_state_message)
                             )
                         }
                     } else {
@@ -232,7 +235,7 @@ fun DayTrackAppWithExportImport(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = 80.dp, end = 20.dp),
+                        .padding(bottom = 80.dp, end = Dimensions.paddingMedium),
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     if (isEditMode) {
@@ -316,11 +319,12 @@ fun SortDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     
+    val context = LocalContext.current
     val sortOptionText = when (currentSortOption) {
-        SortOption.DATE_ASCENDING -> "Date (Ascending)"
-        SortOption.DATE_DESCENDING -> "Date (Descending)"
-        SortOption.ALPHABETICAL -> "Alphabetical"
-        SortOption.CUSTOM -> "Custom (Manual Order)"
+        SortOption.DATE_ASCENDING -> context.getString(R.string.sort_date_ascending)
+        SortOption.DATE_DESCENDING -> context.getString(R.string.sort_date_descending)
+        SortOption.ALPHABETICAL -> context.getString(R.string.sort_alphabetical)
+        SortOption.CUSTOM -> context.getString(R.string.sort_custom)
     }
     
     Surface(
@@ -336,13 +340,13 @@ fun SortDropdown(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = "Sort by: $sortOptionText",
+                text = context.getString(R.string.sort_by_label, sortOptionText),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Sort options"
+                contentDescription = context.getString(R.string.cd_sort_options)
             )
         }
         
@@ -351,21 +355,21 @@ fun SortDropdown(
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Date (Ascending)") },
+                text = { Text(context.getString(R.string.sort_date_ascending)) },
                 onClick = {
                     onSortOptionSelected(SortOption.DATE_ASCENDING)
                     expanded = false
                 }
             )
             DropdownMenuItem(
-                text = { Text("Date (Descending)") },
+                text = { Text(context.getString(R.string.sort_date_descending)) },
                 onClick = {
                     onSortOptionSelected(SortOption.DATE_DESCENDING)
                     expanded = false
                 }
             )
             DropdownMenuItem(
-                text = { Text("Alphabetical") },
+                text = { Text(context.getString(R.string.sort_alphabetical)) },
                 onClick = {
                     onSortOptionSelected(SortOption.ALPHABETICAL)
                     expanded = false

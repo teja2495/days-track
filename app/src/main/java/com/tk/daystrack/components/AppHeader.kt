@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tk.daystrack.ui.theme.White
+import com.tk.daystrack.ui.theme.*
 
 @Composable
 fun AppHeader(
@@ -21,7 +21,7 @@ fun AppHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 22.dp),
+            .padding(top = Dimensions.headerPaddingTop, bottom = Dimensions.headerPaddingBottom),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -30,19 +30,19 @@ fun AppHeader(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = White,
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = Modifier.padding(start = Dimensions.paddingSmall)
         )
         Spacer(modifier = Modifier.weight(1f))
         if (showSettings) {
             IconButton(
                 onClick = onSettingsClick,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = Dimensions.paddingSmall)
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
                     tint = White,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(Dimensions.iconSizeLarge)
                 )
             }
         }

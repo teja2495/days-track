@@ -15,6 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.tk.daystrack.ui.theme.*
 import com.tk.daystrack.components.*
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +30,7 @@ fun UpdateEventDialog(
     var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -36,20 +38,20 @@ fun UpdateEventDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = Shapes.bottomSheetShape,
         containerColor = Gray800,
-        tonalElevation = 4.dp,
+        tonalElevation = Elevations.bottomSheet,
         sheetState = sheetState,
         dragHandle = {},
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(Dimensions.bottomSheetPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.spacingExtraLarge)
         ) {
             Text(
-                text = "Update Event",
+                text = context.getString(R.string.update_event_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = White
@@ -58,7 +60,7 @@ fun UpdateEventDialog(
             StyledOutlinedTextField(
                 value = eventName,
                 onValueChange = { eventName = it },
-                label = "Name",
+                label = context.getString(R.string.update_event_name_label),
                 modifier = Modifier.fillMaxWidth(),
                 focusRequester = focusRequester
             )
@@ -66,7 +68,7 @@ fun UpdateEventDialog(
             StyledOutlinedTextField(
                 value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                 onValueChange = { },
-                label = "Event Date",
+                label = context.getString(R.string.update_event_date_label),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -76,14 +78,14 @@ fun UpdateEventDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = { showDatePicker = true }) {
-                    Text("Select Date", color = ThemeTextColor)
+                    Text(context.getString(R.string.add_event_date_label), color = ThemeTextColor)
                 }
             }
             
             StyledOutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = "Note (optional)",
+                label = context.getString(R.string.update_event_note_label),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = false,
                 maxLines = 3
@@ -98,14 +100,14 @@ fun UpdateEventDialog(
                     onClick = { onDelete(event.id) }
                 ) {
                     Text(
-                        "Delete Event",
+                        context.getString(R.string.update_event_delete),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
                 
                 Row {
-                    SecondaryButton(onClick = onDismiss, text = "Cancel")
-                    Spacer(modifier = Modifier.width(8.dp))
+                    SecondaryButton(onClick = onDismiss, text = context.getString(R.string.action_cancel))
+                    Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
                     PrimaryButton(
                         onClick = {
                             if (eventName.isNotBlank()) {
@@ -113,7 +115,7 @@ fun UpdateEventDialog(
                             }
                         },
                         enabled = eventName.isNotBlank(),
-                        text = "Update"
+                        text = context.getString(R.string.update_event_update)
                     )
                 }
             }
