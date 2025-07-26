@@ -85,8 +85,11 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     }
     
     fun addEvent(name: String) {
+        val trimmedName = name.trim()
+        if (trimmedName.isBlank()) return
+        
         viewModelScope.launch {
-            val newEvent = Event(name = name.trim().toTitleCase(), instances = emptyList())
+            val newEvent = Event(name = trimmedName.toTitleCase(), instances = emptyList())
             _unsortedEvents = repository.addEvent(newEvent)
             sortEvents()
             _showAddDialog.value = false
@@ -162,10 +165,10 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         } else {
             when (_currentSortOption.value) {
                 SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy {
-                    if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+                    it.instances.lastOrNull()?.date ?: java.time.LocalDate.MIN
                 }
                 SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending {
-                    if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+                    it.instances.lastOrNull()?.date ?: java.time.LocalDate.MIN
                 }
                 SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
                 SortOption.CUSTOM -> _unsortedEvents // fallback, should be handled above
@@ -179,9 +182,11 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
 
     fun importEventsJson(json: String) {
         viewModelScope.launch {
-            repository.importEventsJson(json)
-            _unsortedEvents = repository.loadEvents()
-            sortEvents()
+            val success = repository.importEventsJson(json)
+            if (success) {
+                _unsortedEvents = repository.loadEvents()
+                sortEvents()
+            }
         }
     }
 

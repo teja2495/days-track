@@ -39,7 +39,11 @@ fun EventList(
                 Modifier.fillMaxWidth()
             },
             state = reorderableState?.listState ?: androidx.compose.foundation.lazy.rememberLazyListState(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            // Performance optimizations
+            flingBehavior = androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior(
+                lazyListState = reorderableState?.listState ?: androidx.compose.foundation.lazy.rememberLazyListState()
+            )
         ) {
             items(events.size, key = { events[it].id }) { index ->
                 val event = events[index]

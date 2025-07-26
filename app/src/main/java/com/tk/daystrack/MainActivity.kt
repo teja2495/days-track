@@ -37,6 +37,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        // Handle configuration changes
+        if (savedInstanceState != null) {
+            // Restore any saved state if needed
+        }
         setContent {
             DayTrackTheme {
                 val repository = EventRepository(this)

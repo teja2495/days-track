@@ -4,11 +4,40 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.time.Period
 import kotlin.math.abs
+import androidx.compose.runtime.mutableStateOf
 
 object DateUtils {
     
     fun formatTimeDifference(eventDate: LocalDate): String {
         val today = LocalDate.now()
+        val daysDifference = ChronoUnit.DAYS.between(today, eventDate)
+        
+        return when {
+            daysDifference == 0L -> "today"
+            daysDifference > 0 -> formatFuture(eventDate, today)
+            else -> formatPast(eventDate, today)
+        }
+    }
+    
+    // Cached version for better performance when called frequently
+    private val todayCache = mutableStateOf<LocalDate?>(null)
+    private val todayCacheTime = mutableStateOf<Long>(0)
+    private const val CACHE_DURATION_MS = 60000L // 1 minute cache
+    
+    fun formatTimeDifferenceCached(eventDate: LocalDate): String {
+        val currentTime = System.currentTimeMillis()
+        val cachedToday = todayCache.value
+        val cachedTime = todayCacheTime.value
+        
+        val today = if (cachedToday != null && (currentTime - cachedTime) < CACHE_DURATION_MS) {
+            cachedToday
+        } else {
+            val newToday = LocalDate.now()
+            todayCache.value = newToday
+            todayCacheTime.value = currentTime
+            newToday
+        }
+        
         val daysDifference = ChronoUnit.DAYS.between(today, eventDate)
         
         return when {

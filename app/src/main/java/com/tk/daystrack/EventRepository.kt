@@ -93,7 +93,15 @@ class EventRepository(context: Context) {
         val json = sharedPreferences.getString("events", null) ?: return emptyList()
         val type = object : TypeToken<List<Event>>() {}.type
         return try {
-            gson.fromJson(json, type) ?: emptyList()
+            val events: List<Event> = gson.fromJson(json, type) ?: emptyList()
+            // Limit total events to prevent memory issues
+            if (events.size > 1000) {
+                val limitedEvents = events.take(1000)
+                saveEvents(limitedEvents)
+                limitedEvents
+            } else {
+                events
+            }
         } catch (e: Exception) {
             emptyList()
         }
@@ -121,7 +129,7 @@ class EventRepository(context: Context) {
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            val updatedInstances = if (event.instances.isEmpty() || event.instances.last().date != newInstance.date) {
+            val updatedInstances = if (event.instances.isEmpty() || !event.instances.any { it.date == newInstance.date }) {
                 // Check if adding this instance would exceed 50 instances
                 if (event.instances.size >= 50) {
                     // Find the oldest instance and replace it with the new one
@@ -176,14 +184,15 @@ class EventRepository(context: Context) {
         return gson.toJson(events)
     }
 
-    fun importEventsJson(json: String) {
+    fun importEventsJson(json: String): Boolean {
         val type = object : TypeToken<List<Event>>() {}.type
         val events: List<Event> = try {
             gson.fromJson(json, type) ?: emptyList()
         } catch (e: Exception) {
-            emptyList()
+            return false
         }
         saveEvents(events)
+        return true
     }
 
     fun getHasSeenNoteHintBanner(): Boolean {

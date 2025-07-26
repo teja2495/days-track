@@ -57,10 +57,10 @@ fun EventListItem(
         prefs.edit().putBoolean(PREF_KEY, value).apply()
     }
     
-    // Check if event has instances
+    // Check if event has instances - optimized to avoid repeated calculations
     val hasInstances = event.instances.isNotEmpty()
     val lastInstance = event.instances.lastOrNull()
-    val timeDifference = if (hasInstances) DateUtils.formatTimeDifference(lastInstance!!.date) else ""
+    val timeDifference = if (hasInstances) DateUtils.formatTimeDifferenceCached(lastInstance!!.date) else ""
     val daysOnly = if (hasInstances) DateUtils.getDaysDifference(lastInstance!!.date) else 0
     val isFuture = if (hasInstances) lastInstance!!.date.isAfter(java.time.LocalDate.now()) else false
     val isToday = if (hasInstances) lastInstance!!.date.isEqual(java.time.LocalDate.now()) else false
