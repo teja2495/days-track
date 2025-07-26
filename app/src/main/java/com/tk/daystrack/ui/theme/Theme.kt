@@ -20,7 +20,7 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = White,
     secondary = White,
-    tertiary = Teal500,
+    tertiary = PrimaryColor,
     background = Gray900,
     surface = Gray900,
     surfaceVariant = Gray800,
@@ -34,7 +34,7 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = darkColorScheme(  // Force dark theme to match design
     primary = White,
     secondary = White,
-    tertiary = Teal500,
+    tertiary = PrimaryColor,
     background = Gray900,
     surface = Gray900,
     surfaceVariant = Gray800,

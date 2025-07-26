@@ -68,13 +68,13 @@ fun UpdateEventDialog(
                         TextButton(
                             onClick = { showDatePicker = true }
                         ) {
-                            Text("Select", color = Teal400)
+                            Text("Select", color = ThemeTextColor)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
                         focusedTextColor = White,
                         unfocusedTextColor = White
@@ -86,11 +86,11 @@ fun UpdateEventDialog(
                     label = { Text("Note (optional)", color = White.copy(alpha = 0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = Teal400,
+                        cursorColor = CursorColor,
                         focusedTextColor = White,
                         unfocusedTextColor = White
                     ),
@@ -117,7 +117,7 @@ fun UpdateEventDialog(
                     Button(
                         onClick = { onUpdate(event.name, selectedDate, note.ifBlank { null }) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Teal500,
+                            containerColor = ButtonContainerColor,
                             contentColor = Color.Black
                         ),
                         shape = RoundedCornerShape(50)
@@ -139,14 +139,14 @@ fun UpdateEventDialog(
                 weekdayContentColor = White.copy(alpha = 0.7f),
                 subheadContentColor = White,
                 yearContentColor = White,
-                currentYearContentColor = Teal400,
+                currentYearContentColor = CalendarYearContentColor,
                 selectedYearContentColor = White,
-                selectedYearContainerColor = Teal500,
+                selectedYearContainerColor = CalendarSelectedColor,
                 dayContentColor = White,
                 selectedDayContentColor = White,
-                selectedDayContainerColor = Teal500,
-                todayContentColor = Teal400,
-                todayDateBorderColor = Teal400
+                selectedDayContainerColor = CalendarSelectedColor,
+                todayContentColor = CalendarTodayColor,
+                todayDateBorderColor = CalendarTodayBorderColor
             ),
             confirmButton = {
                 TextButton(
@@ -160,7 +160,7 @@ fun UpdateEventDialog(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK", color = Teal400)
+                    Text("OK", color = ThemeTextColor)
                 }
             },
             dismissButton = {

@@ -142,7 +142,7 @@ fun SettingsScreen(
             Text(
                 text = "Send Feedback",
                 style = MaterialTheme.typography.bodySmall,
-                color = Teal400,
+                color = ThemeTextColor,
                 modifier = Modifier.clickable {
                     val androidVersion = android.os.Build.VERSION.RELEASE
                     val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
@@ -240,7 +240,7 @@ fun CustomSortDropdown(
                                 selected = tempSelected == option,
                                 onClick = { tempSelected = option },
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Teal400,
+                                    selectedColor = ThemeTextColor,
                                     unselectedColor = TextSecondary
                                 )
                             )
@@ -248,7 +248,7 @@ fun CustomSortDropdown(
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = if (tempSelected == option) Teal400 else White,
+                                color = if (tempSelected == option) ThemeTextColor else White,
                                 fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -260,7 +260,7 @@ fun CustomSortDropdown(
                     onSortOptionSelected(tempSelected)
                     dialogOpen = false
                 }) {
-                    Text("OK", color = Teal400, fontWeight = FontWeight.Bold)
+                    Text("OK", color = ThemeTextColor, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {

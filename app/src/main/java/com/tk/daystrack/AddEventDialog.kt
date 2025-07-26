@@ -85,11 +85,11 @@ fun AddEventBottomSheet(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = Teal400,
+                        cursorColor = CursorColor,
                         focusedTextColor = White,
                         unfocusedTextColor = White
                     ),
@@ -107,13 +107,13 @@ fun AddEventBottomSheet(
                         TextButton(
                             onClick = { showDatePicker = true }
                         ) {
-                            Text("Select", color = Teal400)
+                            Text("Select", color = ThemeTextColor)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
                         focusedTextColor = White,
                         unfocusedTextColor = White
@@ -127,11 +127,11 @@ fun AddEventBottomSheet(
                         .fillMaxWidth()
                         .onFocusChanged { noteFieldFocused = it.isFocused },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = Teal400,
+                        cursorColor = CursorColor,
                         focusedTextColor = White,
                         unfocusedTextColor = White
                     ),
@@ -168,9 +168,9 @@ fun AddEventBottomSheet(
                     },
                     enabled = if (editableName) eventName.isNotBlank() else true,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Teal500,
+                        containerColor = ButtonContainerColor,
                         contentColor = Color.Black,
-                        disabledContainerColor = Teal500.copy(alpha = 0.5f),
+                        disabledContainerColor = ButtonDisabledColor,
                         disabledContentColor = Color.Black.copy(alpha = 0.7f)
                     ),
                     shape = RoundedCornerShape(50)
@@ -196,12 +196,12 @@ fun AddEventBottomSheet(
                 weekdayContentColor = White.copy(alpha = 0.7f),
                 subheadContentColor = White,
                 yearContentColor = White,
-                currentYearContentColor = Teal400,
+                currentYearContentColor = CalendarYearContentColor,
                 selectedYearContentColor = White,
-                selectedYearContainerColor = Teal500,
+                selectedYearContainerColor = CalendarSelectedColor,
                 dayContentColor = White,
-                todayContentColor = Teal400,
-                todayDateBorderColor = Teal400
+                todayContentColor = CalendarTodayColor,
+                todayDateBorderColor = CalendarTodayBorderColor
             ),
             confirmButton = {
                 TextButton(
@@ -215,7 +215,7 @@ fun AddEventBottomSheet(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK", color = Teal400)
+                    Text("OK", color = ThemeTextColor)
                 }
             },
             dismissButton = {
@@ -230,11 +230,11 @@ fun AddEventBottomSheet(
                 state = datePickerState,
                 colors = DatePickerDefaults.colors(
                     containerColor = Gray800,
-                    selectedDayContentColor = Color.Black,
-                    selectedDayContainerColor = Teal500,
-                    dayContentColor = White,
-                    todayContentColor = Teal400,
-                    todayDateBorderColor = Teal400
+                                    selectedDayContentColor = Color.Black,
+                selectedDayContainerColor = CalendarSelectedColor,
+                dayContentColor = White,
+                todayContentColor = CalendarTodayColor,
+                todayDateBorderColor = CalendarTodayBorderColor
                 )
             )
         }
@@ -274,7 +274,7 @@ fun TimelineDateItem(date: LocalDate, label: String, highlight: Boolean = false,
     ) {
         Text(
             text = date.format(formatter),
-            color = if (highlight) Teal400 else White,
+            color = if (highlight) ThemeTextColor else White,
             fontWeight = if (highlight) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )

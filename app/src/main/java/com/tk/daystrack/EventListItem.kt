@@ -106,7 +106,7 @@ fun EventListItem(
                         text = event.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = Teal400,
+                        color = ThemeTextColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.clickable { showEditNameSheet = true }
@@ -136,7 +136,7 @@ fun EventListItem(
                         text = displayText,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
-                        color = Teal400,
+                        color = ThemeTextColor,
                         modifier = if (canToggle) Modifier.clickable {
                             showDaysOnly = !showDaysOnly
                             saveShowDaysOnly(showDaysOnly)
@@ -215,11 +215,11 @@ fun EventListItem(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = Teal400,
+                        cursorColor = CursorColor,
                         focusedTextColor = White,
                         unfocusedTextColor = White
                     ),
@@ -244,9 +244,9 @@ fun EventListItem(
                         },
                         enabled = editedName.trim().isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Teal500,
+                            containerColor = ButtonContainerColor,
                             contentColor = Color.Black,
-                            disabledContainerColor = Teal500.copy(alpha = 0.5f),
+                            disabledContainerColor = ButtonDisabledColor,
                             disabledContentColor = Color.Black.copy(alpha = 0.7f)
                         ),
                         shape = RoundedCornerShape(50)

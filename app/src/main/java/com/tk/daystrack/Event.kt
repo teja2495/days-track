@@ -140,7 +140,7 @@ fun EventDetailsScreen(
                     Button(
                         onClick = { showAddInstanceSheet.value = true },
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = Teal500),
+                        colors = ButtonDefaults.buttonColors(containerColor = ButtonContainerColor),
                         contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
                     ) {
                         Icon(
@@ -346,7 +346,7 @@ fun EventDetailsScreen(
                                                 Text(
                                                     text = intervalText,
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    color = com.tk.daystrack.ui.theme.Teal400,
+                                                    color = ThemeTextColor,
                                                     modifier = Modifier
                                                         .padding(top = 0.dp),
                                                     fontWeight = FontWeight.Normal
@@ -522,11 +522,11 @@ fun EventDetailsScreen(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Teal400,
+                        focusedBorderColor = FocusedBorderColor,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = Teal400,
+                        focusedLabelColor = FocusedLabelColor,
                         unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = Teal400,
+                        cursorColor = CursorColor,
                         focusedTextColor = White,
                         unfocusedTextColor = White
                     ),
@@ -560,9 +560,9 @@ fun EventDetailsScreen(
                             editingNoteDate.value = null
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Teal500,
+                            containerColor = ButtonContainerColor,
                             contentColor = Color.Black,
-                            disabledContainerColor = Teal500.copy(alpha = 0.5f),
+                            disabledContainerColor = ButtonDisabledColor,
                             disabledContentColor = Color.Black.copy(alpha = 0.7f)
                         ),
                         shape = RoundedCornerShape(50)

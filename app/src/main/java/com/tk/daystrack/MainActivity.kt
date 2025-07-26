@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                                     showImportConfirmDialog = false
                                     importLauncher.launch("application/octet-stream")
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Teal500, contentColor = Color.Black),
+                                colors = ButtonDefaults.buttonColors(containerColor = ButtonContainerColor, contentColor = Color.Black),
                                 shape = RoundedCornerShape(50)
                             ) {
                                 Text("Yes, Import", fontWeight = FontWeight.Bold)
@@ -366,7 +366,7 @@ fun DayTrackAppWithExportImport(
                         ExtendedFloatingActionButton(
                             onClick = { viewModel.setEditMode(false) },
                             shape = RoundedCornerShape(50),
-                            containerColor = Teal400,
+                            containerColor = PrimaryLightColor,
                             contentColor = Color.Black,
                             icon = {
                                 Icon(
@@ -387,7 +387,7 @@ fun DayTrackAppWithExportImport(
                         ExtendedFloatingActionButton(
                             onClick = { viewModel.showAddDialog() },
                             shape = RoundedCornerShape(50),
-                            containerColor = Teal500,
+                            containerColor = PrimaryColor,
                             contentColor = Gray900,
                             icon = {
                                 Icon(
