@@ -106,7 +106,7 @@ fun EventListItem(
                 if (editMode) {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = ThemeTextColor,
                         maxLines = 1,
