@@ -33,7 +33,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
     
-    private val _currentSortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
+    private val _currentSortOption = MutableStateFlow(SortOption.CUSTOM)
     val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
     
     private val _currentFontSize = MutableStateFlow(FontSize.MEDIUM)

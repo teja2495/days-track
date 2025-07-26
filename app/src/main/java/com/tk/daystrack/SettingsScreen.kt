@@ -186,10 +186,10 @@ fun CustomSortDropdown(
     var isPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sortOptions = listOf(
+        SortOption.CUSTOM to SortOptionInfo(context.getString(R.string.sort_custom), context.getString(R.string.sort_custom_desc)),
         SortOption.DATE_ASCENDING to SortOptionInfo(context.getString(R.string.sort_date_oldest_first), context.getString(R.string.sort_date_oldest_desc)),
         SortOption.DATE_DESCENDING to SortOptionInfo(context.getString(R.string.sort_date_newest_first), context.getString(R.string.sort_date_newest_desc)),
-        SortOption.ALPHABETICAL to SortOptionInfo(context.getString(R.string.sort_alphabetical), context.getString(R.string.sort_alphabetical_desc)),
-        SortOption.CUSTOM to SortOptionInfo(context.getString(R.string.sort_custom), context.getString(R.string.sort_custom_desc))
+        SortOption.ALPHABETICAL to SortOptionInfo(context.getString(R.string.sort_alphabetical), context.getString(R.string.sort_alphabetical_desc))
     )
     val selectedText = when (currentSortOption) {
         SortOption.DATE_ASCENDING -> context.getString(R.string.sort_date_oldest_first)
