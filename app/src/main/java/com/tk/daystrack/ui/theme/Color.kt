@@ -6,9 +6,9 @@ import androidx.compose.ui.graphics.Color
 val Gray900 = Color(0xFF111827) // bg-gray-900
 val Gray800 = Color(0xFF1F2937) // bg-gray-800
 val Gray700 = Color(0xFF374151) // bg-gray-700
-val Teal500 = Color(0xFF14B8A6) // bg-teal-500
-val Teal600 = Color(0xFF0D9488) // hover:bg-teal-600
-val Teal400 = Color(0xFF2DD4BF) // text-teal-400
+val Emerald500 = Color(0xFF10B981)
+val Emerald600 = Color(0xFF059669)
+val Emerald400 = Color(0xFF34D399)
 val White = Color(0xFFFFFFFF) // text-white
 
 // Original colors kept for reference
@@ -21,29 +21,29 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 // ===== SEMANTIC THEME COLORS =====
-// These semantic names reference the teal colors, making theme changes easier
-// To change the entire theme color, just update the teal color values above
+// These semantic names reference the emerald colors, making theme changes easier
+// To change the entire theme color, just update the emerald color values above
 
 // Primary theme colors
-val PrimaryColor = Teal500
-val PrimaryLightColor = Teal400
-val PrimaryDarkColor = Teal600
+val PrimaryColor = Emerald500
+val PrimaryLightColor = Emerald400
+val PrimaryDarkColor = Emerald600
 
 // Interactive elements
-val FocusedBorderColor = Teal400
-val FocusedLabelColor = Teal400
-val CursorColor = Teal400
-val ButtonContainerColor = Teal500
-val ButtonDisabledColor = Teal500.copy(alpha = 0.5f)
+val FocusedBorderColor = Emerald400
+val FocusedLabelColor = Emerald400
+val CursorColor = Emerald400
+val ButtonContainerColor = Emerald500
+val ButtonDisabledColor = Emerald500.copy(alpha = 0.5f)
 
 // Calendar and date picker colors
-val CalendarSelectedColor = Teal500
-val CalendarTodayColor = Teal400
-val CalendarTodayBorderColor = Teal400
-val CalendarYearContentColor = Teal400
+val CalendarSelectedColor = Emerald500
+val CalendarTodayColor = Emerald400
+val CalendarTodayBorderColor = Emerald400
+val CalendarYearContentColor = Emerald400
 
 // Text colors for theme elements
-val ThemeTextColor = Teal400
+val ThemeTextColor = Emerald400
 
 // Updated colors for the app
 val BackgroundColor = Gray900
