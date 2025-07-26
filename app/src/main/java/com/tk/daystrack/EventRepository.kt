@@ -121,7 +121,21 @@ class EventRepository(context: Context) {
         val index = currentEvents.indexOfFirst { it.id == eventId }
         if (index != -1) {
             val event = currentEvents[index]
-            val updatedInstances = if (event.instances.isEmpty() || event.instances.last().date != newInstance.date) event.instances + newInstance else event.instances
+            val updatedInstances = if (event.instances.isEmpty() || event.instances.last().date != newInstance.date) {
+                // Check if adding this instance would exceed 50 instances
+                if (event.instances.size >= 50) {
+                    // Find the oldest instance and replace it with the new one
+                    val sortedInstances = event.instances.sortedBy { it.date }
+                    val oldestInstance = sortedInstances.first()
+                    event.instances.map { 
+                        if (it.date == oldestInstance.date) newInstance else it 
+                    }
+                } else {
+                    event.instances + newInstance
+                }
+            } else {
+                event.instances
+            }
             currentEvents[index] = event.copy(
                 name = newName.trim(),
                 instances = updatedInstances
