@@ -23,6 +23,7 @@
     <string name="sort_date_oldest_desc">Events from earliest to latest</string>
     <string name="sort_date_newest_desc">Events from latest to earliest</string>
     <string name="sort_alphabetical_desc">Events A to Z by name</string>
+    <string name="sort_custom_desc">Long press event to reorder</string>
     
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
