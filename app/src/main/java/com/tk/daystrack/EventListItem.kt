@@ -5,15 +5,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -37,7 +42,8 @@ fun EventListItem(
     onLongPress: (() -> Unit)? = null,
     editMode: Boolean = false,
     reorderableState: ReorderableLazyListState? = null,
-    onDelete: (() -> Unit)? = null
+    onDelete: (() -> Unit)? = null,
+    index: Int = 0
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -76,7 +82,7 @@ fun EventListItem(
         colors = CardDefaults.cardColors(
             containerColor = Gray800
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -107,7 +113,7 @@ fun EventListItem(
                     Text(
                         text = event.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = ThemeTextColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -117,7 +123,7 @@ fun EventListItem(
                     Text(
                         text = event.name,
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -134,16 +140,30 @@ fun EventListItem(
                     } else {
                         timeDifference
                     }
-                    Text(
-                        text = displayText,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = ThemeTextColor,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = if (canToggle) Modifier.clickable {
                             showDaysOnly = !showDaysOnly
                             saveShowDaysOnly(showDaysOnly)
                         } else Modifier
-                    )
+                    ) {
+                        Icon(
+                            imageVector = if (isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
+                            contentDescription = if (isFuture) "Clock" else "Calendar",
+                            tint = DateTextColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = displayText,
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                fontStyle = FontStyle.Italic,
+                                color = DateTextColor
+                            )
+                        )
+                    }
                 }
             }
             

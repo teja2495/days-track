@@ -44,6 +44,7 @@ val CalendarYearContentColor = Emerald400
 
 // Text colors for theme elements
 val ThemeTextColor = Emerald400
+val DateTextColor = White.copy(alpha = 0.6f) // Dimmer color specifically for dates
 
 // Updated colors for the app
 val BackgroundColor = Gray900

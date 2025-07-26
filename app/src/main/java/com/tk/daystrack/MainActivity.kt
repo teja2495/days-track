@@ -221,7 +221,7 @@ fun DayTrackAppWithExportImport(
                                 if (isEditMode) viewModel.setEditMode(false)
                                 showSettings = true
                             },
-                            modifier = Modifier.padding(end = 18.dp)
+                            modifier = Modifier.padding(end = 8.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
@@ -340,7 +340,8 @@ fun DayTrackAppWithExportImport(
                                                 reorderableState = reorderableState,
                                                 onDelete = {
                                                     viewModel.removeEvent(event.id)
-                                                }
+                                                },
+                                                index = index
                                             )
                                         }
                                     } else {
@@ -351,7 +352,8 @@ fun DayTrackAppWithExportImport(
                                             onLongPress = { viewModel.setEditMode(true) },
                                             modifier = itemModifier,
                                             editMode = false,
-                                            reorderableState = null
+                                            reorderableState = null,
+                                            index = index
                                         )
                                     }
                                 }
@@ -362,7 +364,7 @@ fun DayTrackAppWithExportImport(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = 70.dp, end = 20.dp),
+                        .padding(bottom = 80.dp, end = 20.dp),
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     if (isEditMode) {
@@ -371,6 +373,11 @@ fun DayTrackAppWithExportImport(
                             shape = RoundedCornerShape(50),
                             containerColor = PrimaryLightColor,
                             contentColor = Color.Black,
+                            elevation = FloatingActionButtonDefaults.elevation(
+                                defaultElevation = 8.dp,
+                                pressedElevation = 12.dp,
+                                hoveredElevation = 10.dp
+                            ),
                             icon = {
                                 Icon(
                                     imageVector = Icons.Default.Check,
@@ -392,6 +399,11 @@ fun DayTrackAppWithExportImport(
                             shape = RoundedCornerShape(50),
                             containerColor = PrimaryColor,
                             contentColor = Gray900,
+                            elevation = FloatingActionButtonDefaults.elevation(
+                                defaultElevation = 8.dp,
+                                pressedElevation = 12.dp,
+                                hoveredElevation = 10.dp
+                            ),
                             icon = {
                                 Icon(
                                     imageVector = Icons.Default.Add,
