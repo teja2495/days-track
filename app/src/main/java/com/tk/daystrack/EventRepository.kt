@@ -216,6 +216,14 @@ class EventRepository(context: Context) {
         sharedPreferences.edit().putBoolean("hasSeenToggleDateHint", value).apply()
     }
     
+    fun getHasSeen50InstancesLimitHint(): Boolean {
+        return sharedPreferences.getBoolean("hasSeen50InstancesLimitHint", false)
+    }
+    
+    fun setHasSeen50InstancesLimitHint(value: Boolean) {
+        sharedPreferences.edit().putBoolean("hasSeen50InstancesLimitHint", value).apply()
+    }
+    
     fun getFontSize(): FontSize {
         val fontSizeString = sharedPreferences.getString("fontSize", "MEDIUM") ?: "MEDIUM"
         return try {

@@ -30,11 +30,17 @@ fun UpdateEventDialog(
     var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
+    var showDuplicateDateError by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+
+    // Check for duplicate date when selectedDate changes
+    LaunchedEffect(selectedDate) {
+        showDuplicateDateError = event.instances.any { it.date == selectedDate }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -79,6 +85,16 @@ fun UpdateEventDialog(
                 }
             )
             
+            // Show error message if duplicate date
+            if (showDuplicateDateError) {
+                Text(
+                    text = context.getString(R.string.add_event_duplicate_date_error),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
+            
             StyledOutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
@@ -111,7 +127,7 @@ fun UpdateEventDialog(
                                 onUpdate(eventName, selectedDate, note.ifBlank { null })
                             }
                         },
-                        enabled = eventName.isNotBlank(),
+                        enabled = eventName.isNotBlank() && !showDuplicateDateError,
                         text = context.getString(R.string.update_event_update)
                     )
                 }

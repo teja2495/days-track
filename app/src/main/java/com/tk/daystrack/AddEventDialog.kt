@@ -40,11 +40,17 @@ fun AddEventBottomSheet(
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
     var noteFieldFocused by remember { mutableStateOf(false) }
+    var showDuplicateDateError by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+
+    // Check for duplicate date when selectedDate changes
+    LaunchedEffect(selectedDate) {
+        showDuplicateDateError = allInstanceDates.contains(selectedDate)
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -101,6 +107,16 @@ fun AddEventBottomSheet(
                     }
                 )
                 
+                // Show error message if duplicate date
+                if (showDuplicateDateError) {
+                    Text(
+                        text = context.getString(R.string.add_event_duplicate_date_error),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
+                
                 StyledOutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
@@ -130,7 +146,7 @@ fun AddEventBottomSheet(
                             onSave(initialName, if (showDateField) selectedDate else null, note.ifBlank { null })
                         }
                     },
-                    enabled = if (editableName) eventName.isNotBlank() else true,
+                    enabled = (if (editableName) eventName.isNotBlank() else true) && !showDuplicateDateError,
                     text = buttonLabel
                 )
             }

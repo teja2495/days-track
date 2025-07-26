@@ -193,7 +193,7 @@ fun DayTrackAppWithExportImport(
                         }
                     )
                     
-                    if (viewModel.showEventListHintBanner.collectAsState().value) {
+                    if (viewModel.shouldShowEventListHintBanner.collectAsState().value) {
                         HintBanner(
                             message = context.getString(R.string.main_edit_hint),
                             onDismiss = { viewModel.dismissEventListHintBanner() }

@@ -58,10 +58,12 @@ fun EventDetailsScreen(
     val context = LocalContext.current
     val repository = remember { EventRepository(context) }
     val showBanner = remember { mutableStateOf(false) }
+    val show50InstancesLimitBanner = remember { mutableStateOf(false) }
     val showAddInstanceSheet = remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
         showBanner.value = !repository.getHasSeenNoteHintBanner()
+        show50InstancesLimitBanner.value = !repository.getHasSeen50InstancesLimitHint() && event.instances.size >= 50
     }
     
     // Calculate sizes based on font size
@@ -175,6 +177,16 @@ fun EventDetailsScreen(
                                 onDismiss = {
                                     showBanner.value = false
                                     repository.setHasSeenNoteHintBanner(true)
+                                }
+                            )
+                        }
+                        
+                        if (show50InstancesLimitBanner.value) {
+                            HintBanner(
+                                message = context.getString(R.string.event_details_50_instances_limit_hint),
+                                onDismiss = {
+                                    show50InstancesLimitBanner.value = false
+                                    repository.setHasSeen50InstancesLimitHint(true)
                                 }
                             )
                         }

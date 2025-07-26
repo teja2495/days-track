@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import com.tk.daystrack.DateUtils.toTitleCase
@@ -49,6 +51,18 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _showEventListHintBanner = MutableStateFlow(!repository.getHasSeenEventListHintBanner())
     val showEventListHintBanner: StateFlow<Boolean> = _showEventListHintBanner.asStateFlow()
+
+    // Computed property that shows hint only when there are at least 2 events
+    val shouldShowEventListHintBanner: StateFlow<Boolean> = combine(
+        _showEventListHintBanner,
+        _events
+    ) { showHint, events ->
+        showHint && events.size >= 2
+    }.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     fun dismissEventListHintBanner() {
         _showEventListHintBanner.value = false

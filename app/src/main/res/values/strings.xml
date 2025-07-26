@@ -47,6 +47,7 @@
     <string name="event_details_average_frequency">Average frequency: %s days</string>
     <string name="event_details_instances_count">%d instances</string>
     <string name="event_details_note_hint">Hint: Tap on the date card to add a note for that instance.</string>
+    <string name="event_details_50_instances_limit_hint">You\'ve reached the 50 instances limit for this event, your oldest events will be overwritten by new instances.</string>
     <string name="event_details_add_note">Add note</string>
     <string name="event_details_edit_note">Edit Note</string>
     <string name="event_details_note_label">Note</string>
@@ -70,6 +71,7 @@
     <string name="add_event_note_label">Note (Optional)</string>
     <string name="add_event_save">Save</string>
     <string name="add_event_new_instance_label">New Instance</string>
+    <string name="add_event_duplicate_date_error">This date already exists for this event</string>
     
     <!-- Update Event Dialog -->
     <string name="update_event_title">Update Event</string>
