@@ -2,6 +2,7 @@ package com.tk.daystrack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
@@ -88,18 +89,17 @@ fun AddEventBottomSheet(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                     onValueChange = { },
                     label = dateFieldLabel,
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = { showDatePicker = true }) {
-                        Text(context.getString(R.string.add_event_date_label), color = ThemeTextColor)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDatePicker = true },
+                    singleLine = true,
+                    readOnly = true,
+                    trailingIcon = {
+                        TextButton(onClick = { showDatePicker = true }) {
+                            Text("Change Date", color = ThemeTextColor)
+                        }
                     }
-                }
+                )
                 
                 StyledOutlinedTextField(
                     value = note,

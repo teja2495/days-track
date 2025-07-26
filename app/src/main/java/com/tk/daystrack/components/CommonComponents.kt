@@ -65,7 +65,7 @@ fun DangerButton(
         onClick = onClick,
         modifier = modifier
     ) {
-        Text(text, color = MaterialTheme.colorScheme.error)
+        Text(text, color = White)
     }
 }
 
@@ -108,7 +108,9 @@ fun StyledOutlinedTextField(
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     maxLines: Int = 1,
-    focusRequester: androidx.compose.ui.focus.FocusRequester? = null
+    focusRequester: androidx.compose.ui.focus.FocusRequester? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    readOnly: Boolean = false
 ) {
     OutlinedTextField(
         value = value,
@@ -127,7 +129,9 @@ fun StyledOutlinedTextField(
             unfocusedTextColor = White
         ),
         singleLine = singleLine,
-        maxLines = maxLines
+        maxLines = maxLines,
+        trailingIcon = trailingIcon,
+        readOnly = readOnly
     )
 }
 

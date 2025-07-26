@@ -70,17 +70,14 @@ fun UpdateEventDialog(
                 onValueChange = { },
                 label = context.getString(R.string.update_event_date_label),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = { showDatePicker = true }) {
-                    Text(context.getString(R.string.add_event_date_label), color = ThemeTextColor)
+                singleLine = true,
+                readOnly = true,
+                trailingIcon = {
+                    TextButton(onClick = { showDatePicker = true }) {
+                        Text("Change Date", color = ThemeTextColor)
+                    }
                 }
-            }
+            )
             
             StyledOutlinedTextField(
                 value = note,
