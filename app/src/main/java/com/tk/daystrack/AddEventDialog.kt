@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.tk.daystrack.ui.theme.*
-import androidx.compose.ui.graphics.Color
+import com.tk.daystrack.components.*
 import androidx.compose.foundation.background
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,11 +38,6 @@ fun AddEventBottomSheet(
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
     var noteFieldFocused by remember { mutableStateOf(false) }
-
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = java.time.ZoneId.systemDefault()
-            .let { selectedDate.atStartOfDay(it).toInstant().toEpochMilli() }
-    )
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -77,64 +72,40 @@ fun AddEventBottomSheet(
             }
 
             if (editableName) {
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
-                    label = { Text("Name", color = White.copy(alpha = 0.7f)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FocusedBorderColor,
-                        unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = FocusedLabelColor,
-                        unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = CursorColor,
-                        focusedTextColor = White,
-                        unfocusedTextColor = White
-                    ),
-                    singleLine = true
+                    label = "Name",
+                    modifier = Modifier.fillMaxWidth(),
+                    focusRequester = focusRequester
                 )
             }
+            
             if (showDateField) {
-                OutlinedTextField(
+                StyledOutlinedTextField(
                     value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                     onValueChange = { },
-                    label = { Text(dateFieldLabel, color = White.copy(alpha = 0.7f)) },
+                    label = dateFieldLabel,
                     modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    trailingIcon = {
-                        TextButton(
-                            onClick = { showDatePicker = true }
-                        ) {
-                            Text("Select", color = ThemeTextColor)
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FocusedBorderColor,
-                        unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = FocusedLabelColor,
-                        unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        focusedTextColor = White,
-                        unfocusedTextColor = White
-                    )
+                    singleLine = true
                 )
-                OutlinedTextField(
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { showDatePicker = true }) {
+                        Text("Select Date", color = ThemeTextColor)
+                    }
+                }
+                
+                StyledOutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text("Note (optional)", color = White.copy(alpha = 0.7f)) },
+                    label = "Note (optional)",
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { noteFieldFocused = it.isFocused },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FocusedBorderColor,
-                        unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = FocusedLabelColor,
-                        unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = CursorColor,
-                        focusedTextColor = White,
-                        unfocusedTextColor = White
-                    ),
                     singleLine = false,
                     maxLines = 3
                 )
@@ -145,18 +116,9 @@ fun AddEventBottomSheet(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    onClick = onDismiss
-                ) {
-                    Text(
-                        "Cancel",
-                        color = White.copy(alpha = 0.7f)
-                    )
-                }
-
+                SecondaryButton(onClick = onDismiss, text = "Cancel")
                 Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
+                PrimaryButton(
                     onClick = {
                         if (editableName) {
                             if (eventName.isNotBlank()) {
@@ -167,16 +129,8 @@ fun AddEventBottomSheet(
                         }
                     },
                     enabled = if (editableName) eventName.isNotBlank() else true,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ButtonContainerColor,
-                        contentColor = Color.Black,
-                        disabledContainerColor = ButtonDisabledColor,
-                        disabledContentColor = Color.Black.copy(alpha = 0.7f)
-                    ),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text(buttonLabel, fontWeight = FontWeight.Bold)
-                }
+                    text = buttonLabel
+                )
             }
         }
     }
@@ -187,57 +141,11 @@ fun AddEventBottomSheet(
     }
 
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            colors = DatePickerDefaults.colors(
-                containerColor = Gray800, 
-                titleContentColor = White,
-                headlineContentColor = White,
-                weekdayContentColor = White.copy(alpha = 0.7f),
-                subheadContentColor = White,
-                yearContentColor = White,
-                currentYearContentColor = CalendarYearContentColor,
-                selectedYearContentColor = White,
-                selectedYearContainerColor = CalendarSelectedColor,
-                dayContentColor = White,
-                todayContentColor = CalendarTodayColor,
-                todayDateBorderColor = CalendarTodayBorderColor
-            ),
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            selectedDate = java.time.LocalDate.ofInstant(
-                                java.time.Instant.ofEpochMilli(millis),
-                                java.time.ZoneOffset.UTC
-                            )
-                        }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text("OK", color = ThemeTextColor)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDatePicker = false }
-                ) {
-                    Text("Cancel", color = White.copy(alpha = 0.7f))
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                colors = DatePickerDefaults.colors(
-                    containerColor = Gray800,
-                                    selectedDayContentColor = Color.Black,
-                selectedDayContainerColor = CalendarSelectedColor,
-                dayContentColor = White,
-                todayContentColor = CalendarTodayColor,
-                todayDateBorderColor = CalendarTodayBorderColor
-                )
-            )
-        }
+        StyledDatePickerDialog(
+            onDismiss = { showDatePicker = false },
+            onDateSelected = { selectedDate = it },
+            initialDate = selectedDate
+        )
     }
 }
 

@@ -5,14 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,29 +18,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.daystrack.ui.theme.*
-import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.graphics.Color
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.core.content.FileProvider
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import org.burnoutcrew.reorderable.ReorderableItem
-import org.burnoutcrew.reorderable.detectReorder
-import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
-import org.burnoutcrew.reorderable.reorderable
+import com.tk.daystrack.components.*
 import com.tk.daystrack.DateUtils
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,29 +81,15 @@ class MainActivity : ComponentActivity() {
 
                 // Confirmation dialog for import
                 if (showImportConfirmDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showImportConfirmDialog = false },
-                        containerColor = Gray800,
-                        title = { Text("Warning", color = White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) },
-                        text = { Text("Importing will overwrite all your existing events data. Are you sure you want to continue?", color = White) },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    showImportConfirmDialog = false
-                                    importLauncher.launch("application/octet-stream")
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = ButtonContainerColor, contentColor = Color.Black),
-                                shape = RoundedCornerShape(50)
-                            ) {
-                                Text("Yes, Import", fontWeight = FontWeight.Bold)
-                            }
+                    ConfirmationDialog(
+                        onDismiss = { showImportConfirmDialog = false },
+                        onConfirm = {
+                            showImportConfirmDialog = false
+                            importLauncher.launch("application/octet-stream")
                         },
-                        dismissButton = {
-                            TextButton(onClick = { showImportConfirmDialog = false }) {
-                                Text("Cancel", color = White.copy(alpha = 0.7f))
-                            }
-                        },
-                        shape = RoundedCornerShape(24.dp)
+                        title = "Warning",
+                        message = "Importing will overwrite all your existing events data. Are you sure you want to continue?",
+                        confirmText = "Yes, Import"
                     )
                 }
             }
@@ -147,7 +119,7 @@ fun DayTrackAppWithExportImport(
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(null) }
     var eventForNewInstance by remember { mutableStateOf<Event?>(null) }
-    var eventPendingDelete by remember { mutableStateOf<Event?>(null) } // <-- Add this
+    var eventPendingDelete by remember { mutableStateOf<Event?>(null) }
 
     val selectedEventForDetails = selectedEventId?.let { id ->
         events.find { it.id == id }
@@ -190,7 +162,7 @@ fun DayTrackAppWithExportImport(
                     onUpdateNote = { date, note ->
                         viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
                     },
-                    viewModel = viewModel, // <-- Pass the viewModel here
+                    viewModel = viewModel,
                     fontSize = currentFontSize
                 )
             }
@@ -205,107 +177,37 @@ fun DayTrackAppWithExportImport(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp, vertical = 32.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp, bottom = 22.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Days Track",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = White,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(
-                            onClick = {
-                                if (isEditMode) viewModel.setEditMode(false)
-                                showSettings = true
-                            },
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings",
-                                tint = White,
-                                modifier = Modifier.size(26.dp)
-                            )
+                    AppHeader(
+                        title = "Days Track",
+                        onSettingsClick = {
+                            if (isEditMode) viewModel.setEditMode(false)
+                            showSettings = true
                         }
-                    }
+                    )
+                    
                     if (viewModel.showEventListHintBanner.collectAsState().value) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(16.dp),
-                            tonalElevation = 2.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Hint: Long press an event to enter edit mode, where you can delete and reorder events.",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.weight(1f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                IconButton(onClick = { viewModel.dismissEventListHintBanner() }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Dismiss",
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            }
-                        }
+                        HintBanner(
+                            message = "Hint: Long press an event to enter edit mode, where you can delete and reorder events.",
+                            onDismiss = { viewModel.dismissEventListHintBanner() }
+                        )
                     }
+                    
                     if (shouldShowToggleHint) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(16.dp),
-                            tonalElevation = 2.dp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Hint: Tap the date text to switch between days and months/years.",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.weight(1f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                IconButton(onClick = { viewModel.dismissToggleDateHint() }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Dismiss",
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                            }
-                        }
+                        HintBanner(
+                            message = "Hint: Tap the date text to switch between days and months/years.",
+                            onDismiss = { viewModel.dismissToggleDateHint() }
+                        )
                     }
+                    
                     if (events.isEmpty()) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            EmptyEventsMessage()
+                            EmptyStateMessage(
+                                title = "No events yet",
+                                message = "Tap the Add Event button to add your first event and start tracking important dates"
+                            )
                         }
                     } else {
                         val reorderableState = rememberReorderableLazyListState(
@@ -313,60 +215,20 @@ fun DayTrackAppWithExportImport(
                                 viewModel.reorderEvents(from.index, to.index)
                             }
                         )
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.Transparent
-                        ) {
-                            LazyColumn(
-                                modifier = if (isEditMode) {
-                                    Modifier.fillMaxWidth().reorderable(reorderableState)
-                                } else {
-                                    Modifier.fillMaxWidth()
-                                },
-                                state = reorderableState.listState,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                items(events.size, key = { events[it].id }) { index ->
-                                    val event = events[index]
-                                    val isLastItem = index == events.size - 1
-                                    val itemModifier = if (isLastItem) Modifier.padding(bottom = 140.dp) else Modifier
-                                    if (isEditMode) {
-                                        ReorderableItem(reorderableState, key = event.id) { isDragging ->
-                                            EventListItem(
-                                                event = event,
-                                                onUpdate = { updatedEvent ->
-                                                    viewModel.updateEventName(event.id, updatedEvent.name)
-                                                },
-                                                onClick = null,
-                                                onLongPress = null,
-                                                modifier = itemModifier,
-                                                editMode = true,
-                                                reorderableState = reorderableState,
-                                                onDelete = {
-                                                    viewModel.removeEvent(event.id)
-                                                },
-                                                index = index,
-                                                fontSize = currentFontSize
-                                            )
-                                        }
-                                    } else {
-                                        EventListItem(
-                                            event = event,
-                                            onUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
-                                            onClick = { selectedEventId = event.id },
-                                            onLongPress = { viewModel.setEditMode(true) },
-                                            modifier = itemModifier,
-                                            editMode = false,
-                                            reorderableState = null,
-                                            index = index,
-                                            fontSize = currentFontSize
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        
+                        EventList(
+                            events = events,
+                            isEditMode = isEditMode,
+                            reorderableState = reorderableState,
+                            onEventClick = { selectedEventId = it },
+                            onEventLongPress = { viewModel.setEditMode(true) },
+                            onEventUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
+                            onEventDelete = { viewModel.removeEvent(it) },
+                            fontSize = currentFontSize
+                        )
                     }
                 }
+                
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -374,59 +236,12 @@ fun DayTrackAppWithExportImport(
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     if (isEditMode) {
-                        ExtendedFloatingActionButton(
-                            onClick = { viewModel.setEditMode(false) },
-                            shape = RoundedCornerShape(50),
-                            containerColor = PrimaryLightColor,
-                            contentColor = Color.Black,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 8.dp,
-                                pressedElevation = 12.dp,
-                                hoveredElevation = 10.dp
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Done Editing",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            },
-                            text = {
-                                Text(
-                                    "Done Editing",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        )
+                        DoneEditingFAB(onClick = { viewModel.setEditMode(false) })
                     } else {
-                        ExtendedFloatingActionButton(
-                            onClick = { viewModel.showAddDialog() },
-                            shape = RoundedCornerShape(50),
-                            containerColor = PrimaryColor,
-                            contentColor = Gray900,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 8.dp,
-                                pressedElevation = 12.dp,
-                                hoveredElevation = 10.dp
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            },
-                            text = {
-                                Text(
-                                    "Add Event",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        )
+                        AddEventFAB(onClick = { viewModel.showAddDialog() })
                     }
                 }
+                
                 if (showAddDialog) {
                     AddEventBottomSheet(
                         onDismiss = { viewModel.hideAddDialog() },
@@ -437,6 +252,7 @@ fun DayTrackAppWithExportImport(
                         allInstanceDates = emptyList()
                     )
                 }
+                
                 if (eventForNewInstance != null) {
                     AddEventBottomSheet(
                         onDismiss = { eventForNewInstance = null },
@@ -460,6 +276,7 @@ fun DayTrackAppWithExportImport(
                         allInstanceDates = eventForNewInstance!!.instances.map { it.date }
                     )
                 }
+                
                 if (showUpdateDialog && eventToUpdate != null) {
                     UpdateEventDialog(
                         event = eventToUpdate!!,
@@ -472,25 +289,17 @@ fun DayTrackAppWithExportImport(
                         }
                     )
                 }
+                
                 if (eventPendingDelete != null) {
-                    AlertDialog(
-                        onDismissRequest = { eventPendingDelete = null },
-                        containerColor = Gray800,
-                        title = { Text("Delete Event") },
-                        text = { Text("Are you sure you want to delete this event?") },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                viewModel.removeEvent(eventPendingDelete!!.id)
-                                eventPendingDelete = null
-                            }) {
-                                Text("Delete", color = MaterialTheme.colorScheme.error)
-                            }
+                    ConfirmationDialog(
+                        onDismiss = { eventPendingDelete = null },
+                        onConfirm = {
+                            viewModel.removeEvent(eventPendingDelete!!.id)
+                            eventPendingDelete = null
                         },
-                        dismissButton = {
-                            TextButton(onClick = { eventPendingDelete = null }) {
-                                Text("Cancel")
-                            }
-                        }
+                        title = "Delete Event",
+                        message = "Are you sure you want to delete this event?",
+                        confirmText = "Delete"
                     )
                 }
             }
@@ -563,28 +372,5 @@ fun SortDropdown(
                 }
             )
         }
-    }
-}
-
-@Composable
-fun EmptyEventsMessage(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = "No events yet",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Medium,
-            color = White,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = "Tap the Add Event button to add your first event and start tracking important dates",
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
-            textAlign = TextAlign.Center
-        )
     }
 }

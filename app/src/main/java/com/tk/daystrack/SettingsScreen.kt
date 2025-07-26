@@ -21,6 +21,7 @@ import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import android.net.Uri
+import com.tk.daystrack.components.*
 
 data class SortOptionInfo(
     val label: String,
@@ -78,18 +79,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 0.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp) // Increased spacing between sections
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Sort Events Section
             Column {
-                Text(
-                    text = "Sort Events",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = White,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
+                SectionTitle(text = "Sort Events")
                 CustomSortDropdown(
                     currentSortOption = currentSortOption,
                     onSortOptionSelected = onSortOptionSelected
@@ -98,14 +92,7 @@ fun SettingsScreen(
 
             // Font Size Section
             Column {
-                Text(
-                    text = "Font & Card Size",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = White,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
+                SectionTitle(text = "Font & Card Size")
                 CustomFontSizeDropdown(
                     currentFontSize = currentFontSize,
                     onFontSizeSelected = onFontSizeSelected
@@ -114,13 +101,7 @@ fun SettingsScreen(
 
             // Data Management Section
             Column {
-                Text(
-                    text = "Events Data Backup",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = White,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
+                SectionTitle(text = "Events Data Backup")
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

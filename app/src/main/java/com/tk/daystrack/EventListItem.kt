@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +30,7 @@ import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.ui.focus.focusRequester
+import com.tk.daystrack.components.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -48,10 +48,11 @@ fun EventListItem(
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
-    val PREF_KEY = "showDaysOnlyV2" // Update key to avoid old default
+    val PREF_KEY = "showDaysOnlyV2"
     var showDaysOnly by remember {
-        mutableStateOf(prefs.getBoolean(PREF_KEY, false)) // Default to false for months/years
+        mutableStateOf(prefs.getBoolean(PREF_KEY, false))
     }
+    
     fun saveShowDaysOnly(value: Boolean) {
         prefs.edit().putBoolean(PREF_KEY, value).apply()
     }
@@ -130,7 +131,6 @@ fun EventListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (editMode) {
-                // 3-bar menu (drag handle)
                 Icon(
                     imageVector = Icons.Filled.DragHandle,
                     contentDescription = "Drag Handle",
@@ -143,6 +143,7 @@ fun EventListItem(
                         }
                 )
             }
+            
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -167,6 +168,7 @@ fun EventListItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+                
                 if (hasInstances && !editMode) {
                     val canToggle = DateUtils.isAtLeastOneMonth(lastInstance!!.date)
                     val displayText = if (showDaysOnly) {
@@ -178,6 +180,7 @@ fun EventListItem(
                     } else {
                         timeDifference
                     }
+                    
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -216,7 +219,7 @@ fun EventListItem(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Event",
-                        tint = DeleteButtonColor, // Use subtle red
+                        tint = DeleteButtonColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -241,15 +244,18 @@ fun EventListItem(
             }
         }
     }
+    
     if (showEditNameSheet) {
         val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
         val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+        
         LaunchedEffect(showEditNameSheet) {
             if (showEditNameSheet) {
                 focusRequester.requestFocus()
                 keyboardController?.show()
             }
         }
+        
         ModalBottomSheet(
             onDismissRequest = { showEditNameSheet = false },
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
@@ -269,34 +275,23 @@ fun EventListItem(
                     fontWeight = FontWeight.Bold,
                     color = White
                 )
-                OutlinedTextField(
+                
+                StyledOutlinedTextField(
                     value = editedName,
                     onValueChange = { editedName = it },
-                    label = { Text("Name", color = White.copy(alpha = 0.7f)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FocusedBorderColor,
-                        unfocusedBorderColor = White.copy(alpha = 0.3f),
-                        focusedLabelColor = FocusedLabelColor,
-                        unfocusedLabelColor = White.copy(alpha = 0.7f),
-                        cursorColor = CursorColor,
-                        focusedTextColor = White,
-                        unfocusedTextColor = White
-                    ),
-                    singleLine = true
+                    label = "Name",
+                    modifier = Modifier.fillMaxWidth(),
+                    focusRequester = focusRequester
                 )
+                
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { showEditNameSheet = false }) {
-                        Text("Cancel", color = White.copy(alpha = 0.7f))
-                    }
+                    SecondaryButton(onClick = { showEditNameSheet = false }, text = "Cancel")
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(
+                    PrimaryButton(
                         onClick = {
                             val trimmed = editedName.trim()
                             if (trimmed.isNotBlank()) {
@@ -305,16 +300,8 @@ fun EventListItem(
                             }
                         },
                         enabled = editedName.trim().isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ButtonContainerColor,
-                            contentColor = Color.Black,
-                            disabledContainerColor = ButtonDisabledColor,
-                            disabledContentColor = Color.Black.copy(alpha = 0.7f)
-                        ),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Text("Save", fontWeight = FontWeight.Bold)
-                    }
+                        text = "Save"
+                    )
                 }
             }
         }
@@ -322,24 +309,15 @@ fun EventListItem(
     
     // Delete confirmation dialog
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            containerColor = Gray800,
-            title = { Text("Delete Event") },
-            text = { Text("Are you sure you want to delete '${event.name}'?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    onDelete?.invoke()
-                }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
+        ConfirmationDialog(
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete?.invoke()
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            title = "Delete Event",
+            message = "Are you sure you want to delete '${event.name}'?",
+            confirmText = "Delete"
         )
     }
 } 

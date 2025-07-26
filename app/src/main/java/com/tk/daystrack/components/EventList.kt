@@ -1,0 +1,80 @@
+package com.tk.daystrack.components
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.tk.daystrack.Event
+import com.tk.daystrack.EventListItem
+import com.tk.daystrack.FontSize
+import org.burnoutcrew.reorderable.ReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
+
+@Composable
+fun EventList(
+    events: List<Event>,
+    isEditMode: Boolean,
+    reorderableState: ReorderableLazyListState?,
+    onEventClick: (String) -> Unit,
+    onEventLongPress: () -> Unit,
+    onEventUpdate: (Event) -> Unit,
+    onEventDelete: (String) -> Unit,
+    fontSize: FontSize,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Transparent,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            modifier = if (isEditMode && reorderableState != null) {
+                Modifier.fillMaxWidth().reorderable(reorderableState)
+            } else {
+                Modifier.fillMaxWidth()
+            },
+            state = reorderableState?.listState ?: androidx.compose.foundation.lazy.rememberLazyListState(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(events.size, key = { events[it].id }) { index ->
+                val event = events[index]
+                val isLastItem = index == events.size - 1
+                val itemModifier = if (isLastItem) Modifier.padding(bottom = 140.dp) else Modifier
+                
+                if (isEditMode && reorderableState != null) {
+                    org.burnoutcrew.reorderable.ReorderableItem(reorderableState, key = event.id) { isDragging ->
+                        EventListItem(
+                            event = event,
+                            onUpdate = onEventUpdate,
+                            onClick = null,
+                            onLongPress = null,
+                            modifier = itemModifier,
+                            editMode = true,
+                            reorderableState = reorderableState,
+                            onDelete = { onEventDelete(event.id) },
+                            index = index,
+                            fontSize = fontSize
+                        )
+                    }
+                } else {
+                    EventListItem(
+                        event = event,
+                        onUpdate = onEventUpdate,
+                        onClick = { onEventClick(event.id) },
+                        onLongPress = onEventLongPress,
+                        modifier = itemModifier,
+                        editMode = false,
+                        reorderableState = null,
+                        index = index,
+                        fontSize = fontSize
+                    )
+                }
+            }
+        }
+    }
+} 
