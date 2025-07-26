@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tk.daystrack.DateUtils.toTitleCase
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
@@ -58,7 +59,8 @@ fun EventDetailsScreen(
     onDelete: (() -> Unit)? = null,
     onDeleteDate: ((LocalDate) -> Unit)? = null,
     onUpdateNote: ((LocalDate, String) -> Unit)? = null,
-    viewModel: EventViewModel? = null // <-- Add this parameter
+    viewModel: EventViewModel? = null, // <-- Add this parameter
+    fontSize: FontSize = FontSize.MEDIUM
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val showDeleteDateDialog = remember { mutableStateOf<LocalDate?>(null) }
@@ -77,6 +79,25 @@ fun EventDetailsScreen(
     }
     // Move showAddInstanceSheet here so it's accessible in AppBar actions
     val showAddInstanceSheet = remember { mutableStateOf(false) }
+    
+    // Calculate sizes based on font size
+    val titleFontSize = when (fontSize) {
+        FontSize.SMALL -> 18.sp
+        FontSize.MEDIUM -> 20.sp
+        FontSize.LARGE -> 22.sp
+    }
+    
+    val bodyFontSize = when (fontSize) {
+        FontSize.SMALL -> 14.sp
+        FontSize.MEDIUM -> 16.sp
+        FontSize.LARGE -> 18.sp
+    }
+    
+    val cardPadding = when (fontSize) {
+        FontSize.SMALL -> 12.dp
+        FontSize.MEDIUM -> 14.dp
+        FontSize.LARGE -> 16.dp
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -85,7 +106,7 @@ fun EventDetailsScreen(
                 title = {
                     Text(
                         text = event.name.toTitleCase(),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontSize = titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -133,7 +154,7 @@ fun EventDetailsScreen(
                 ) {
                     Text(
                         text = "No event dates recorded yet",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = bodyFontSize),
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
@@ -182,7 +203,7 @@ fun EventDetailsScreen(
                                 ) {
                                     Text(
                                         text = "Hint: Tap on the date card to add a note for that instance.",
-                                        style = MaterialTheme.typography.titleSmall,
+                                        style = MaterialTheme.typography.titleSmall.copy(fontSize = bodyFontSize),
                                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                                         modifier = Modifier.weight(1f),
                                         fontWeight = FontWeight.Medium
@@ -212,12 +233,12 @@ fun EventDetailsScreen(
                                 ) {
                                     Text(
                                         text = "Average frequency: ",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
                                         color = Color.Gray
                                     )
                                     Text(
                                         text = "${"%.1f".format(avgFrequency)} days",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
                                         fontWeight = FontWeight.Medium,
                                         color = White
                                     )
@@ -265,7 +286,7 @@ fun EventDetailsScreen(
                                             ) {
                                                 Text(
                                                     text = instance.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                                                    style = MaterialTheme.typography.titleLarge,
+                                                    style = MaterialTheme.typography.titleLarge.copy(fontSize = titleFontSize),
                                                     fontWeight = FontWeight.Bold,
                                                     modifier = Modifier.weight(1f)
                                                 )
@@ -308,7 +329,7 @@ fun EventDetailsScreen(
                                             ) {
                                                 Text(
                                                     text = instance.note,
-                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
                                                     color = Color.Gray,
                                                     modifier = Modifier
                                                         .weight(1f)
@@ -345,7 +366,7 @@ fun EventDetailsScreen(
                                                 }
                                                 Text(
                                                     text = intervalText,
-                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
                                                     color = ThemeTextColor,
                                                     modifier = Modifier
                                                         .padding(top = 0.dp),

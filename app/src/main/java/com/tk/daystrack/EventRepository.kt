@@ -192,4 +192,17 @@ class EventRepository(context: Context) {
     fun setHasSeenToggleDateHint(value: Boolean) {
         sharedPreferences.edit().putBoolean("hasSeenToggleDateHint", value).apply()
     }
+    
+    fun getFontSize(): FontSize {
+        val fontSizeString = sharedPreferences.getString("fontSize", "MEDIUM") ?: "MEDIUM"
+        return try {
+            FontSize.valueOf(fontSizeString)
+        } catch (e: IllegalArgumentException) {
+            FontSize.MEDIUM
+        }
+    }
+    
+    fun setFontSize(fontSize: FontSize) {
+        sharedPreferences.edit().putString("fontSize", fontSize.name).apply()
+    }
 } 

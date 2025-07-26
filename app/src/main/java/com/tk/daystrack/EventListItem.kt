@@ -43,7 +43,8 @@ fun EventListItem(
     editMode: Boolean = false,
     reorderableState: ReorderableLazyListState? = null,
     onDelete: (() -> Unit)? = null,
-    index: Int = 0
+    index: Int = 0,
+    fontSize: FontSize = FontSize.MEDIUM
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -67,6 +68,43 @@ fun EventListItem(
     var editedName by remember { mutableStateOf(event.name) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     
+    // Calculate sizes based on font size
+    val cardPadding = when (fontSize) {
+        FontSize.SMALL -> 16.dp
+        FontSize.MEDIUM -> 20.dp
+        FontSize.LARGE -> 24.dp
+    }
+    
+    val titleFontSize = when (fontSize) {
+        FontSize.SMALL -> 16.sp
+        FontSize.MEDIUM -> 18.sp
+        FontSize.LARGE -> 22.sp
+    }
+    
+    val dateFontSize = when (fontSize) {
+        FontSize.SMALL -> 12.sp
+        FontSize.MEDIUM -> 14.sp
+        FontSize.LARGE -> 16.sp
+    }
+    
+    val iconSize = when (fontSize) {
+        FontSize.SMALL -> 12.dp
+        FontSize.MEDIUM -> 14.dp
+        FontSize.LARGE -> 16.dp
+    }
+    
+    val buttonSize = when (fontSize) {
+        FontSize.SMALL -> 32.dp
+        FontSize.MEDIUM -> 36.dp
+        FontSize.LARGE -> 40.dp
+    }
+    
+    val dragHandleSize = when (fontSize) {
+        FontSize.SMALL -> 28.dp
+        FontSize.MEDIUM -> 32.dp
+        FontSize.LARGE -> 36.dp
+    }
+    
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -87,7 +125,7 @@ fun EventListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(cardPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -98,7 +136,7 @@ fun EventListItem(
                     contentDescription = "Drag Handle",
                     tint = White,
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(dragHandleSize)
                         .padding(end = 16.dp)
                         .let { base ->
                             if (reorderableState != null) base.detectReorder(reorderableState) else base
@@ -112,7 +150,7 @@ fun EventListItem(
                 if (editMode) {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = ThemeTextColor,
                         maxLines = 1,
@@ -122,7 +160,7 @@ fun EventListItem(
                 } else {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = White,
                         maxLines = 1,
@@ -152,13 +190,13 @@ fun EventListItem(
                             imageVector = if (isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
                             contentDescription = if (isFuture) "Clock" else "Calendar",
                             tint = DateTextColor,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(iconSize)
                         )
                         Text(
                             text = displayText,
                             style = androidx.compose.ui.text.TextStyle(
-                                fontSize = 16.sp,
-                                lineHeight = 24.sp,
+                                fontSize = dateFontSize,
+                                lineHeight = dateFontSize * 1.5f,
                                 fontStyle = FontStyle.Italic,
                                 color = DateTextColor
                             )
@@ -172,7 +210,7 @@ fun EventListItem(
                 IconButton(
                     onClick = { showDeleteDialog = true },
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(buttonSize)
                         .padding(start = 8.dp)
                 ) {
                     Icon(
@@ -186,11 +224,11 @@ fun EventListItem(
                 Surface(
                     shape = CircleShape,
                     color = ButtonColor,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(buttonSize)
                 ) {
                     IconButton(
                         onClick = { onUpdate(event) },
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(buttonSize)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,

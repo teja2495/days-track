@@ -135,6 +135,7 @@ fun DayTrackAppWithExportImport(
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
     val currentSortOption by viewModel.currentSortOption.collectAsState()
+    val currentFontSize by viewModel.currentFontSize.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
@@ -166,6 +167,8 @@ fun DayTrackAppWithExportImport(
                     onBackPressed = { showSettings = false },
                     currentSortOption = currentSortOption,
                     onSortOptionSelected = { viewModel.setSortOption(it) },
+                    currentFontSize = currentFontSize,
+                    onFontSizeSelected = { viewModel.setFontSize(it) },
                     onExportClick = onExport,
                     onImportClick = onImport
                 )
@@ -187,7 +190,8 @@ fun DayTrackAppWithExportImport(
                     onUpdateNote = { date, note ->
                         viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
                     },
-                    viewModel = viewModel // <-- Pass the viewModel here
+                    viewModel = viewModel, // <-- Pass the viewModel here
+                    fontSize = currentFontSize
                 )
             }
             else -> {
@@ -341,7 +345,8 @@ fun DayTrackAppWithExportImport(
                                                 onDelete = {
                                                     viewModel.removeEvent(event.id)
                                                 },
-                                                index = index
+                                                index = index,
+                                                fontSize = currentFontSize
                                             )
                                         }
                                     } else {
@@ -353,7 +358,8 @@ fun DayTrackAppWithExportImport(
                                             modifier = itemModifier,
                                             editMode = false,
                                             reorderableState = null,
-                                            index = index
+                                            index = index,
+                                            fontSize = currentFontSize
                                         )
                                     }
                                 }

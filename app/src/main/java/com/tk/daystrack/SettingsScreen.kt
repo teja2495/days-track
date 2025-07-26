@@ -32,6 +32,8 @@ fun SettingsScreen(
     onBackPressed: () -> Unit,
     currentSortOption: SortOption,
     onSortOptionSelected: (SortOption) -> Unit,
+    currentFontSize: FontSize,
+    onFontSizeSelected: (FontSize) -> Unit,
     modifier: Modifier = Modifier,
     onExportClick: () -> Unit = {},
     onImportClick: () -> Unit = {}
@@ -91,6 +93,22 @@ fun SettingsScreen(
                 CustomSortDropdown(
                     currentSortOption = currentSortOption,
                     onSortOptionSelected = onSortOptionSelected
+                )
+            }
+
+            // Font Size Section
+            Column {
+                Text(
+                    text = "Font & Card Size",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = White,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                
+                CustomFontSizeDropdown(
+                    currentFontSize = currentFontSize,
+                    onFontSizeSelected = onFontSizeSelected
                 )
             }
 
@@ -300,6 +318,137 @@ fun CustomSortDropdown(
             confirmButton = {
                 TextButton(onClick = {
                     onSortOptionSelected(tempSelected)
+                    dialogOpen = false
+                    isPressed = false
+                }) {
+                    Text("OK", color = ThemeTextColor, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    dialogOpen = false
+                    isPressed = false
+                }) {
+                    Text("Cancel", color = TextSecondary)
+                }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomFontSizeDropdown(
+    currentFontSize: FontSize,
+    onFontSizeSelected: (FontSize) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var dialogOpen by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf(false) }
+    val fontSizeOptions = listOf(
+        FontSize.SMALL to "Small",
+        FontSize.MEDIUM to "Medium", 
+        FontSize.LARGE to "Large"
+    )
+    val selectedText = when (currentFontSize) {
+        FontSize.SMALL -> "Small"
+        FontSize.MEDIUM -> "Medium"
+        FontSize.LARGE -> "Large"
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .shadow(
+                elevation = if (isPressed) 2.dp else 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Color.Black.copy(alpha = 0.1f),
+                spotColor = Color.Black.copy(alpha = 0.1f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (dialogOpen) ThemeTextColor else Color.Transparent,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Gray800
+        ),
+        onClick = { 
+            dialogOpen = true
+            isPressed = true
+        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = selectedText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = White,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Font size options",
+                tint = if (dialogOpen) ThemeTextColor else White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+
+    if (dialogOpen) {
+        var tempSelected by remember { mutableStateOf(currentFontSize) }
+        AlertDialog(
+            onDismissRequest = { 
+                dialogOpen = false
+                isPressed = false
+            },
+            containerColor = Gray800,
+            titleContentColor = White,
+            textContentColor = White,
+            title = {
+                Text("Choose Font & Card Size", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Column {
+                    fontSizeOptions.forEach { (option, label) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                                .clickable { tempSelected = option }
+                        ) {
+                            RadioButton(
+                                selected = tempSelected == option,
+                                onClick = { tempSelected = option },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = ThemeTextColor,
+                                    unselectedColor = TextSecondary
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (tempSelected == option) ThemeTextColor else White,
+                                fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onFontSizeSelected(tempSelected)
                     dialogOpen = false
                     isPressed = false
                 }) {

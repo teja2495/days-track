@@ -16,6 +16,12 @@ enum class SortOption {
     CUSTOM
 }
 
+enum class FontSize {
+    SMALL,
+    MEDIUM,
+    LARGE
+}
+
 class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _events = MutableStateFlow<List<Event>>(emptyList())
@@ -29,6 +35,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _currentSortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
     val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
+    
+    private val _currentFontSize = MutableStateFlow(FontSize.MEDIUM)
+    val currentFontSize: StateFlow<FontSize> = _currentFontSize.asStateFlow()
     
     private val _showUpdateDialog = MutableStateFlow(false)
     val showUpdateDialog: StateFlow<Boolean> = _showUpdateDialog.asStateFlow()
@@ -56,6 +65,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     init {
         loadEvents()
+        loadFontSize()
     }
     
     private fun loadEvents() {
@@ -63,6 +73,15 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             _unsortedEvents = repository.loadEvents()
             sortEvents()
         }
+    }
+    
+    private fun loadFontSize() {
+        _currentFontSize.value = repository.getFontSize()
+    }
+    
+    fun setFontSize(fontSize: FontSize) {
+        _currentFontSize.value = fontSize
+        repository.setFontSize(fontSize)
     }
     
     fun addEvent(name: String) {
