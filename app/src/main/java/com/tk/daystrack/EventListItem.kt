@@ -59,11 +59,11 @@ fun EventListItem(
     
     // Check if event has instances - optimized to avoid repeated calculations
     val hasInstances = event.instances.isNotEmpty()
-    val lastInstance = event.instances.lastOrNull()
-    val timeDifference = if (hasInstances) DateUtils.formatTimeDifferenceCached(lastInstance!!.date) else ""
-    val daysOnly = if (hasInstances) DateUtils.getDaysDifference(lastInstance!!.date) else 0
-    val isFuture = if (hasInstances) lastInstance!!.date.isAfter(java.time.LocalDate.now()) else false
-    val isToday = if (hasInstances) lastInstance!!.date.isEqual(java.time.LocalDate.now()) else false
+    val latestInstance = if (hasInstances) event.instances.maxByOrNull { it.date } else null
+    val timeDifference = if (hasInstances) DateUtils.formatTimeDifferenceCached(latestInstance!!.date) else ""
+    val daysOnly = if (hasInstances) DateUtils.getDaysDifference(latestInstance!!.date) else 0
+    val isFuture = if (hasInstances) latestInstance!!.date.isAfter(java.time.LocalDate.now()) else false
+    val isToday = if (hasInstances) latestInstance!!.date.isEqual(java.time.LocalDate.now()) else false
     
     var showEditNameSheet by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(event.name) }
@@ -170,7 +170,7 @@ fun EventListItem(
                 }
                 
                 if (hasInstances && !editMode) {
-                    val canToggle = DateUtils.isAtLeastOneMonth(lastInstance!!.date)
+                    val canToggle = DateUtils.isAtLeastOneMonth(latestInstance!!.date)
                     val displayText = if (showDaysOnly) {
                         when {
                             isToday -> "today"

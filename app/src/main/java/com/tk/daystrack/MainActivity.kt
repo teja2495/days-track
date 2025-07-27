@@ -120,7 +120,7 @@ fun DayTrackAppWithExportImport(
     val isEditMode by viewModel.isEditMode.collectAsState()
     val showToggleDateHint by viewModel.showToggleDateHint.collectAsState()
     val shouldShowToggleHint = showToggleDateHint && events.any { event ->
-        event.instances.isNotEmpty() && DateUtils.isAtLeastOneMonth(event.instances.last().date)
+        event.instances.isNotEmpty() && DateUtils.isAtLeastOneMonth(event.instances.maxByOrNull { it.date }?.date ?: java.time.LocalDate.MIN)
     }
 
     var showSettings by remember { mutableStateOf(false) }

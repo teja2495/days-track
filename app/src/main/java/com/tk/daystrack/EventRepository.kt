@@ -111,7 +111,7 @@ class EventRepository(context: Context) {
         val currentEvents = loadEvents().toMutableList()
         currentEvents.add(event)
         val sortedEvents = currentEvents.sortedByDescending {
-            if (it.instances.isNotEmpty()) it.instances.last().date else java.time.LocalDate.MIN
+            if (it.instances.isNotEmpty()) it.instances.maxByOrNull { it.date }?.date ?: java.time.LocalDate.MIN else java.time.LocalDate.MIN
         }
         saveEvents(sortedEvents)
         return sortedEvents

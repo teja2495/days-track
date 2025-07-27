@@ -179,10 +179,10 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         } else {
             when (_currentSortOption.value) {
                 SortOption.DATE_ASCENDING -> _unsortedEvents.sortedBy {
-                    it.instances.lastOrNull()?.date ?: java.time.LocalDate.MIN
+                    it.instances.maxByOrNull { it.date }?.date ?: java.time.LocalDate.MIN
                 }
                 SortOption.DATE_DESCENDING -> _unsortedEvents.sortedByDescending {
-                    it.instances.lastOrNull()?.date ?: java.time.LocalDate.MIN
+                    it.instances.maxByOrNull { it.date }?.date ?: java.time.LocalDate.MIN
                 }
                 SortOption.ALPHABETICAL -> _unsortedEvents.sortedBy { it.name }
                 SortOption.CUSTOM -> _unsortedEvents // fallback, should be handled above
