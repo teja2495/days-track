@@ -49,10 +49,18 @@ fun EventList(
             items(events.size, key = { events[it].id }) { index ->
                 val event = events[index]
                 val isLastItem = index == events.size - 1
-                val itemModifier = if (isLastItem) Modifier.padding(bottom = 140.dp) else Modifier
+                // Add extra padding for the last item to improve drag target area
+                val itemModifier = if (isLastItem) {
+                    Modifier.padding(bottom = 160.dp) // Increased from 140.dp to 160.dp
+                } else {
+                    Modifier
+                }
                 
                 if (isEditMode && reorderableState != null) {
-                    org.burnoutcrew.reorderable.ReorderableItem(reorderableState, key = event.id) { isDragging ->
+                    org.burnoutcrew.reorderable.ReorderableItem(
+                        reorderableState, 
+                        key = event.id
+                    ) { isDragging ->
                         EventListItem(
                             event = event,
                             onUpdate = onEventUpdate,
