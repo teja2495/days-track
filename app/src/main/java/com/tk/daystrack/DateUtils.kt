@@ -19,12 +19,19 @@ object DateUtils {
         }
     }
     
-    // Cached version for better performance when called frequently
+    // Enhanced caching for better performance when called frequently
     private val todayCache = mutableStateOf<LocalDate?>(null)
     private val todayCacheTime = mutableStateOf<Long>(0)
-    private const val CACHE_DURATION_MS = 60000L // 1 minute cache
+    private const val CACHE_DURATION_MS = 30000L // 30 seconds cache for more frequent updates
+    
+    // Cache for formatted time differences to avoid repeated calculations
+    private val timeDifferenceCache = mutableMapOf<LocalDate, String>()
+    private const val MAX_CACHE_SIZE = 100 // Limit cache size to prevent memory issues
     
     fun formatTimeDifferenceCached(eventDate: LocalDate): String {
+        // Check cache first
+        timeDifferenceCache[eventDate]?.let { return it }
+        
         val currentTime = System.currentTimeMillis()
         val cachedToday = todayCache.value
         val cachedTime = todayCacheTime.value
@@ -40,11 +47,25 @@ object DateUtils {
         
         val daysDifference = ChronoUnit.DAYS.between(today, eventDate)
         
-        return when {
+        val result = when {
             daysDifference == 0L -> "today"
             daysDifference > 0 -> formatFuture(eventDate, today)
             else -> formatPast(eventDate, today)
         }
+        
+        // Cache the result
+        if (timeDifferenceCache.size < MAX_CACHE_SIZE) {
+            timeDifferenceCache[eventDate] = result
+        }
+        
+        return result
+    }
+    
+    // Clear cache when needed (call this periodically or when memory pressure is detected)
+    fun clearCache() {
+        timeDifferenceCache.clear()
+        todayCache.value = null
+        todayCacheTime.value = 0
     }
     
     private fun formatFuture(eventDate: LocalDate, today: LocalDate): String {
@@ -84,9 +105,22 @@ object DateUtils {
             word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }
 
+    // Cached version of getDaysDifference for better performance
+    private val daysDifferenceCache = mutableMapOf<LocalDate, Long>()
+    
     fun getDaysDifference(eventDate: LocalDate): Long {
+        // Check cache first
+        daysDifferenceCache[eventDate]?.let { return it }
+        
         val today = LocalDate.now()
-        return kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(today, eventDate))
+        val difference = abs(ChronoUnit.DAYS.between(today, eventDate))
+        
+        // Cache the result
+        if (daysDifferenceCache.size < MAX_CACHE_SIZE) {
+            daysDifferenceCache[eventDate] = difference
+        }
+        
+        return difference
     }
 
     fun averageFrequency(dates: List<LocalDate>): Double? {
@@ -96,9 +130,22 @@ object DateUtils {
         return if (intervals.isNotEmpty()) intervals.average() else null
     }
 
+    // Cached version of isAtLeastOneMonth for better performance
+    private val isAtLeastOneMonthCache = mutableMapOf<LocalDate, Boolean>()
+    
     fun isAtLeastOneMonth(eventDate: LocalDate): Boolean {
+        // Check cache first
+        isAtLeastOneMonthCache[eventDate]?.let { return it }
+        
         val today = LocalDate.now()
-        val daysDifference = kotlin.math.abs(ChronoUnit.DAYS.between(today, eventDate))
-        return daysDifference >= 30
+        val daysDifference = abs(ChronoUnit.DAYS.between(today, eventDate))
+        val result = daysDifference >= 30
+        
+        // Cache the result
+        if (isAtLeastOneMonthCache.size < MAX_CACHE_SIZE) {
+            isAtLeastOneMonthCache[eventDate] = result
+        }
+        
+        return result
     }
 } 

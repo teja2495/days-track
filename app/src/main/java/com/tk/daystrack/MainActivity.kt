@@ -241,15 +241,22 @@ fun DayTrackAppWithExportImport(
                             }
                         )
                         
+                        // Create stable callback references to prevent unnecessary recompositions
+                        val onEventClick = remember { { eventId: String -> selectedEventId = eventId } }
+                        val onEventLongPress = remember { { viewModel.setEditMode(true) } }
+                        val onEventUpdate = remember { { event: Event -> eventForNewInstance = event } }
+                        val onEventDelete = remember { { eventId: String -> viewModel.removeEvent(eventId) } }
+                        val onUpdateEventName = remember { { eventId: String, newName: String -> viewModel.updateEventName(eventId, newName) } }
+                        
                         EventList(
                             events = events,
                             isEditMode = isEditMode,
                             reorderableState = reorderableState,
-                            onEventClick = { selectedEventId = it },
-                            onEventLongPress = { viewModel.setEditMode(true) },
-                            onEventUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
-                            onEventDelete = { viewModel.removeEvent(it) },
-                            onUpdateEventName = { eventId, newName -> viewModel.updateEventName(eventId, newName) },
+                            onEventClick = onEventClick,
+                            onEventLongPress = onEventLongPress,
+                            onEventUpdate = onEventUpdate,
+                            onEventDelete = onEventDelete,
+                            onUpdateEventName = onUpdateEventName,
                             fontSize = currentFontSize
                         )
                     }

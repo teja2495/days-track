@@ -51,7 +51,7 @@ fun EventListItem(
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
-    val PREF_KEY = "showDaysOnlyV2_${event.id}"
+    val PREF_KEY = remember(event.id) { "showDaysOnlyV2_${event.id}" }
     var showDaysOnly by remember {
         mutableStateOf(prefs.getBoolean(PREF_KEY, false))
     }
@@ -60,56 +60,80 @@ fun EventListItem(
         prefs.edit().putBoolean(PREF_KEY, value).apply()
     }
     
-    // Check if event has instances - optimized to avoid repeated calculations
-    val hasInstances = event.instances.isNotEmpty()
-    val latestInstance = if (hasInstances) event.instances.maxByOrNull { it.date } else null
-    val timeDifference = if (hasInstances) DateUtils.formatTimeDifferenceCached(latestInstance!!.date) else ""
-    val daysOnly = if (hasInstances) DateUtils.getDaysDifference(latestInstance!!.date) else 0
-    val isFuture = if (hasInstances) latestInstance!!.date.isAfter(java.time.LocalDate.now()) else false
-    val isToday = if (hasInstances) latestInstance!!.date.isEqual(java.time.LocalDate.now()) else false
+    // Pre-calculate all expensive values to avoid recomposition overhead
+    val eventData = remember(event) {
+        val hasInstances = event.instances.isNotEmpty()
+        val latestInstance = if (hasInstances) event.instances.maxByOrNull { it.date } else null
+        val timeDifference = if (hasInstances) DateUtils.formatTimeDifferenceCached(latestInstance!!.date) else ""
+        val daysOnly = if (hasInstances) DateUtils.getDaysDifference(latestInstance!!.date) else 0
+        val isFuture = if (hasInstances) latestInstance!!.date.isAfter(java.time.LocalDate.now()) else false
+        val isToday = if (hasInstances) latestInstance!!.date.isEqual(java.time.LocalDate.now()) else false
+        val canToggle = if (hasInstances) DateUtils.isAtLeastOneMonth(latestInstance!!.date) else false
+        
+        EventData(
+            hasInstances = hasInstances,
+            latestInstance = latestInstance,
+            timeDifference = timeDifference,
+            daysOnly = daysOnly,
+            isFuture = isFuture,
+            isToday = isToday,
+            canToggle = canToggle
+        )
+    }
+    
+    // Pre-calculate sizes based on font size to avoid repeated calculations
+    val sizes = remember(fontSize) {
+        val cardPadding = when (fontSize) {
+            FontSize.SMALL -> 16.dp
+            FontSize.MEDIUM -> 20.dp
+            FontSize.LARGE -> 24.dp
+        }
+        
+        val titleFontSize = when (fontSize) {
+            FontSize.SMALL -> 16.sp
+            FontSize.MEDIUM -> 18.sp
+            FontSize.LARGE -> 22.sp
+        }
+        
+        val dateFontSize = when (fontSize) {
+            FontSize.SMALL -> 12.sp
+            FontSize.MEDIUM -> 14.sp
+            FontSize.LARGE -> 16.sp
+        }
+        
+        val iconSize = when (fontSize) {
+            FontSize.SMALL -> 12.dp
+            FontSize.MEDIUM -> 14.dp
+            FontSize.LARGE -> 16.dp
+        }
+        
+        val buttonSize = when (fontSize) {
+            FontSize.SMALL -> 32.dp
+            FontSize.MEDIUM -> 36.dp
+            FontSize.LARGE -> 40.dp
+        }
+        
+        val dragHandleSize = when (fontSize) {
+            FontSize.SMALL -> 28.dp
+            FontSize.MEDIUM -> 32.dp
+            FontSize.LARGE -> 36.dp
+        }
+        
+        Sizes(
+            cardPadding = cardPadding,
+            titleFontSize = titleFontSize,
+            dateFontSize = dateFontSize,
+            iconSize = iconSize,
+            buttonSize = buttonSize,
+            dragHandleSize = dragHandleSize
+        )
+    }
     
     var showEditNameSheet by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(event.name) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDuplicateNameError by remember { mutableStateOf(false) }
     var hasAttemptedSave by remember { mutableStateOf(false) }
-    
-    // Calculate sizes based on font size
-    val cardPadding = when (fontSize) {
-        FontSize.SMALL -> 16.dp
-        FontSize.MEDIUM -> 20.dp
-        FontSize.LARGE -> 24.dp
-    }
-    
-    val titleFontSize = when (fontSize) {
-        FontSize.SMALL -> 16.sp
-        FontSize.MEDIUM -> 18.sp
-        FontSize.LARGE -> 22.sp
-    }
-    
-    val dateFontSize = when (fontSize) {
-        FontSize.SMALL -> 12.sp
-        FontSize.MEDIUM -> 14.sp
-        FontSize.LARGE -> 16.sp
-    }
-    
-    val iconSize = when (fontSize) {
-        FontSize.SMALL -> 12.dp
-        FontSize.MEDIUM -> 14.dp
-        FontSize.LARGE -> 16.dp
-    }
-    
-    val buttonSize = when (fontSize) {
-        FontSize.SMALL -> 32.dp
-        FontSize.MEDIUM -> 36.dp
-        FontSize.LARGE -> 40.dp
-    }
-    
-    val dragHandleSize = when (fontSize) {
-        FontSize.SMALL -> 28.dp
-        FontSize.MEDIUM -> 32.dp
-        FontSize.LARGE -> 36.dp
-    }
     
     Card(
         modifier = modifier
@@ -131,7 +155,7 @@ fun EventListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(cardPadding),
+                .padding(sizes.cardPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -141,7 +165,7 @@ fun EventListItem(
                     contentDescription = stringResource(R.string.event_list_item_drag_handle),
                     tint = White,
                     modifier = Modifier
-                        .size(dragHandleSize)
+                        .size(sizes.dragHandleSize)
                         .padding(end = 16.dp)
                         .let { base ->
                             if (reorderableState != null) base.detectReorder(reorderableState) else base
@@ -156,7 +180,7 @@ fun EventListItem(
                 if (editMode) {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = titleFontSize),
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = sizes.titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = ThemeTextColor,
                         maxLines = 1,
@@ -166,7 +190,7 @@ fun EventListItem(
                 } else {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontSize = titleFontSize),
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = sizes.titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = White,
                         maxLines = 1,
@@ -175,37 +199,36 @@ fun EventListItem(
                 }
                 
                 if (!editMode) {
-                    if (hasInstances) {
-                        val canToggle = DateUtils.isAtLeastOneMonth(latestInstance!!.date)
+                    if (eventData.hasInstances) {
                         val displayText = if (showDaysOnly) {
-                                                    when {
-                            isToday -> stringResource(R.string.event_list_item_today)
-                            isFuture -> stringResource(R.string.event_list_item_in_days, daysOnly)
-                            else -> stringResource(R.string.event_list_item_days_ago, daysOnly)
-                        }
+                            when {
+                                eventData.isToday -> stringResource(R.string.event_list_item_today)
+                                eventData.isFuture -> stringResource(R.string.event_list_item_in_days, eventData.daysOnly)
+                                else -> stringResource(R.string.event_list_item_days_ago, eventData.daysOnly)
+                            }
                         } else {
-                            timeDifference
+                            eventData.timeDifference
                         }
                         
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = if (canToggle) Modifier.clickable {
+                            modifier = if (eventData.canToggle) Modifier.clickable {
                                 showDaysOnly = !showDaysOnly
                                 saveShowDaysOnly(showDaysOnly)
                             } else Modifier
                         ) {
-                                                    Icon(
-                            imageVector = if (isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
-                            contentDescription = if (isFuture) stringResource(R.string.event_list_item_clock) else stringResource(R.string.event_list_item_calendar),
-                            tint = DateTextColor,
-                                modifier = Modifier.size(iconSize)
+                            Icon(
+                                imageVector = if (eventData.isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
+                                contentDescription = if (eventData.isFuture) stringResource(R.string.event_list_item_clock) else stringResource(R.string.event_list_item_calendar),
+                                tint = DateTextColor,
+                                modifier = Modifier.size(sizes.iconSize)
                             )
                             Text(
                                 text = displayText,
                                 style = androidx.compose.ui.text.TextStyle(
-                                    fontSize = dateFontSize,
-                                    lineHeight = dateFontSize * 1.5f,
+                                    fontSize = sizes.dateFontSize,
+                                    lineHeight = sizes.dateFontSize * 1.5f,
                                     fontStyle = FontStyle.Italic,
                                     color = DateTextColor
                                 )
@@ -215,8 +238,8 @@ fun EventListItem(
                         Text(
                             text = stringResource(R.string.event_list_item_no_instance),
                             style = androidx.compose.ui.text.TextStyle(
-                                fontSize = dateFontSize,
-                                lineHeight = dateFontSize * 1.5f,
+                                fontSize = sizes.dateFontSize,
+                                lineHeight = sizes.dateFontSize * 1.5f,
                                 fontStyle = FontStyle.Italic,
                                 color = DateTextColor
                             )
@@ -230,7 +253,7 @@ fun EventListItem(
                 IconButton(
                     onClick = { showDeleteDialog = true },
                     modifier = Modifier
-                        .size(buttonSize)
+                        .size(sizes.buttonSize)
                         .padding(start = 8.dp)
                 ) {
                     Icon(
@@ -244,11 +267,11 @@ fun EventListItem(
                 Surface(
                     shape = CircleShape,
                     color = ButtonColor,
-                    modifier = Modifier.size(buttonSize)
+                    modifier = Modifier.size(sizes.buttonSize)
                 ) {
                     IconButton(
                         onClick = { onUpdate(event) },
-                        modifier = Modifier.size(buttonSize)
+                        modifier = Modifier.size(sizes.buttonSize)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -393,3 +416,23 @@ fun EventListItem(
         )
     }
 } 
+
+// Data classes to hold pre-calculated values
+private data class EventData(
+    val hasInstances: Boolean,
+    val latestInstance: EventInstance?,
+    val timeDifference: String,
+    val daysOnly: Long,
+    val isFuture: Boolean,
+    val isToday: Boolean,
+    val canToggle: Boolean
+)
+
+private data class Sizes(
+    val cardPadding: androidx.compose.ui.unit.Dp,
+    val titleFontSize: androidx.compose.ui.unit.TextUnit,
+    val dateFontSize: androidx.compose.ui.unit.TextUnit,
+    val iconSize: androidx.compose.ui.unit.Dp,
+    val buttonSize: androidx.compose.ui.unit.Dp,
+    val dragHandleSize: androidx.compose.ui.unit.Dp
+) 
