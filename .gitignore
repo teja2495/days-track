@@ -101,6 +101,7 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+*.salive
 
 # Backup files
 *.bak

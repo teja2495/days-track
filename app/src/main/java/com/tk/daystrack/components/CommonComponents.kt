@@ -77,7 +77,8 @@ fun ConfirmationDialog(
     title: String,
     message: String,
     confirmText: String = "Confirm",
-    dismissText: String = "Cancel"
+    dismissText: String = "Cancel",
+    isDeleteDialog: Boolean = false
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -92,7 +93,21 @@ fun ConfirmationDialog(
         },
         text = { Text(message, color = White) },
         confirmButton = {
-            DangerButton(onClick = onConfirm, text = confirmText)
+            if (isDeleteDialog) {
+                TextButton(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                ) {
+                    Text(confirmText, color = DeleteButtonColor)
+                }
+            } else {
+                TextButton(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                ) {
+                    Text(confirmText, color = ThemeTextColor, fontWeight = FontWeight.Bold)
+                }
+            }
         },
         dismissButton = {
             SecondaryButton(onClick = onDismiss, text = dismissText)

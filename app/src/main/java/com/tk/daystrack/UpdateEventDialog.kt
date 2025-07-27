@@ -114,7 +114,7 @@ fun UpdateEventDialog(
                 ) {
                     Text(
                         context.getString(R.string.update_event_delete),
-                        color = MaterialTheme.colorScheme.error
+                        color = DeleteButtonColor
                     )
                 }
                 

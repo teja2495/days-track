@@ -317,7 +317,8 @@ fun EventListItem(
             },
             title = "Delete Event",
             message = "Are you sure you want to delete '${event.name}'?",
-            confirmText = "Delete"
+            confirmText = "Delete",
+            isDeleteDialog = true
         )
     }
 } 

@@ -385,7 +385,8 @@ fun EventDetailsScreen(
                 },
                 title = context.getString(R.string.event_details_delete_event_title),
                 message = context.getString(R.string.event_details_delete_event_message),
-                confirmText = context.getString(R.string.event_details_delete)
+                confirmText = context.getString(R.string.event_details_delete),
+                isDeleteDialog = true
             )
         }
         
@@ -399,7 +400,8 @@ fun EventDetailsScreen(
                 },
                 title = context.getString(R.string.event_details_delete_date_title),
                 message = context.getString(R.string.event_details_delete_date_message, dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
-                confirmText = context.getString(R.string.event_details_delete)
+                confirmText = context.getString(R.string.event_details_delete),
+                isDeleteDialog = true
             )
         }
         
@@ -413,7 +415,8 @@ fun EventDetailsScreen(
                 },
                 title = context.getString(R.string.event_details_delete_note_title),
                 message = context.getString(R.string.event_details_delete_note_message, dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
-                confirmText = context.getString(R.string.event_details_delete)
+                confirmText = context.getString(R.string.event_details_delete),
+                isDeleteDialog = true
             )
         }
         

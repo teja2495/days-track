@@ -307,7 +307,8 @@ fun DayTrackAppWithExportImport(
                         },
                         title = "Delete Event",
                         message = "Are you sure you want to delete this event?",
-                        confirmText = "Delete"
+                        confirmText = "Delete",
+                        isDeleteDialog = true
                     )
                 }
             }
