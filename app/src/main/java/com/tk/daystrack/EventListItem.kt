@@ -50,7 +50,7 @@ fun EventListItem(
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
-    val PREF_KEY = "showDaysOnlyV2"
+    val PREF_KEY = "showDaysOnlyV2_${event.id}"
     var showDaysOnly by remember {
         mutableStateOf(prefs.getBoolean(PREF_KEY, false))
     }
