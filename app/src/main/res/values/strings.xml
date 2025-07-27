@@ -45,7 +45,7 @@
     <string name="settings_cancel">Cancel</string>
     
     <!-- Event Details Screen -->
-    <string name="event_details_no_dates">No instances recorded yet for this event</string>
+    <string name="event_details_no_dates">No instances recorded yet</string>
     <string name="event_details_add_instance">Add Instance</string>
     <string name="event_details_average_frequency">Average frequency: %s days</string>
     <string name="event_details_instances_count">%d instances</string>
