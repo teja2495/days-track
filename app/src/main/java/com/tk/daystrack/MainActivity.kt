@@ -224,20 +224,6 @@ fun DayTrackAppWithExportImport(
                         )
                     }
                     
-                    // Create reorderable state outside conditional to prevent recreation
-                    val reorderableState = rememberReorderableLazyListState(
-                        onMove = { from, to ->
-                            viewModel.reorderEvents(from.index, to.index)
-                        }
-                    )
-                    
-                    // Reset reorderable state when edit mode changes
-                    LaunchedEffect(isEditMode) {
-                        if (!isEditMode) {
-                            reorderableState.listState.scrollToItem(0)
-                        }
-                    }
-                    
                     if (events.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -249,6 +235,12 @@ fun DayTrackAppWithExportImport(
                             )
                         }
                     } else {
+                        val reorderableState = rememberReorderableLazyListState(
+                            onMove = { from, to ->
+                                viewModel.reorderEvents(from.index, to.index)
+                            }
+                        )
+                        
                         EventList(
                             events = events,
                             isEditMode = isEditMode,

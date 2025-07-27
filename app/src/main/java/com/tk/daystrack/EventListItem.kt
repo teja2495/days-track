@@ -141,11 +141,7 @@ fun EventListItem(
                         .size(dragHandleSize)
                         .padding(end = 16.dp)
                         .let { base ->
-                            if (reorderableState != null) {
-                                base.detectReorder(reorderableState)
-                            } else {
-                                base
-                            }
+                            if (reorderableState != null) base.detectReorder(reorderableState) else base
                         }
                 )
             }
