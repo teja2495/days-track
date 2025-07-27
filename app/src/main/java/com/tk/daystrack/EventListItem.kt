@@ -46,7 +46,8 @@ fun EventListItem(
     onDelete: (() -> Unit)? = null,
     onUpdateEventName: ((String, String) -> Unit)? = null,
     index: Int = 0,
-    fontSize: FontSize = FontSize.MEDIUM
+    fontSize: FontSize = FontSize.MEDIUM,
+    existingEventNames: List<String> = emptyList()
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -70,6 +71,8 @@ fun EventListItem(
     var showEditNameSheet by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(event.name) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDuplicateNameError by remember { mutableStateOf(false) }
+    var hasAttemptedSave by remember { mutableStateOf(false) }
     
     // Calculate sizes based on font size
     val cardPadding = when (fontSize) {
@@ -262,11 +265,34 @@ fun EventListItem(
     if (showEditNameSheet) {
         val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
         val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+        val sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        )
         
         LaunchedEffect(showEditNameSheet) {
             if (showEditNameSheet) {
                 focusRequester.requestFocus()
                 keyboardController?.show()
+            }
+        }
+        
+        // Scroll to maximum when error appears
+        LaunchedEffect(showDuplicateNameError) {
+            if (showDuplicateNameError) {
+                sheetState.expand()
+            }
+        }
+        
+        // Check for duplicate name when editedName changes (only if user has attempted to save)
+        LaunchedEffect(editedName, hasAttemptedSave) {
+            if (hasAttemptedSave) {
+                val trimmedName = editedName.trim()
+                // Exclude the current event from the duplicate check
+                val otherEventNames = existingEventNames.filter { it != event.name }
+                showDuplicateNameError = trimmedName.isNotBlank() && 
+                    otherEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+            } else {
+                showDuplicateNameError = false
             }
         }
         
@@ -276,6 +302,7 @@ fun EventListItem(
             containerColor = Gray800,
             tonalElevation = 4.dp,
             dragHandle = {},
+            sheetState = sheetState
         ) {
             Column(
                 modifier = Modifier
@@ -292,11 +319,28 @@ fun EventListItem(
                 
                 StyledOutlinedTextField(
                     value = editedName,
-                    onValueChange = { editedName = it },
+                    onValueChange = { 
+                        editedName = it
+                        // Reset validation when user edits the name
+                        if (hasAttemptedSave) {
+                            hasAttemptedSave = false
+                        }
+                    },
                     label = stringResource(R.string.event_list_item_name_label),
                     modifier = Modifier.fillMaxWidth(),
-                    focusRequester = focusRequester
+                    focusRequester = focusRequester,
+                    isError = showDuplicateNameError
                 )
+                
+                // Show error message if duplicate name
+                if (showDuplicateNameError) {
+                    Text(
+                        text = stringResource(R.string.add_event_duplicate_name_error),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -309,11 +353,20 @@ fun EventListItem(
                         onClick = {
                             val trimmed = editedName.trim()
                             if (trimmed.isNotBlank()) {
-                                showEditNameSheet = false
-                                if (editMode && onUpdateEventName != null) {
-                                    onUpdateEventName(event.id, trimmed.toTitleCase())
-                                } else {
-                                    onUpdate(event.copy(name = trimmed.toTitleCase()))
+                                // Set hasAttemptedSave to true to trigger validation
+                                hasAttemptedSave = true
+                                
+                                // Check for duplicate name (excluding current event)
+                                val otherEventNames = existingEventNames.filter { it != event.name }
+                                val isDuplicate = otherEventNames.any { it.equals(trimmed, ignoreCase = true) }
+                                
+                                if (!isDuplicate) {
+                                    showEditNameSheet = false
+                                    if (editMode && onUpdateEventName != null) {
+                                        onUpdateEventName(event.id, trimmed.toTitleCase())
+                                    } else {
+                                        onUpdate(event.copy(name = trimmed.toTitleCase()))
+                                    }
                                 }
                             }
                         },

@@ -23,7 +23,8 @@ fun UpdateEventDialog(
     event: Event,
     onDismiss: () -> Unit,
     onUpdate: (String, LocalDate, String?) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    existingEventNames: List<String> = emptyList()
 ) {
     var eventName by remember { mutableStateOf(event.name) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
@@ -31,6 +32,8 @@ fun UpdateEventDialog(
     val focusRequester = remember { FocusRequester() }
     var note by remember { mutableStateOf("") }
     var showDuplicateDateError by remember { mutableStateOf(false) }
+    var showDuplicateNameError by remember { mutableStateOf(false) }
+    var hasAttemptedSave by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
@@ -40,6 +43,33 @@ fun UpdateEventDialog(
     // Check for duplicate date when selectedDate changes
     LaunchedEffect(selectedDate) {
         showDuplicateDateError = event.instances.any { it.date == selectedDate }
+    }
+
+    // Check for duplicate name when eventName changes (only if user has attempted to save)
+    LaunchedEffect(eventName, hasAttemptedSave) {
+        if (hasAttemptedSave) {
+            val trimmedName = eventName.trim()
+            // Exclude the current event from the duplicate check
+            val otherEventNames = existingEventNames.filter { it != event.name }
+            showDuplicateNameError = trimmedName.isNotBlank() && 
+                otherEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+        } else {
+            showDuplicateNameError = false
+        }
+    }
+
+    // Scroll to maximum when error appears
+    LaunchedEffect(showDuplicateNameError) {
+        if (showDuplicateNameError) {
+            sheetState.expand()
+        }
+    }
+
+    // Scroll to maximum when date error appears
+    LaunchedEffect(showDuplicateDateError) {
+        if (showDuplicateDateError) {
+            sheetState.expand()
+        }
     }
 
     ModalBottomSheet(
@@ -65,11 +95,28 @@ fun UpdateEventDialog(
 
             StyledOutlinedTextField(
                 value = eventName,
-                onValueChange = { eventName = it },
+                onValueChange = { 
+                    eventName = it
+                    // Reset validation when user edits the name
+                    if (hasAttemptedSave) {
+                        hasAttemptedSave = false
+                    }
+                },
                 label = context.getString(R.string.update_event_name_label),
                 modifier = Modifier.fillMaxWidth(),
-                focusRequester = focusRequester
+                focusRequester = focusRequester,
+                isError = showDuplicateNameError
             )
+            
+            // Show error message if duplicate name
+            if (showDuplicateNameError) {
+                Text(
+                    text = context.getString(R.string.add_event_duplicate_name_error),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             
             StyledOutlinedTextField(
                 value = selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
@@ -124,10 +171,21 @@ fun UpdateEventDialog(
                     PrimaryButton(
                         onClick = {
                             if (eventName.isNotBlank()) {
-                                onUpdate(eventName, selectedDate, note.ifBlank { null })
+                                // Set hasAttemptedSave to true to trigger validation
+                                hasAttemptedSave = true
+                                
+                                // Check for duplicate name (excluding current event)
+                                val trimmedName = eventName.trim()
+                                val otherEventNames = existingEventNames.filter { it != event.name }
+                                val isDuplicate = otherEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+                                
+                                if (!isDuplicate) {
+                                    onUpdate(eventName, selectedDate, note.ifBlank { null })
+                                }
                             }
                         },
-                        enabled = eventName.isNotBlank() && !showDuplicateDateError,
+                        enabled = eventName.isNotBlank() && 
+                                 !showDuplicateDateError,
                         text = context.getString(R.string.update_event_update)
                     )
                 }

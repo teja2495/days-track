@@ -75,6 +75,7 @@
     <string name="add_event_save">Save</string>
     <string name="add_event_new_instance_label">New Instance</string>
     <string name="add_event_duplicate_date_error">This date already exists for this event</string>
+    <string name="add_event_duplicate_name_error">An event with this name already exists</string>
     
     <!-- Update Event Dialog -->
     <string name="update_event_title">Update Event</string>

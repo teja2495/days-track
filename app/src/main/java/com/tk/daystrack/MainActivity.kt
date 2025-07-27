@@ -275,7 +275,8 @@ fun DayTrackAppWithExportImport(
                             viewModel.addEvent(name)
                         },
                         showDateField = false,
-                        allInstanceDates = emptyList()
+                        allInstanceDates = emptyList(),
+                        existingEventNames = events.map { it.name }
                     )
                 }
                 
@@ -312,7 +313,8 @@ fun DayTrackAppWithExportImport(
                         },
                         onDelete = { eventId ->
                             viewModel.removeEvent(eventId)
-                        }
+                        },
+                        existingEventNames = events.map { it.name }
                     )
                 }
                 

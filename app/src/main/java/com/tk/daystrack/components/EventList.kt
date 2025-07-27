@@ -69,7 +69,8 @@ fun EventList(
                                 onDelete = { onEventDelete(event.id) },
                                 onUpdateEventName = onUpdateEventName,
                                 index = index,
-                                fontSize = fontSize
+                                fontSize = fontSize,
+                                existingEventNames = events.map { it.name }
                             )
                         }
                     } else {
@@ -83,7 +84,8 @@ fun EventList(
                             reorderableState = null,
                             onUpdateEventName = onUpdateEventName,
                             index = index,
-                            fontSize = fontSize
+                            fontSize = fontSize,
+                            existingEventNames = events.map { it.name }
                         )
                     }
                 }

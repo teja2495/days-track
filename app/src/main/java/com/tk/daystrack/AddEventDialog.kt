@@ -32,7 +32,8 @@ fun AddEventBottomSheet(
     editableName: Boolean = true,
     showDateField: Boolean = false,
     dateFieldLabel: String = "Event Date",
-    allInstanceDates: List<LocalDate> = emptyList()
+    allInstanceDates: List<LocalDate> = emptyList(),
+    existingEventNames: List<String> = emptyList()
 ) {
     var eventName by remember { mutableStateOf(initialName) }
     var selectedDate by remember { mutableStateOf(initialDate) }
@@ -41,6 +42,8 @@ fun AddEventBottomSheet(
     var note by remember { mutableStateOf("") }
     var noteFieldFocused by remember { mutableStateOf(false) }
     var showDuplicateDateError by remember { mutableStateOf(false) }
+    var showDuplicateNameError by remember { mutableStateOf(false) }
+    var hasAttemptedSave by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val sheetState = rememberModalBottomSheetState(
@@ -50,6 +53,31 @@ fun AddEventBottomSheet(
     // Check for duplicate date when selectedDate changes
     LaunchedEffect(selectedDate) {
         showDuplicateDateError = allInstanceDates.contains(selectedDate)
+    }
+
+    // Check for duplicate name when eventName changes (only if user has attempted to save)
+    LaunchedEffect(eventName, hasAttemptedSave) {
+        if (hasAttemptedSave && editableName) {
+            val trimmedName = eventName.trim()
+            showDuplicateNameError = trimmedName.isNotBlank() && 
+                existingEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+        } else {
+            showDuplicateNameError = false
+        }
+    }
+
+    // Scroll to maximum when error appears
+    LaunchedEffect(showDuplicateNameError) {
+        if (showDuplicateNameError) {
+            sheetState.expand()
+        }
+    }
+
+    // Scroll to maximum when date error appears
+    LaunchedEffect(showDuplicateDateError) {
+        if (showDuplicateDateError) {
+            sheetState.expand()
+        }
     }
 
     ModalBottomSheet(
@@ -83,11 +111,28 @@ fun AddEventBottomSheet(
             if (editableName) {
                 StyledOutlinedTextField(
                     value = eventName,
-                    onValueChange = { eventName = it },
+                    onValueChange = { 
+                        eventName = it
+                        // Reset validation when user edits the name
+                        if (hasAttemptedSave) {
+                            hasAttemptedSave = false
+                        }
+                    },
                     label = context.getString(R.string.add_event_name_label),
                     modifier = Modifier.fillMaxWidth(),
-                    focusRequester = focusRequester
+                    focusRequester = focusRequester,
+                    isError = showDuplicateNameError
                 )
+                
+                // Show error message if duplicate name
+                if (showDuplicateNameError) {
+                    Text(
+                        text = context.getString(R.string.add_event_duplicate_name_error),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
             }
             
             if (showDateField) {
@@ -140,13 +185,23 @@ fun AddEventBottomSheet(
                     onClick = {
                         if (editableName) {
                             if (eventName.isNotBlank()) {
-                                onSave(eventName, if (showDateField) selectedDate else null, note.ifBlank { null })
+                                // Set hasAttemptedSave to true to trigger validation
+                                hasAttemptedSave = true
+                                
+                                // Check for duplicate name
+                                val trimmedName = eventName.trim()
+                                val isDuplicate = existingEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+                                
+                                if (!isDuplicate) {
+                                    onSave(eventName, if (showDateField) selectedDate else null, note.ifBlank { null })
+                                }
                             }
                         } else {
                             onSave(initialName, if (showDateField) selectedDate else null, note.ifBlank { null })
                         }
                     },
-                    enabled = (if (editableName) eventName.isNotBlank() else true) && !showDuplicateDateError,
+                    enabled = (if (editableName) eventName.isNotBlank() else true) && 
+                             !showDuplicateDateError,
                     text = buttonLabel
                 )
             }
