@@ -200,11 +200,21 @@ fun EventDetailsScreen(
                                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                                                    Text(
-                                    text = context.getString(R.string.event_details_average_frequency, "%.1f".format(avgFrequency)),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                    color = Color.Gray
-                                )
+                                    Text(
+                                        text = "Average frequency: ",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        text = "%.1f".format(avgFrequency),
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
+                                        color = White
+                                    )
+                                    Text(
+                                        text = " days",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
+                                        color = White
+                                    )
                                 }
                             }
                         }

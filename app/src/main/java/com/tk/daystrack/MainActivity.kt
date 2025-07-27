@@ -82,7 +82,14 @@ class MainActivity : ComponentActivity() {
                         val fileName = "backup-" + sdf.format(now) + ".daystrack"
                         exportLauncher.launch(fileName)
                     },
-                    onImport = { showImportConfirmDialog = true }
+                    onImport = { 
+                        val events = viewModel.events.value
+                        if (events.isNotEmpty()) {
+                            showImportConfirmDialog = true
+                        } else {
+                            importLauncher.launch("application/octet-stream")
+                        }
+                    }
                 )
 
                 // Confirmation dialog for import
@@ -205,6 +212,15 @@ fun DayTrackAppWithExportImport(
                         HintBanner(
                             message = context.getString(R.string.main_toggle_date_hint),
                             onDismiss = { viewModel.dismissToggleDateHint() }
+                        )
+                    }
+                    
+                    if (isEditMode) {
+                        Text(
+                            text = context.getString(R.string.main_edit_mode_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(vertical = Dimensions.paddingMedium)
                         )
                     }
                     

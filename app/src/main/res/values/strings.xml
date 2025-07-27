@@ -6,6 +6,7 @@
     <string name="main_empty_state_title">No events yet</string>
     <string name="main_empty_state_message">Tap the Add Event button to add your first event and start tracking dates</string>
     <string name="main_edit_hint">Hint: Long press an event to enter edit mode, where you can delete and reorder events.</string>
+    <string name="main_edit_mode_hint">Tap on the event name to edit it</string>
     <string name="main_toggle_date_hint">Hint: Tap the date text to switch between days and months/years.</string>
     <string name="main_import_warning_title">Warning</string>
     <string name="main_import_warning_message">Importing will overwrite all your existing events data. Are you sure you want to continue?</string>
