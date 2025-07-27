@@ -4,7 +4,7 @@
     <!-- Main Activity -->
     <string name="main_title">Days Track</string>
     <string name="main_empty_state_title">No events yet</string>
-    <string name="main_empty_state_message">Tap the Add Event button to add your first event and start tracking important dates</string>
+    <string name="main_empty_state_message">Tap the Add Event button to add your first event and start tracking dates</string>
     <string name="main_edit_hint">Hint: Long press an event to enter edit mode, where you can delete and reorder events.</string>
     <string name="main_toggle_date_hint">Hint: Tap the date text to switch between days and months/years.</string>
     <string name="main_import_warning_title">Warning</string>
@@ -32,6 +32,8 @@
     <string name="settings_data_backup">Events Data Backup</string>
     <string name="settings_import">Import</string>
     <string name="settings_export">Export</string>
+
+    <string name="settings_export_no_events_toast">No events available to export</string>
     <string name="settings_version">Version %s</string>
     <string name="settings_send_feedback">Send Feedback</string>
     <string name="settings_font_choose_title">Choose Font &amp; Card Size</string>

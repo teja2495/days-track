@@ -149,7 +149,8 @@ fun DayTrackAppWithExportImport(
                     currentFontSize = currentFontSize,
                     onFontSizeSelected = { viewModel.setFontSize(it) },
                     onExportClick = onExport,
-                    onImportClick = onImport
+                    onImportClick = onImport,
+                    hasEvents = events.isNotEmpty()
                 )
             }
             selectedEventForDetails != null -> {

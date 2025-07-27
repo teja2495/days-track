@@ -21,6 +21,7 @@ import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import com.tk.daystrack.components.*
 import androidx.compose.ui.unit.dp
 
@@ -38,7 +39,8 @@ fun SettingsScreen(
     onFontSizeSelected: (FontSize) -> Unit,
     modifier: Modifier = Modifier,
     onExportClick: () -> Unit = {},
-    onImportClick: () -> Unit = {}
+    onImportClick: () -> Unit = {},
+    hasEvents: Boolean = true
 ) {
     val context = LocalContext.current
     Column(
@@ -117,7 +119,13 @@ fun SettingsScreen(
                         Text(context.getString(R.string.settings_import), color = White, fontWeight = FontWeight.Bold)
                     }
                     Button(
-                        onClick = onExportClick,
+                        onClick = {
+                            if (hasEvents) {
+                                onExportClick()
+                            } else {
+                                Toast.makeText(context, context.getString(R.string.settings_export_no_events_toast), Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Gray800)
                     ) {
