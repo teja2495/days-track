@@ -24,6 +24,7 @@ fun EventList(
     onEventLongPress: () -> Unit,
     onEventUpdate: (Event) -> Unit,
     onEventDelete: (String) -> Unit,
+    onUpdateEventName: ((String, String) -> Unit)? = null,
     fontSize: FontSize,
     modifier: Modifier = Modifier
 ) {
@@ -61,6 +62,7 @@ fun EventList(
                             editMode = true,
                             reorderableState = reorderableState,
                             onDelete = { onEventDelete(event.id) },
+                            onUpdateEventName = onUpdateEventName,
                             index = index,
                             fontSize = fontSize
                         )
@@ -74,6 +76,7 @@ fun EventList(
                         modifier = itemModifier,
                         editMode = false,
                         reorderableState = null,
+                        onUpdateEventName = onUpdateEventName,
                         index = index,
                         fontSize = fontSize
                     )

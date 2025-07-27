@@ -45,11 +45,11 @@
     <string name="settings_cancel">Cancel</string>
     
     <!-- Event Details Screen -->
-    <string name="event_details_no_dates">No event dates recorded yet</string>
+    <string name="event_details_no_dates">No instances recorded yet for this event</string>
     <string name="event_details_add_instance">Add Instance</string>
     <string name="event_details_average_frequency">Average frequency: %s days</string>
     <string name="event_details_instances_count">%d instances</string>
-    <string name="event_details_note_hint">Hint: Tap on the date card to add a note for that instance.</string>
+    <string name="event_details_note_hint">Hint: Tap on the instance card to add a note for it.</string>
     <string name="event_details_50_instances_limit_hint">You\'ve reached the 50 instances limit for this event, your oldest events will be overwritten by new instances.</string>
     <string name="event_details_add_note">Add note</string>
     <string name="event_details_edit_note">Edit Note</string>

@@ -44,6 +44,7 @@ fun EventListItem(
     editMode: Boolean = false,
     reorderableState: ReorderableLazyListState? = null,
     onDelete: (() -> Unit)? = null,
+    onUpdateEventName: ((String, String) -> Unit)? = null,
     index: Int = 0,
     fontSize: FontSize = FontSize.MEDIUM
 ) {
@@ -309,7 +310,11 @@ fun EventListItem(
                             val trimmed = editedName.trim()
                             if (trimmed.isNotBlank()) {
                                 showEditNameSheet = false
-                                onUpdate(event.copy(name = trimmed.toTitleCase()))
+                                if (editMode && onUpdateEventName != null) {
+                                    onUpdateEventName(event.id, trimmed.toTitleCase())
+                                } else {
+                                    onUpdate(event.copy(name = trimmed.toTitleCase()))
+                                }
                             }
                         },
                         enabled = editedName.trim().isNotBlank(),

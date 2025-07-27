@@ -249,6 +249,7 @@ fun DayTrackAppWithExportImport(
                             onEventLongPress = { viewModel.setEditMode(true) },
                             onEventUpdate = { eventToUpdate -> eventForNewInstance = eventToUpdate },
                             onEventDelete = { viewModel.removeEvent(it) },
+                            onUpdateEventName = { eventId, newName -> viewModel.updateEventName(eventId, newName) },
                             fontSize = currentFontSize
                         )
                     }

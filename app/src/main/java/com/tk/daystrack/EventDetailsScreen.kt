@@ -232,7 +232,11 @@ fun EventDetailsScreen(
                                         color = Color.Gray
                                     )
                                     Text(
-                                        text = "%.1f".format(avgFrequency),
+                                        text = if (avgFrequency % 1 == 0.0) {
+                                            avgFrequency.toInt().toString()
+                                        } else {
+                                            "%.2f".format(avgFrequency).removeSuffix(".00").removeSuffix("0")
+                                        },
                                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
                                         color = White
                                     )
