@@ -4,7 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -131,16 +135,23 @@ fun StyledOutlinedTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     readOnly: Boolean = false
 ) {
-    val textFieldValue = remember(value) {
-        TextFieldValue(
-            text = value,
-            selection = TextRange(value.length)
-        )
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
+    }
+    
+    // Update textFieldValue when value changes, but preserve selection if user is editing
+    LaunchedEffect(value) {
+        if (textFieldValue.text != value) {
+            textFieldValue = textFieldValue.copy(text = value)
+        }
     }
     
     OutlinedTextField(
         value = textFieldValue,
-        onValueChange = { onValueChange(it.text) },
+        onValueChange = { 
+            textFieldValue = it
+            onValueChange(it.text) 
+        },
         label = { Text(label, color = White.copy(alpha = 0.7f)) },
         modifier = modifier.let { 
             if (focusRequester != null) it.focusRequester(focusRequester) else it 
