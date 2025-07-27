@@ -36,6 +36,11 @@ import java.time.LocalDate
 import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,11 +65,16 @@ fun EventDetailsScreen(
     val showBanner = remember { mutableStateOf(false) }
     val show50InstancesLimitBanner = remember { mutableStateOf(false) }
     val showAddInstanceSheet = remember { mutableStateOf(false) }
+    val deletedInstance = remember { mutableStateOf<EventInstance?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     
     LaunchedEffect(Unit) {
         showBanner.value = !repository.getHasSeenNoteHintBanner()
         show50InstancesLimitBanner.value = !repository.getHasSeen50InstancesLimitHint() && event.instances.size >= 50
     }
+    
+
     
     // Calculate sizes based on font size
     val titleFontSize = when (fontSize) {
@@ -88,6 +98,21 @@ fun EventDetailsScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
+        snackbarHost = { 
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = 150.dp),
+                snackbar = { snackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = Gray800,
+                        contentColor = White,
+                        actionColor = ThemeTextColor,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+            ) 
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -263,7 +288,29 @@ fun EventDetailsScreen(
                                                 )
                                                 if (onDeleteDate != null) {
                                                     IconButton(
-                                                        onClick = { showDeleteDateDialog.value = instance.date }
+                                                        onClick = {
+                                                            // Store the deleted instance for undo
+                                                            deletedInstance.value = instance
+                                                            // Delete the instance
+                                                            onDeleteDate(instance.date)
+                                                            // Show undo snackbar
+                                                            coroutineScope.launch {
+                                                                val result = snackbarHostState.showSnackbar(
+                                                                    message = "Instance deleted",
+                                                                    actionLabel = "Undo",
+                                                                    duration = androidx.compose.material3.SnackbarDuration.Long
+                                                                )
+                                                                if (result == SnackbarResult.ActionPerformed) {
+                                                                    // Undo the deletion by adding the instance back
+                                                                    if (viewModel != null) {
+                                                                        viewModel.addInstanceToEvent(event.id, event.name, instance)
+                                                                    } else {
+                                                                        onUpdateNote?.invoke(instance.date, instance.note ?: "")
+                                                                    }
+                                                                    deletedInstance.value = null
+                                                                }
+                                                            }
+                                                        }
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Delete,
@@ -400,20 +447,7 @@ fun EventDetailsScreen(
             )
         }
         
-        if (showDeleteDateDialog.value != null) {
-            val dateToDelete = showDeleteDateDialog.value!!
-            ConfirmationDialog(
-                onDismiss = { showDeleteDateDialog.value = null },
-                onConfirm = {
-                    onDeleteDate?.invoke(dateToDelete)
-                    showDeleteDateDialog.value = null
-                },
-                title = context.getString(R.string.event_details_delete_date_title),
-                message = context.getString(R.string.event_details_delete_date_message, dateToDelete.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
-                confirmText = context.getString(R.string.event_details_delete),
-                isDeleteDialog = true
-            )
-        }
+
         
         if (showDeleteNoteDialog.value != null) {
             val dateToDeleteNote = showDeleteNoteDialog.value!!
