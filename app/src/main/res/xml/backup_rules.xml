@@ -9,5 +9,5 @@
     <!-- Include only our app's event data -->
     <include domain="sharedpref" path="events_prefs"/>
     <!-- Exclude any other SharedPreferences that might be added later -->
-    <exclude domain="sharedpref" path="."/>
+    <!-- Note: Using specific paths instead of wildcards for better compatibility -->
 </full-backup-content>
