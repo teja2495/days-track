@@ -66,6 +66,7 @@ fun EventDetailsScreen(
     val show50InstancesLimitBanner = remember { mutableStateOf(false) }
     val showAddInstanceSheet = remember { mutableStateOf(false) }
     val deletedInstance = remember { mutableStateOf<EventInstance?>(null) }
+    val deletedNote = remember { mutableStateOf<Pair<LocalDate, String>?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     
@@ -355,7 +356,26 @@ fun EventDetailsScreen(
                                                         .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 10.dp)
                                                 )
                                                 IconButton(
-                                                    onClick = { showDeleteNoteDialog.value = instance.date }
+                                                    onClick = {
+                                                        // Store the deleted note for undo
+                                                        deletedNote.value = Pair(instance.date, instance.note ?: "")
+                                                        // Delete the note
+                                                        onUpdateNote?.invoke(instance.date, "")
+                                                        // Show undo snackbar
+                                                        coroutineScope.launch {
+                                                            val result = snackbarHostState.showSnackbar(
+                                                                message = "Note deleted",
+                                                                actionLabel = "Undo",
+                                                                duration = androidx.compose.material3.SnackbarDuration.Long
+                                                            )
+                                                            if (result == SnackbarResult.ActionPerformed) {
+                                                                // Undo the deletion by restoring the note
+                                                                val (date, noteText) = deletedNote.value!!
+                                                                onUpdateNote?.invoke(date, noteText)
+                                                                deletedNote.value = null
+                                                            }
+                                                        }
+                                                    }
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Close,
@@ -449,20 +469,7 @@ fun EventDetailsScreen(
         
 
         
-        if (showDeleteNoteDialog.value != null) {
-            val dateToDeleteNote = showDeleteNoteDialog.value!!
-            ConfirmationDialog(
-                onDismiss = { showDeleteNoteDialog.value = null },
-                onConfirm = {
-                    onUpdateNote?.invoke(dateToDeleteNote, "")
-                    showDeleteNoteDialog.value = null
-                },
-                title = context.getString(R.string.event_details_delete_note_title),
-                message = context.getString(R.string.event_details_delete_note_message, dateToDeleteNote.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))),
-                confirmText = context.getString(R.string.event_details_delete),
-                isDeleteDialog = true
-            )
-        }
+
         
         // Always show AddEventBottomSheet if requested
         if (showAddInstanceSheet.value) {
