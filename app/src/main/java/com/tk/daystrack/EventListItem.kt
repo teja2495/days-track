@@ -30,6 +30,7 @@ import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import com.tk.daystrack.components.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -133,7 +134,7 @@ fun EventListItem(
             if (editMode) {
                 Icon(
                     imageVector = Icons.Filled.DragHandle,
-                    contentDescription = "Drag Handle",
+                    contentDescription = stringResource(R.string.event_list_item_drag_handle),
                     tint = White,
                     modifier = Modifier
                         .size(dragHandleSize)
@@ -169,34 +170,46 @@ fun EventListItem(
                     )
                 }
                 
-                if (hasInstances && !editMode) {
-                    val canToggle = DateUtils.isAtLeastOneMonth(latestInstance!!.date)
-                    val displayText = if (showDaysOnly) {
-                        when {
-                            isToday -> "today"
-                            isFuture -> "in $daysOnly days"
-                            else -> "$daysOnly days ago"
+                if (!editMode) {
+                    if (hasInstances) {
+                        val canToggle = DateUtils.isAtLeastOneMonth(latestInstance!!.date)
+                        val displayText = if (showDaysOnly) {
+                                                    when {
+                            isToday -> stringResource(R.string.event_list_item_today)
+                            isFuture -> stringResource(R.string.event_list_item_in_days, daysOnly)
+                            else -> stringResource(R.string.event_list_item_days_ago, daysOnly)
+                        }
+                        } else {
+                            timeDifference
+                        }
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = if (canToggle) Modifier.clickable {
+                                showDaysOnly = !showDaysOnly
+                                saveShowDaysOnly(showDaysOnly)
+                            } else Modifier
+                        ) {
+                                                    Icon(
+                            imageVector = if (isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
+                            contentDescription = if (isFuture) stringResource(R.string.event_list_item_clock) else stringResource(R.string.event_list_item_calendar),
+                            tint = DateTextColor,
+                                modifier = Modifier.size(iconSize)
+                            )
+                            Text(
+                                text = displayText,
+                                style = androidx.compose.ui.text.TextStyle(
+                                    fontSize = dateFontSize,
+                                    lineHeight = dateFontSize * 1.5f,
+                                    fontStyle = FontStyle.Italic,
+                                    color = DateTextColor
+                                )
+                            )
                         }
                     } else {
-                        timeDifference
-                    }
-                    
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = if (canToggle) Modifier.clickable {
-                            showDaysOnly = !showDaysOnly
-                            saveShowDaysOnly(showDaysOnly)
-                        } else Modifier
-                    ) {
-                        Icon(
-                            imageVector = if (isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
-                            contentDescription = if (isFuture) "Clock" else "Calendar",
-                            tint = DateTextColor,
-                            modifier = Modifier.size(iconSize)
-                        )
                         Text(
-                            text = displayText,
+                            text = stringResource(R.string.event_list_item_no_instance),
                             style = androidx.compose.ui.text.TextStyle(
                                 fontSize = dateFontSize,
                                 lineHeight = dateFontSize * 1.5f,
@@ -218,7 +231,7 @@ fun EventListItem(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Event",
+                        contentDescription = stringResource(R.string.event_list_item_delete_event),
                         tint = DeleteButtonColor,
                         modifier = Modifier.size(24.dp)
                     )
@@ -235,7 +248,7 @@ fun EventListItem(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Update Event",
+                            contentDescription = stringResource(R.string.event_list_item_update_event),
                             tint = White,
                             modifier = Modifier.size(24.dp)
                         )
@@ -270,7 +283,7 @@ fun EventListItem(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "Edit Event Name",
+                    text = stringResource(R.string.event_list_item_edit_name_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = White
@@ -279,7 +292,7 @@ fun EventListItem(
                 StyledOutlinedTextField(
                     value = editedName,
                     onValueChange = { editedName = it },
-                    label = "Name",
+                    label = stringResource(R.string.event_list_item_name_label),
                     modifier = Modifier.fillMaxWidth(),
                     focusRequester = focusRequester
                 )
@@ -289,7 +302,7 @@ fun EventListItem(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SecondaryButton(onClick = { showEditNameSheet = false }, text = "Cancel")
+                    SecondaryButton(onClick = { showEditNameSheet = false }, text = stringResource(R.string.event_list_item_cancel))
                     Spacer(modifier = Modifier.width(8.dp))
                     PrimaryButton(
                         onClick = {
@@ -300,7 +313,7 @@ fun EventListItem(
                             }
                         },
                         enabled = editedName.trim().isNotBlank(),
-                        text = "Save"
+                        text = stringResource(R.string.event_list_item_save)
                     )
                 }
             }
@@ -315,9 +328,9 @@ fun EventListItem(
                 showDeleteDialog = false
                 onDelete?.invoke()
             },
-            title = "Delete Event",
-            message = "Are you sure you want to delete '${event.name}'?",
-            confirmText = "Delete",
+            title = stringResource(R.string.event_list_item_delete_confirm_title),
+            message = stringResource(R.string.event_list_item_delete_confirm_message, event.name),
+            confirmText = stringResource(R.string.event_list_item_delete_confirm),
             isDeleteDialog = true
         )
     }

@@ -112,4 +112,22 @@
     <string name="feedback_subject">Days Track Feedback</string>
     <string name="feedback_body_template" formatted="false">\n\n\n---\nApp Version: %s\nAndroid Version: %s\nDevice: %s</string>
     <string name="feedback_email">tejakarlapudi.apps@gmail.com</string>
+    
+    <!-- Event List Item -->
+    <string name="event_list_item_drag_handle">Drag Handle</string>
+    <string name="event_list_item_today">today</string>
+    <string name="event_list_item_in_days">in %d days</string>
+    <string name="event_list_item_days_ago">%d days ago</string>
+    <string name="event_list_item_clock">Clock</string>
+    <string name="event_list_item_calendar">Calendar</string>
+    <string name="event_list_item_no_instance">No instance recorded yet</string>
+    <string name="event_list_item_delete_event">Delete Event</string>
+    <string name="event_list_item_update_event">Update Event</string>
+    <string name="event_list_item_edit_name_title">Edit Event Name</string>
+    <string name="event_list_item_name_label">Name</string>
+    <string name="event_list_item_cancel">Cancel</string>
+    <string name="event_list_item_save">Save</string>
+    <string name="event_list_item_delete_confirm_title">Delete Event</string>
+    <string name="event_list_item_delete_confirm_message">Are you sure you want to delete \'%s\'?</string>
+    <string name="event_list_item_delete_confirm">Delete</string>
 </resources>
