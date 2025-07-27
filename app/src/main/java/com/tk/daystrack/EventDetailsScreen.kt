@@ -300,6 +300,7 @@ fun EventDetailsScreen(
                                                             onDeleteDate(instance.date)
                                                             // Show undo snackbar
                                                             coroutineScope.launch {
+                                                                snackbarHostState.currentSnackbarData?.dismiss()
                                                                 val result = snackbarHostState.showSnackbar(
                                                                     message = "Instance deleted",
                                                                     actionLabel = "Undo",
@@ -367,6 +368,7 @@ fun EventDetailsScreen(
                                                         onUpdateNote?.invoke(instance.date, "")
                                                         // Show undo snackbar
                                                         coroutineScope.launch {
+                                                            snackbarHostState.currentSnackbarData?.dismiss()
                                                             val result = snackbarHostState.showSnackbar(
                                                                 message = "Note deleted",
                                                                 actionLabel = "Undo",
