@@ -6,8 +6,8 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Include only our app's event data -->
+    <include domain="sharedpref" path="events_prefs"/>
+    <!-- Exclude any other SharedPreferences that might be added later -->
+    <exclude domain="sharedpref" path="."/>
 </full-backup-content>

@@ -5,17 +5,52 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep line number information for debugging stack traces
+-keepattributes SourceFile,LineNumberTable
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep Gson classes and annotations
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Gson specific rules
+-keep class com.google.gson.** { *; }
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Keep our data classes for Gson serialization
+-keep class com.tk.daystrack.Event { *; }
+-keep class com.tk.daystrack.EventInstance { *; }
+
+# Keep Compose related classes
+-keep class androidx.compose.** { *; }
+-keepclassmembers class androidx.compose.** { *; }
+
+# Keep ViewModel and LiveData
+-keep class androidx.lifecycle.** { *; }
+-keepclassmembers class androidx.lifecycle.** { *; }
+
+# Keep Activity and Fragment classes
+-keep public class * extends android.app.Activity
+-keep public class * extends androidx.fragment.app.Fragment
+-keep public class * extends androidx.activity.ComponentActivity
+
+# Keep SharedPreferences related classes
+-keep class android.content.SharedPreferences { *; }
+
+# Keep UUID class for Event ID generation
+-keep class java.util.UUID { *; }
+
+# Keep LocalDate for date handling
+-keep class java.time.LocalDate { *; }
+
+# Keep reorderable library
+-keep class org.burnoutcrew.reorderable.** { *; }
+
+# Keep enum classes
+-keep enum com.tk.daystrack.SortOption { *; }
+-keep enum com.tk.daystrack.FontSize { *; }
+
+# Keep string resources
+-keep class com.tk.daystrack.R$string { *; }
