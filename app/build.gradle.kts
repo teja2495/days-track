@@ -26,6 +26,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Enable logging for debugging release builds
+            buildConfigField("boolean", "ENABLE_LOGGING", "true")
         }
         debug {
             isMinifyEnabled = false
@@ -33,6 +35,17 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "ENABLE_LOGGING", "true")
+        }
+        create("releaseTest") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            buildConfigField("boolean", "ENABLE_LOGGING", "true")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -44,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {

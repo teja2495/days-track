@@ -94,15 +94,21 @@ class EventRepository(context: Context) {
         val type = object : TypeToken<List<Event>>() {}.type
         return try {
             val events: List<Event> = gson.fromJson(json, type) ?: emptyList()
+            // Validate events to ensure they have required fields
+            val validEvents = events.filter { event: Event ->
+                event.id.isNotBlank() && event.name.isNotBlank()
+            }
             // Limit total events to prevent memory issues
-            if (events.size > 1000) {
-                val limitedEvents = events.take(1000)
+            if (validEvents.size > 1000) {
+                val limitedEvents = validEvents.take(1000)
                 saveEvents(limitedEvents)
                 limitedEvents
             } else {
-                events
+                validEvents
             }
         } catch (e: Exception) {
+            // Log the error for debugging
+            android.util.Log.e("EventRepository", "Error loading events: ${e.message}", e)
             emptyList()
         }
     }
@@ -187,8 +193,13 @@ class EventRepository(context: Context) {
     fun importEventsJson(json: String): Boolean {
         val type = object : TypeToken<List<Event>>() {}.type
         val events: List<Event> = try {
-            gson.fromJson(json, type) ?: emptyList()
+            val parsedEvents: List<Event> = gson.fromJson(json, type) ?: emptyList()
+            // Validate events to ensure they have required fields
+            parsedEvents.filter { event: Event ->
+                event.id.isNotBlank() && event.name.isNotBlank()
+            }
         } catch (e: Exception) {
+            android.util.Log.e("EventRepository", "Error importing events: ${e.message}", e)
             return false
         }
         saveEvents(events)

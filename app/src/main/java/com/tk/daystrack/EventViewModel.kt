@@ -103,10 +103,15 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         if (trimmedName.isBlank()) return
         
         viewModelScope.launch {
-            val newEvent = Event(name = trimmedName.toTitleCase(), instances = emptyList())
-            _unsortedEvents = repository.addEvent(newEvent)
-            sortEvents()
-            _showAddDialog.value = false
+            try {
+                val newEvent = Event(name = trimmedName.toTitleCase(), instances = emptyList())
+                _unsortedEvents = repository.addEvent(newEvent)
+                sortEvents()
+                _showAddDialog.value = false
+            } catch (e: Exception) {
+                android.util.Log.e("EventViewModel", "Error adding event: ${e.message}", e)
+                // Don't hide dialog on error, let user try again
+            }
         }
     }
     

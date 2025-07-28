@@ -23,6 +23,16 @@
 -keep class com.tk.daystrack.Event { *; }
 -keep class com.tk.daystrack.EventInstance { *; }
 
+# Keep all data classes and their constructors
+-keepclassmembers class com.tk.daystrack.Event {
+    <init>(...);
+    <fields>;
+}
+-keepclassmembers class com.tk.daystrack.EventInstance {
+    <init>(...);
+    <fields>;
+}
+
 # Keep Compose related classes
 -keep class androidx.compose.** { *; }
 -keepclassmembers class androidx.compose.** { *; }
@@ -44,6 +54,7 @@
 
 # Keep LocalDate for date handling
 -keep class java.time.LocalDate { *; }
+-keep class java.time.format.DateTimeFormatter { *; }
 
 # Keep reorderable library
 -keep class org.burnoutcrew.reorderable.** { *; }
@@ -54,3 +65,23 @@
 
 # Keep string resources
 -keep class com.tk.daystrack.R$string { *; }
+
+# Keep all classes in the main package to be safe
+-keep class com.tk.daystrack.** { *; }
+
+# Keep Gson type adapters
+-keep class com.tk.daystrack.EventRepository { *; }
+
+# Keep reflection for Gson
+-keepattributes *Annotation*
+-keep class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Keep all public methods in data classes
+-keepclassmembers class com.tk.daystrack.Event {
+    public <methods>;
+}
+-keepclassmembers class com.tk.daystrack.EventInstance {
+    public <methods>;
+}
