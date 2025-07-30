@@ -70,9 +70,22 @@ object DateUtils {
     
     private fun formatFuture(eventDate: LocalDate, today: LocalDate): String {
         val period = Period.between(today, eventDate)
+        val years = period.years
         val months = period.months
         val days = period.days
         
+        // If it's a year or more, show in decimal years format
+        if (years > 0 || (years == 0 && months >= 12)) {
+            val totalDays = ChronoUnit.DAYS.between(today, eventDate)
+            val yearsDecimal = totalDays / 365.25 // Using 365.25 to account for leap years
+            
+            return when {
+                yearsDecimal < 1.1 -> "in 1 year"
+                else -> "in ${String.format("%.2f", yearsDecimal)} years"
+            }
+        }
+        
+        // For periods less than a year, show detailed breakdown
         return when {
             months == 0 && days == 0 -> "today"
             months == 0 && days == 1 -> "in 1 day"
@@ -86,9 +99,22 @@ object DateUtils {
     
     private fun formatPast(eventDate: LocalDate, today: LocalDate): String {
         val period = Period.between(eventDate, today)
+        val years = period.years
         val months = period.months
         val days = period.days
         
+        // If it's a year or more, show in decimal years format
+        if (years > 0 || (years == 0 && months >= 12)) {
+            val totalDays = ChronoUnit.DAYS.between(eventDate, today)
+            val yearsDecimal = totalDays / 365.25 // Using 365.25 to account for leap years
+            
+            return when {
+                yearsDecimal < 1.1 -> "1 year ago"
+                else -> "${String.format("%.2f", yearsDecimal)} years ago"
+            }
+        }
+        
+        // For periods less than a year, show detailed breakdown
         return when {
             months == 0 && days == 0 -> "today"
             months == 0 && days == 1 -> "1 day ago"
