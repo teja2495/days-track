@@ -229,7 +229,6 @@ fun EventListItem(
                                 style = androidx.compose.ui.text.TextStyle(
                                     fontSize = sizes.dateFontSize,
                                     lineHeight = sizes.dateFontSize * 1.5f,
-                                    fontStyle = FontStyle.Italic,
                                     color = DateTextColor
                                 )
                             )
@@ -240,7 +239,6 @@ fun EventListItem(
                             style = androidx.compose.ui.text.TextStyle(
                                 fontSize = sizes.dateFontSize,
                                 lineHeight = sizes.dateFontSize * 1.5f,
-                                fontStyle = FontStyle.Italic,
                                 color = DateTextColor
                             )
                         )
