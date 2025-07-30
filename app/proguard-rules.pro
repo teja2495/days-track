@@ -85,3 +85,47 @@
 -keepclassmembers class com.tk.daystrack.EventInstance {
     public <methods>;
 }
+
+# Android 13+ specific rules to prevent crashes
+# Keep runtime permission classes
+-keep class android.permission.** { *; }
+-keep class androidx.activity.result.** { *; }
+-keep class androidx.activity.result.contract.** { *; }
+
+# Keep file access related classes
+-keep class android.net.Uri { *; }
+-keep class android.content.ContentResolver { *; }
+
+# Keep reflection for Android 13 compatibility
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
+
+# Keep serialization for Android 13
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+# Keep Parcelable classes for Android 13
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+# Keep R8 compatibility for Android 13
+-keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes Exceptions
+
+# Keep Kotlin metadata for Android 13
+-keep class kotlin.** { *; }
+-keep class kotlin.Metadata { *; }
+-dontwarn kotlin.**
+-dontwarn kotlinx.**
+
+# Keep Android 13 specific classes
+-keep class androidx.core.content.** { *; }
+-keep class androidx.activity.** { *; }
