@@ -51,7 +51,8 @@ fun EventDetailsScreen(
     onDeleteDate: ((LocalDate) -> Unit)? = null,
     onUpdateNote: ((LocalDate, String) -> Unit)? = null,
     viewModel: EventViewModel? = null,
-    fontSize: FontSize = FontSize.MEDIUM
+    fontSize: FontSize = FontSize.MEDIUM,
+    triggerAddInstance: Boolean = false
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val showDeleteDateDialog = remember { mutableStateOf<LocalDate?>(null) }
@@ -73,6 +74,13 @@ fun EventDetailsScreen(
     LaunchedEffect(Unit) {
         showBanner.value = !repository.getHasSeenNoteHintBanner()
         show50InstancesLimitBanner.value = !repository.getHasSeen50InstancesLimitHint() && event.instances.size >= 50
+    }
+    
+    // Trigger add instance dialog if requested
+    LaunchedEffect(triggerAddInstance) {
+        if (triggerAddInstance) {
+            showAddInstanceSheet.value = true
+        }
     }
     
 

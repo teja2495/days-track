@@ -247,4 +247,8 @@ class EventRepository(context: Context) {
     fun setFontSize(fontSize: FontSize) {
         sharedPreferences.edit().putString("fontSize", fontSize.name).apply()
     }
+    
+    fun notifyWidgetsToUpdate(context: Context) {
+        EventWidgetProvider.updateAllWidgets(context)
+    }
 } 

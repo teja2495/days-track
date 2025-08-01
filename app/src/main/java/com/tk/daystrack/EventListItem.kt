@@ -47,7 +47,8 @@ fun EventListItem(
     onUpdateEventName: ((String, String) -> Unit)? = null,
     index: Int = 0,
     fontSize: FontSize = FontSize.MEDIUM,
-    existingEventNames: List<String> = emptyList()
+    existingEventNames: List<String> = emptyList(),
+    showAddButton: Boolean = true
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -261,7 +262,7 @@ fun EventListItem(
                         modifier = Modifier.size(24.dp)
                     )
                 }
-            } else {
+            } else if (showAddButton) {
                 Surface(
                     shape = CircleShape,
                     color = ButtonColor,

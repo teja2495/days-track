@@ -33,7 +33,8 @@ fun EventList(
     onEventDelete: (String) -> Unit,
     onUpdateEventName: ((String, String) -> Unit)? = null,
     fontSize: FontSize,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showAddButton: Boolean = true
 ) {
     // Pre-calculate existing event names to avoid repeated calculations
     val existingEventNames = remember(events) { events.map { it.name } }
@@ -90,7 +91,8 @@ fun EventList(
                                 onUpdateEventName = onUpdateEventName,
                                 index = index,
                                 fontSize = fontSize,
-                                existingEventNames = existingEventNames
+                                existingEventNames = existingEventNames,
+                                showAddButton = showAddButton
                             )
                         }
                     } else {
@@ -105,7 +107,8 @@ fun EventList(
                             onUpdateEventName = onUpdateEventName,
                             index = index,
                             fontSize = fontSize,
-                            existingEventNames = existingEventNames
+                            existingEventNames = existingEventNames,
+                            showAddButton = showAddButton
                         )
                     }
                 }

@@ -98,6 +98,16 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         repository.setFontSize(fontSize)
     }
     
+    private var context: android.content.Context? = null
+    
+    fun setContext(context: android.content.Context) {
+        this.context = context
+    }
+    
+    private fun notifyWidgets() {
+        context?.let { repository.notifyWidgetsToUpdate(it) }
+    }
+    
     fun addEvent(name: String) {
         val trimmedName = name.trim()
         if (trimmedName.isBlank()) return
@@ -108,6 +118,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
                 _unsortedEvents = repository.addEvent(newEvent)
                 sortEvents()
                 _showAddDialog.value = false
+                notifyWidgets()
             } catch (e: Exception) {
                 android.util.Log.e("EventViewModel", "Error adding event: ${e.message}", e)
                 // Don't hide dialog on error, let user try again
@@ -123,6 +134,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             if (_unsortedEvents.isEmpty()) {
                 _isEditMode.value = false
             }
+            notifyWidgets()
         }
     }
     
@@ -148,6 +160,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _unsortedEvents = repository.deleteEventDate(eventId, dateToDelete)
             sortEvents()
+            notifyWidgets()
         }
     }
     
@@ -175,6 +188,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             repository.saveEvents(_unsortedEvents)
             _currentSortOption.value = SortOption.CUSTOM
             sortEvents(forceNoSort = true)
+            notifyWidgets()
         }
     }
 
@@ -205,6 +219,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             if (success) {
                 _unsortedEvents = repository.loadEvents()
                 sortEvents()
+                notifyWidgets()
             }
         }
     }
@@ -215,6 +230,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             _unsortedEvents = repository.updateEvent(eventId, newName.toTitleCase(), EventInstance(newDate, note))
             sortEvents()
             hideUpdateDialog()
+            notifyWidgets()
         }
     }
 
@@ -222,6 +238,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _unsortedEvents = repository.updateEvent(eventId, name.toTitleCase(), instance)
             sortEvents()
+            notifyWidgets()
         }
     }
 
@@ -229,6 +246,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         viewModelScope.launch {
             _unsortedEvents = repository.updateEventInstanceNote(eventId, date, note)
             sortEvents()
+            notifyWidgets()
         }
     }
 
@@ -242,6 +260,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
                 repository.saveEvents(currentEvents)
                 _unsortedEvents = currentEvents
                 sortEvents()
+                notifyWidgets()
             }
         }
     }

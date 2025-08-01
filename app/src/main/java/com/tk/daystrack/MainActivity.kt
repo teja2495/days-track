@@ -32,6 +32,7 @@ import com.tk.daystrack.components.*
 import com.tk.daystrack.DateUtils
 import java.time.LocalDate
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,10 +43,19 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState != null) {
             // Restore any saved state if needed
         }
+        
+        // Handle widget click - check if we have a selected event ID from widget
+        val selectedEventIdFromWidget = intent?.getStringExtra("selected_event_id")
+        val openAddInstance = intent?.getBooleanExtra("open_add_instance", false) ?: false
         setContent {
             DayTrackTheme {
                 val repository = EventRepository(this)
                 val viewModel: EventViewModel = viewModel { EventViewModel(repository) }
+                
+                // Set context for widget updates
+                LaunchedEffect(Unit) {
+                    viewModel.setContext(this@MainActivity)
+                }
 
                 // State for triggering export/import
                 var exportTrigger by remember { mutableStateOf(false) }
@@ -76,6 +86,8 @@ class MainActivity : ComponentActivity() {
 
                 DayTrackAppWithExportImport(
                     viewModel = viewModel,
+                    selectedEventIdFromWidget = selectedEventIdFromWidget,
+                    openAddInstance = openAddInstance,
                     onExport = {
                         val sdf = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
                         val now = Date()
@@ -115,6 +127,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DayTrackAppWithExportImport(
     viewModel: EventViewModel,
+    selectedEventIdFromWidget: String? = null,
+    openAddInstance: Boolean = false,
     onExport: () -> Unit,
     onImport: () -> Unit
 ) {
@@ -131,9 +145,32 @@ fun DayTrackAppWithExportImport(
     }
 
     var showSettings by remember { mutableStateOf(false) }
-    var selectedEventId by remember { mutableStateOf<String?>(null) }
+    var selectedEventId by remember { mutableStateOf<String?>(selectedEventIdFromWidget) }
     var eventForNewInstance by remember { mutableStateOf<Event?>(null) }
     var eventPendingDelete by remember { mutableStateOf<Event?>(null) }
+    var triggerAddInstance by remember { mutableStateOf(false) }
+
+    // Handle openAddInstance from widget
+    LaunchedEffect(openAddInstance, selectedEventIdFromWidget, events) {
+        if (openAddInstance && selectedEventIdFromWidget != null) {
+            val event = events.find { it.id == selectedEventIdFromWidget }
+            if (event != null) {
+                // First navigate to the event details screen
+                selectedEventId = selectedEventIdFromWidget
+                // Then trigger the add instance dialog after a short delay
+                kotlinx.coroutines.delay(100)
+                triggerAddInstance = true
+            }
+        }
+    }
+
+    // Reset triggerAddInstance after it's been used
+    LaunchedEffect(triggerAddInstance) {
+        if (triggerAddInstance) {
+            kotlinx.coroutines.delay(200) // Give time for the dialog to appear
+            triggerAddInstance = false
+        }
+    }
 
     val selectedEventForDetails = selectedEventId?.let { id ->
         events.find { it.id == id }
@@ -178,7 +215,8 @@ fun DayTrackAppWithExportImport(
                         viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
                     },
                     viewModel = viewModel,
-                    fontSize = currentFontSize
+                    fontSize = currentFontSize,
+                    triggerAddInstance = triggerAddInstance
                 )
             }
             else -> {
