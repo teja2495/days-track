@@ -29,7 +29,7 @@ fun StyledDatePickerDialog(
             subheadContentColor = White,
             yearContentColor = White,
             currentYearContentColor = CalendarYearContentColor,
-            selectedYearContentColor = White,
+            selectedYearContentColor = Color.Black,
             selectedYearContainerColor = CalendarSelectedColor,
             dayContentColor = White,
             todayContentColor = CalendarTodayColor,
@@ -65,7 +65,11 @@ fun StyledDatePickerDialog(
                 selectedDayContainerColor = CalendarSelectedColor,
                 dayContentColor = White,
                 todayContentColor = CalendarTodayColor,
-                todayDateBorderColor = CalendarTodayBorderColor
+                todayDateBorderColor = CalendarTodayBorderColor,
+                yearContentColor = White,
+                currentYearContentColor = CalendarYearContentColor,
+                selectedYearContentColor = Color.Black,
+                selectedYearContainerColor = CalendarSelectedColor
             )
         )
     }

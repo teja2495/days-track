@@ -74,14 +74,14 @@ object DateUtils {
         val months = period.months
         val days = period.days
         
-        // If it's a year or more, show in decimal years format
+        // If it's a year or more, show in years and months format
         if (years > 0 || (years == 0 && months >= 12)) {
-            val totalDays = ChronoUnit.DAYS.between(today, eventDate)
-            val yearsDecimal = totalDays / 365.25 // Using 365.25 to account for leap years
-            
             return when {
-                yearsDecimal < 1.1 -> "in 1 year"
-                else -> "in ${String.format("%.2f", yearsDecimal)} years"
+                years == 0 -> "in $months months"
+                years == 1 && months == 0 -> "in 1 year"
+                years == 1 -> "in 1 year $months months"
+                months == 0 -> "in $years years"
+                else -> "in $years years $months months"
             }
         }
         
@@ -103,14 +103,14 @@ object DateUtils {
         val months = period.months
         val days = period.days
         
-        // If it's a year or more, show in decimal years format
+        // If it's a year or more, show in years and months format
         if (years > 0 || (years == 0 && months >= 12)) {
-            val totalDays = ChronoUnit.DAYS.between(eventDate, today)
-            val yearsDecimal = totalDays / 365.25 // Using 365.25 to account for leap years
-            
             return when {
-                yearsDecimal < 1.1 -> "1 year ago"
-                else -> "${String.format("%.2f", yearsDecimal)} years ago"
+                years == 0 -> "$months months ago"
+                years == 1 && months == 0 -> "1 year ago"
+                years == 1 -> "1 year $months months ago"
+                months == 0 -> "$years years ago"
+                else -> "$years years $months months ago"
             }
         }
         
