@@ -53,9 +53,9 @@ class EventWidgetProvider : AppWidgetProvider() {
                     val dateText = if (showDaysOnly) {
                         formatDaysText(mostRecentInstance.date)
                     } else {
-                        DateUtils.formatTimeDifferenceCached(mostRecentInstance.date)
+                        formatWidgetTimeDifference(mostRecentInstance.date)
                     }
-                    views.setTextViewText(R.id.widget_event_date, dateText)
+                    views.setTextViewText(R.id.widget_event_date, android.text.Html.fromHtml(dateText))
                     
                     // Show note if available
                     if (!mostRecentInstance.note.isNullOrBlank()) {
@@ -88,13 +88,7 @@ class EventWidgetProvider : AppWidgetProvider() {
                     putExtra("selected_event_id", selectedEventId)
                     putExtra("open_add_instance", true)
                 }
-                val addInstancePendingIntent = PendingIntent.getActivity(
-                    context,
-                    appWidgetId * 2, // Different request code to avoid conflicts
-                    addInstanceIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(R.id.widget_add_button, addInstancePendingIntent)
+                // Add button removed from widget
                 
             } else {
                 // Event not found, show placeholder
@@ -115,8 +109,7 @@ class EventWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
                 
-                // Hide add button when no event is configured
-                views.setViewVisibility(R.id.widget_add_button, android.view.View.GONE)
+                // Add button removed from widget
             }
         } else {
             // No event selected, show placeholder
@@ -137,8 +130,7 @@ class EventWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
             
-            // Hide add button when no event is configured
-            views.setViewVisibility(R.id.widget_add_button, android.view.View.GONE)
+            // Add button removed from widget
         }
         
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -168,8 +160,78 @@ class EventWidgetProvider : AppWidgetProvider() {
         
         return when {
             daysDifference == 0L -> "today"
-            daysDifference > 0 -> "in ${daysDifference} days"
-            else -> "${kotlin.math.abs(daysDifference)} days ago"
+            daysDifference > 0 -> "in <big><b>${daysDifference}</b></big><br/>days"
+            else -> "<big><b>${kotlin.math.abs(daysDifference)}</b></big><br/>days ago"
+        }
+    }
+
+    private fun formatWidgetTimeDifference(eventDate: LocalDate): String {
+        val today = LocalDate.now()
+        val period = java.time.Period.between(today, eventDate)
+        val years = period.years
+        val months = period.months
+        val days = period.days
+        
+        return when {
+            // Future dates
+            years > 0 || (years == 0 && months >= 12) -> {
+                when {
+                    years == 0 -> "in <big><b>$months</b></big> months"
+                    years == 1 && months == 0 -> "in <big><b>1</b></big> year"
+                    years == 1 -> "in <big><b>1</b></big> year <big><b>$months</b></big> months"
+                    months == 0 -> "in <big><b>$years</b></big> years"
+                    else -> "in <big><b>$years</b></big> years <big><b>$months</b></big> months"
+                }
+            }
+            months > 0 -> {
+                when {
+                    months == 1 && days == 0 -> "in <big><b>1</b></big> month"
+                    months == 1 -> "in <big><b>1</b></big> month <big><b>$days</b></big> days"
+                    days == 0 -> "in <big><b>$months</b></big> months"
+                    else -> "in <big><b>$months</b></big> months <big><b>$days</b></big> days"
+                }
+            }
+            days > 0 -> {
+                when {
+                    days == 1 -> "in <big><b>1</b></big> day"
+                    else -> "in <big><b>$days</b></big> days"
+                }
+            }
+            days == 0 -> "today"
+            // Past dates
+            else -> {
+                val pastPeriod = java.time.Period.between(eventDate, today)
+                val pastYears = pastPeriod.years
+                val pastMonths = pastPeriod.months
+                val pastDays = pastPeriod.days
+                
+                when {
+                    pastYears > 0 || (pastYears == 0 && pastMonths >= 12) -> {
+                        when {
+                            pastYears == 0 -> "<big><b>$pastMonths</b></big> months ago"
+                            pastYears == 1 && pastMonths == 0 -> "<big><b>1</b></big> year ago"
+                            pastYears == 1 -> "<big><b>1</b></big> year <big><b>$pastMonths</b></big> months ago"
+                            pastMonths == 0 -> "<big><b>$pastYears</b></big> years ago"
+                            else -> "<big><b>$pastYears</b></big> years <big><b>$pastMonths</b></big> months ago"
+                        }
+                    }
+                    pastMonths > 0 -> {
+                        when {
+                            pastMonths == 1 && pastDays == 0 -> "<big><b>1</b></big> month ago"
+                            pastMonths == 1 -> "<big><b>1</b></big> month <big><b>$pastDays</b></big> days ago"
+                            pastDays == 0 -> "<big><b>$pastMonths</b></big> months ago"
+                            else -> "<big><b>$pastMonths</b></big> months <big><b>$pastDays</b></big> days ago"
+                        }
+                    }
+                    pastDays > 0 -> {
+                        when {
+                            pastDays == 1 -> "<big><b>1</b></big> day ago"
+                            else -> "<big><b>$pastDays</b></big> days ago"
+                        }
+                    }
+                    else -> "today"
+                }
+            }
         }
     }
 

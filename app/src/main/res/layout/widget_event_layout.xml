@@ -8,61 +8,43 @@
     android:clickable="true"
     android:focusable="true">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/widget_event_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentTop="true">
+        android:text="Event Name"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginBottom="4dp"
+        android:layout_alignParentTop="true" />
 
-        <TextView
-            android:id="@+id/widget_event_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Event Name"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:layout_marginBottom="4dp" />
+    <TextView
+        android:id="@+id/widget_event_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textSize="20sp"
+        android:textColor="#E0E0E0"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_centerInParent="true"
+        android:gravity="center" />
 
-        <TextView
-            android:id="@+id/widget_event_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date"
-            android:textSize="14sp"
-            android:textColor="#E0E0E0"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:layout_marginBottom="4dp" />
+    <TextView
+        android:id="@+id/widget_event_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Note"
+        android:textSize="12sp"
+        android:textColor="#CCCCCC"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true" />
 
-        <TextView
-            android:id="@+id/widget_event_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Note"
-            android:textSize="12sp"
-            android:textColor="#CCCCCC"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:visibility="gone" />
 
-    </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/widget_add_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_add_white"
-        android:background="@drawable/widget_fab_background"
-        android:contentDescription="@string/widget_add_instance"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp" />
 
 </RelativeLayout> 

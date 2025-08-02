@@ -66,7 +66,10 @@ class WidgetConfigActivity : ComponentActivity() {
     
     private fun saveWidgetConfiguration(eventId: String) {
         val sharedPrefs = getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        sharedPrefs.edit().putString("widget_${appWidgetId}_event_id", eventId).apply()
+        sharedPrefs.edit()
+            .putString("widget_${appWidgetId}_event_id", eventId)
+            .putBoolean("widget_${appWidgetId}_show_days_only", true) // Set default to show days
+            .apply()
     }
     
     private fun finishWithSuccess() {
