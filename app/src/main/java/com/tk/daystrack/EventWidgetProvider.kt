@@ -69,7 +69,20 @@ class EventWidgetProvider : AppWidgetProvider() {
                     views.setViewVisibility(R.id.widget_event_note, android.view.View.GONE)
                 }
                 
-                // Set click intent to toggle display mode
+                // Set click intent for event title to open event details
+                val eventDetailsIntent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("selected_event_id", selectedEventId)
+                }
+                val eventDetailsPendingIntent = PendingIntent.getActivity(
+                    context,
+                    appWidgetId * 2, // Use different request code to avoid conflicts
+                    eventDetailsIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_event_name, eventDetailsPendingIntent)
+                
+                // Set click intent for date area to toggle display mode
                 val toggleIntent = Intent(context, EventWidgetProvider::class.java).apply {
                     action = "TOGGLE_DISPLAY_MODE"
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -80,7 +93,7 @@ class EventWidgetProvider : AppWidgetProvider() {
                     toggleIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                views.setOnClickPendingIntent(R.id.widget_container, togglePendingIntent)
+                views.setOnClickPendingIntent(R.id.widget_event_date, togglePendingIntent)
                 
                 // Set click intent for + button to open add instance dialog
                 val addInstanceIntent = Intent(context, MainActivity::class.java).apply {
@@ -107,7 +120,8 @@ class EventWidgetProvider : AppWidgetProvider() {
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+                views.setOnClickPendingIntent(R.id.widget_event_name, pendingIntent)
+                views.setOnClickPendingIntent(R.id.widget_event_date, pendingIntent)
                 
                 // Add button removed from widget
             }
@@ -128,7 +142,8 @@ class EventWidgetProvider : AppWidgetProvider() {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_event_name, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_event_date, pendingIntent)
             
             // Add button removed from widget
         }

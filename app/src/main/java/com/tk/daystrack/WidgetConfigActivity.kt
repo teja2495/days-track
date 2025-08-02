@@ -99,7 +99,7 @@ fun WidgetConfigScreen(
     ) {
         Text(
             text = context.getString(R.string.widget_config_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.padding(top = 30.dp, bottom = 16.dp)

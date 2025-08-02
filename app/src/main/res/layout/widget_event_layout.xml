@@ -19,7 +19,10 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:layout_marginBottom="4dp"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground" />
 
     <TextView
         android:id="@+id/widget_event_date"
@@ -31,7 +34,10 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:layout_centerInParent="true"
-        android:gravity="center" />
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground" />
 
     <TextView
         android:id="@+id/widget_event_note"
