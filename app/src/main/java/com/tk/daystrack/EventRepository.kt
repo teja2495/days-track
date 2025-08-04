@@ -171,6 +171,25 @@ class EventRepository(context: Context) {
         return currentEvents
     }
 
+    fun deleteAllInstancesExceptLatest(eventId: String): List<Event> {
+        val currentEvents = loadEvents().toMutableList()
+        val index = currentEvents.indexOfFirst { it.id == eventId }
+        if (index != -1) {
+            val event = currentEvents[index]
+            if (event.instances.size > 1) {
+                val latestInstance = event.instances.maxByOrNull { it.date }
+                val updatedInstances = if (latestInstance != null) {
+                    listOf(latestInstance)
+                } else {
+                    event.instances
+                }
+                currentEvents[index] = event.copy(instances = updatedInstances)
+                saveEvents(currentEvents)
+            }
+        }
+        return currentEvents
+    }
+
     fun updateEventInstanceNote(eventId: String, date: LocalDate, note: String): List<Event> {
         val currentEvents = loadEvents().toMutableList()
         val index = currentEvents.indexOfFirst { it.id == eventId }

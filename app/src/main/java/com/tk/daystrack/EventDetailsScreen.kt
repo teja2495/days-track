@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,8 +43,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import android.widget.Toast
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun EventDetailsScreen(
     event: Event, 
@@ -55,6 +58,7 @@ fun EventDetailsScreen(
     triggerAddInstance: Boolean = false
 ) {
     val showDialog = remember { mutableStateOf(false) }
+    val showDeleteAllExceptLatestDialog = remember { mutableStateOf(false) }
     val showDeleteDateDialog = remember { mutableStateOf<LocalDate?>(null) }
     val showEditNoteSheet = remember { mutableStateOf(false) }
     val editingNoteText = remember { mutableStateOf("") }
@@ -139,7 +143,34 @@ fun EventDetailsScreen(
                 },
                 actions = {
                     if (event.instances.isNotEmpty()) {
-                        IconButton(onClick = { showAddInstanceSheet.value = true }, modifier = Modifier.padding(end = 28.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 28.dp)
+                                .combinedClickable(
+                                    onClick = { showAddInstanceSheet.value = true },
+                                    onLongClick = { 
+                                        // Quick add: Long press the + button to add today's date as a new instance
+                                        val today = java.time.LocalDate.now()
+                                        
+                                        // Check if today's instance already exists
+                                        if (event.instances.any { it.date == today }) {
+                                            Toast.makeText(context, context.getString(R.string.quick_add_already_exists, event.name), Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            val newInstance = EventInstance(date = today)
+                                            val updatedEvent = event.copy(
+                                                instances = event.instances + newInstance
+                                            )
+                                            if (viewModel != null) {
+                                                viewModel.addInstanceToEvent(event.id, event.name, newInstance)
+                                            } else {
+                                                onUpdateNote?.invoke(today, "")
+                                            }
+                                            Toast.makeText(context, context.getString(R.string.quick_add_success, event.name), Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = context.getString(R.string.cd_add_instance),
@@ -455,11 +486,18 @@ fun EventDetailsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = 50.dp, end = 15.dp),
+                            .padding(bottom = 45.dp, end = 0.dp),
                         contentAlignment = Alignment.BottomEnd
                     ) {
                         if (onDelete != null) {
-                            DeleteEventFAB(onClick = { showDialog.value = true })
+                            DeleteEventFAB(
+                                onClick = { showDialog.value = true },
+                                onLongClick = { 
+                                    if (event.instances.size > 1) {
+                                        showDeleteAllExceptLatestDialog.value = true
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -477,6 +515,24 @@ fun EventDetailsScreen(
                 title = context.getString(R.string.event_details_delete_event_title),
                 message = context.getString(R.string.event_details_delete_event_message),
                 confirmText = context.getString(R.string.event_details_delete),
+                isDeleteDialog = true
+            )
+        }
+
+        // Delete all instances except latest confirmation dialog
+        if (showDeleteAllExceptLatestDialog.value) {
+            ConfirmationDialog(
+                onDismiss = { showDeleteAllExceptLatestDialog.value = false },
+                onConfirm = {
+                    showDeleteAllExceptLatestDialog.value = false
+                    if (viewModel != null) {
+                        viewModel.deleteAllInstancesExceptLatest(event.id)
+                    }
+                },
+                title = context.getString(R.string.event_list_item_delete_all_except_latest_title),
+                message = context.getString(R.string.event_list_item_delete_all_except_latest_message, event.name),
+                confirmText = context.getString(R.string.event_list_item_delete_all_except_latest_yes),
+                dismissText = context.getString(R.string.event_list_item_delete_all_except_latest_no),
                 isDeleteDialog = true
             )
         }

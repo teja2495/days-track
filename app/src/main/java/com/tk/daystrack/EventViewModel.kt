@@ -163,6 +163,14 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             notifyWidgets()
         }
     }
+
+    fun deleteAllInstancesExceptLatest(eventId: String) {
+        viewModelScope.launch {
+            _unsortedEvents = repository.deleteAllInstancesExceptLatest(eventId)
+            sortEvents()
+            notifyWidgets()
+        }
+    }
     
     fun toggleEditMode() {
         _isEditMode.value = !_isEditMode.value

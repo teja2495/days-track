@@ -135,6 +135,7 @@ fun WidgetConfigScreen(
                 onEventLongPress = { /* No long press action needed for widget config */ },
                 onEventUpdate = { /* No update action needed for widget config */ },
                 onEventDelete = { /* No delete action needed for widget config */ },
+                onDeleteAllExceptLatest = { /* No delete all except latest action needed for widget config */ },
                 onUpdateEventName = null,
                 fontSize = FontSize.MEDIUM,
                 modifier = Modifier.fillMaxSize(),

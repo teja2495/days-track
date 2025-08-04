@@ -284,6 +284,7 @@ fun DayTrackAppWithExportImport(
                         val onEventLongPress = remember { { viewModel.setEditMode(true) } }
                         val onEventUpdate = remember { { event: Event -> eventForNewInstance = event } }
                         val onEventDelete = remember { { eventId: String -> viewModel.removeEvent(eventId) } }
+                        val onDeleteAllExceptLatest = remember { { eventId: String -> viewModel.deleteAllInstancesExceptLatest(eventId) } }
                         val onUpdateEventName = remember { { eventId: String, newName: String -> viewModel.updateEventName(eventId, newName) } }
                         val onQuickAdd = remember { { event: Event -> viewModel.updateEvent(event) } }
                         
@@ -295,6 +296,7 @@ fun DayTrackAppWithExportImport(
                             onEventLongPress = onEventLongPress,
                             onEventUpdate = onEventUpdate,
                             onEventDelete = onEventDelete,
+                            onDeleteAllExceptLatest = onDeleteAllExceptLatest,
                             onUpdateEventName = onUpdateEventName,
                             fontSize = currentFontSize,
                             onQuickAdd = onQuickAdd

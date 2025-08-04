@@ -2,6 +2,9 @@ package com.tk.daystrack.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -81,35 +84,42 @@ fun DoneEditingFAB(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DeleteEventFAB(
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    ExtendedFloatingActionButton(
-        onClick = onClick,
+    Surface(
         shape = RoundedCornerShape(50),
-        containerColor = DeleteButtonColor,
+        color = DeleteButtonColor,
         contentColor = DeleteButtonTextColor,
-        elevation = FloatingActionButtonDefaults.elevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 12.dp,
-            hoveredElevation = 10.dp
-        ),
-        modifier = modifier,
-        icon = {
+        shadowElevation = 8.dp,
+        modifier = modifier
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { onLongClick?.invoke() }
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = "Delete Event",
                 modifier = Modifier.size(24.dp)
             )
-        },
-        text = {
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 "Delete Event",
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-    )
+    }
 } 

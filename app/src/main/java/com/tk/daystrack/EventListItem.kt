@@ -45,6 +45,7 @@ fun EventListItem(
     editMode: Boolean = false,
     reorderableState: ReorderableLazyListState? = null,
     onDelete: (() -> Unit)? = null,
+    onDeleteAllExceptLatest: (() -> Unit)? = null,
     onUpdateEventName: ((String, String) -> Unit)? = null,
     index: Int = 0,
     fontSize: FontSize = FontSize.MEDIUM,
@@ -135,6 +136,7 @@ fun EventListItem(
     var showEditNameSheet by remember { mutableStateOf(false) }
     var editedName by remember { mutableStateOf(event.name) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDeleteAllExceptLatestDialog by remember { mutableStateOf(false) }
     var showDuplicateNameError by remember { mutableStateOf(false) }
     var hasAttemptedSave by remember { mutableStateOf(false) }
     
@@ -251,11 +253,19 @@ fun EventListItem(
             
             // Trailing icon: + (normal) or delete (edit mode)
             if (editMode) {
-                IconButton(
-                    onClick = { showDeleteDialog = true },
+                Box(
                     modifier = Modifier
                         .size(sizes.buttonSize)
                         .padding(start = 8.dp)
+                        .combinedClickable(
+                            onClick = { showDeleteDialog = true },
+                            onLongClick = { 
+                                if (event.instances.size > 1) {
+                                    showDeleteAllExceptLatestDialog = true
+                                }
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -439,6 +449,22 @@ fun EventListItem(
             title = stringResource(R.string.event_list_item_delete_confirm_title),
             message = stringResource(R.string.event_list_item_delete_confirm_message, event.name),
             confirmText = stringResource(R.string.event_list_item_delete_confirm),
+            isDeleteDialog = true
+        )
+    }
+
+    // Delete all instances except latest confirmation dialog
+    if (showDeleteAllExceptLatestDialog) {
+        ConfirmationDialog(
+            onDismiss = { showDeleteAllExceptLatestDialog = false },
+            onConfirm = {
+                showDeleteAllExceptLatestDialog = false
+                onDeleteAllExceptLatest?.invoke()
+            },
+            title = stringResource(R.string.event_list_item_delete_all_except_latest_title),
+            message = stringResource(R.string.event_list_item_delete_all_except_latest_message, event.name),
+            confirmText = stringResource(R.string.event_list_item_delete_all_except_latest_yes),
+            dismissText = stringResource(R.string.event_list_item_delete_all_except_latest_no),
             isDeleteDialog = true
         )
     }
