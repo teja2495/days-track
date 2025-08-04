@@ -133,7 +133,7 @@
     <string name="event_list_item_delete_confirm_message">Are you sure you want to delete \'%s\'?</string>
     <string name="event_list_item_delete_confirm">Delete</string>
     <string name="event_list_item_delete_all_except_latest_title">Keep only latest?</string>
-    <string name="event_list_item_delete_all_except_latest_message">Keep only the most recent instance of \'%s\'?</string>
+    <string name="event_list_item_delete_all_except_latest_message">Keep only the most recent instance of \%s\ and delete the rest?</string>
     <string name="event_list_item_delete_all_except_latest_yes">Yes</string>
     <string name="event_list_item_delete_all_except_latest_no">No</string>
     
