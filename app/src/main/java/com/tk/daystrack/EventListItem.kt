@@ -32,6 +32,7 @@ import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.tk.daystrack.components.*
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -48,7 +49,8 @@ fun EventListItem(
     index: Int = 0,
     fontSize: FontSize = FontSize.MEDIUM,
     existingEventNames: List<String> = emptyList(),
-    showAddButton: Boolean = true
+    showAddButton: Boolean = true,
+    onQuickAdd: ((Event) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
@@ -266,11 +268,37 @@ fun EventListItem(
                 Surface(
                     shape = CircleShape,
                     color = ButtonColor,
-                    modifier = Modifier.size(sizes.buttonSize)
+                    modifier = Modifier
+                        .size(sizes.buttonSize)
+                        .let {
+                            if (onQuickAdd != null) {
+                                it.combinedClickable(
+                                    onClick = { onUpdate(event) },
+                                    onLongClick = { 
+                                        // Quick add: Long press the + button to add today's date as a new instance
+                                        val today = java.time.LocalDate.now()
+                                        
+                                        // Check if today's instance already exists
+                                        if (event.instances.any { it.date == today }) {
+                                            Toast.makeText(context, context.getString(R.string.quick_add_already_exists, event.name), Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            val newInstance = EventInstance(date = today)
+                                            val updatedEvent = event.copy(
+                                                instances = event.instances + newInstance
+                                            )
+                                            onQuickAdd(updatedEvent)
+                                            Toast.makeText(context, context.getString(R.string.quick_add_success, event.name), Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            } else {
+                                it.clickable { onUpdate(event) }
+                            }
+                        }
                 ) {
-                    IconButton(
-                        onClick = { onUpdate(event) },
-                        modifier = Modifier.size(sizes.buttonSize)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,

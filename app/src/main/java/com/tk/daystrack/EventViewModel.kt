@@ -264,4 +264,18 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             }
         }
     }
+    
+    fun updateEvent(event: Event) {
+        viewModelScope.launch {
+            val currentEvents = repository.loadEvents().toMutableList()
+            val index = currentEvents.indexOfFirst { it.id == event.id }
+            if (index != -1) {
+                currentEvents[index] = event
+                repository.saveEvents(currentEvents)
+                _unsortedEvents = currentEvents
+                sortEvents()
+                notifyWidgets()
+            }
+        }
+    }
 } 

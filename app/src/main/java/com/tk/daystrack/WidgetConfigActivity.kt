@@ -128,7 +128,8 @@ fun WidgetConfigScreen(
                 onUpdateEventName = null,
                 fontSize = FontSize.MEDIUM,
                 modifier = Modifier.fillMaxSize(),
-                showAddButton = false
+                showAddButton = false,
+                onQuickAdd = null
             )
         }
     }

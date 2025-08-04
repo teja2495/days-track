@@ -141,4 +141,8 @@
     <string name="widget_no_event_selected">No event selected</string>
     <string name="widget_no_instances">No instances</string>
     <string name="widget_add_instance">Add Instance</string>
+    
+    <!-- Quick Add Toast Messages -->
+    <string name="quick_add_success">Added today\'s instance for %s</string>
+    <string name="quick_add_already_exists">Today\'s instance already exists for %s</string>
 </resources>
