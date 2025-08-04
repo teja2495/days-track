@@ -23,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.format.DateTimeFormatter
 import com.tk.daystrack.components.EventList
+import com.tk.daystrack.components.AppHeader
+import com.tk.daystrack.components.EmptyStateMessage
 import com.tk.daystrack.FontSize
 import com.tk.daystrack.ui.theme.Gray900
+import com.tk.daystrack.ui.theme.Dimensions
 
 class WidgetConfigActivity : ComponentActivity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
@@ -95,25 +98,32 @@ fun WidgetConfigScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
     ) {
-        Text(
-            text = context.getString(R.string.widget_config_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 30.dp, bottom = 16.dp)
+        AppHeader(
+            title = context.getString(R.string.main_title),
+            onSettingsClick = { /* No settings needed for widget config */ },
+            showSettings = false
         )
+        
+        if (events.isNotEmpty()) {
+            Text(
+                text = context.getString(R.string.widget_config_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(start = Dimensions.paddingSmall, top = 16.dp, bottom = 16.dp)
+            )
+        }
         
         if (events.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = context.getString(R.string.widget_config_no_events),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                EmptyStateMessage(
+                    title = context.getString(R.string.main_empty_state_title),
+                    message = context.getString(R.string.widget_config_no_events)
                 )
             }
         } else {
