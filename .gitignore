@@ -35,7 +35,8 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# IntelliJ
+# IntelliJ IDEA / Android Studio
+.idea/
 *.iml
 .idea/workspace.xml
 .idea/tasks.xml
@@ -87,28 +88,64 @@ lint/tmp/
 # Android Profiling
 *.hprof
 
-# macOS
+# macOS specific files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# Windows
+# Windows specific files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-# Linux
+# Linux specific files
 *~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
 
 # Temporary files
 *.tmp
 *.temp
 *.salive
+*.swp
+*.swo
+*~
 
 # Backup files
 *.bak
 *.backup
+*.orig
+*.rej
 
 # IDE specific files
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
@@ -154,3 +191,82 @@ local.properties
 # Keep build.gradle.kts files
 !build.gradle.kts
 !app/build.gradle.kts
+
+# Additional Android/IntelliJ files
+*.ipr
+*.iws
+*.iml
+.idea_modules/
+out/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/jarRepositories.xml
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/runConfigurations.xml
+.idea/compiler.xml
+.idea/kotlinc.xml
+.idea/migrations.xml
+.idea/misc.xml
+.idea/AndroidProjectSystem.xml
+.idea/.name
+.idea/.gitignore
+
+# Additional macOS files
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Additional development files
+*.orig
+*.rej
+*.patch
+*.diff
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Additional build files
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.app
+
+# Additional log files
+*.log.*
+*.log.gz
+*.log.bz2
+*.log.xz
+
+# Additional temporary files
+*.pid
+*.seed
+*.pid.lock
