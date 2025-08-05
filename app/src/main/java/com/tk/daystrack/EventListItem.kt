@@ -28,7 +28,6 @@ import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.graphics.Color
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
-import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.tk.daystrack.components.*
@@ -423,9 +422,9 @@ fun EventListItem(
                                 if (!isDuplicate) {
                                     showEditNameSheet = false
                                     if (editMode && onUpdateEventName != null) {
-                                        onUpdateEventName(event.id, trimmed.toTitleCase())
+                                        onUpdateEventName(event.id, trimmed)
                                     } else {
-                                        onUpdate(event.copy(name = trimmed.toTitleCase()))
+                                        onUpdate(event.copy(name = trimmed))
                                     }
                                 }
                             }

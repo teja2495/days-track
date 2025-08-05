@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.tk.daystrack.components.*
 import com.tk.daystrack.ui.theme.*
 import java.time.LocalDate
-import com.tk.daystrack.DateUtils.toTitleCase
 import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.SnackbarHost
@@ -130,7 +129,7 @@ fun EventDetailsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = event.name.toTitleCase(),
+                        text = event.name,
                         style = MaterialTheme.typography.headlineSmall.copy(fontSize = titleFontSize),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground

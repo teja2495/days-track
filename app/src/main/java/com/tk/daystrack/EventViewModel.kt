@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import com.tk.daystrack.DateUtils.toTitleCase
 
 enum class SortOption {
     DATE_ASCENDING,
@@ -114,7 +113,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         
         viewModelScope.launch {
             try {
-                val newEvent = Event(name = trimmedName.toTitleCase(), instances = emptyList())
+                val newEvent = Event(name = trimmedName, instances = emptyList())
                 _unsortedEvents = repository.addEvent(newEvent)
                 sortEvents()
                 _showAddDialog.value = false
@@ -235,7 +234,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     fun updateEventInstance(newName: String, newDate: LocalDate, note: String?) {
         val eventId = _eventToUpdate.value?.id ?: return
         viewModelScope.launch {
-            _unsortedEvents = repository.updateEvent(eventId, newName.toTitleCase(), EventInstance(newDate, note))
+            _unsortedEvents = repository.updateEvent(eventId, newName, EventInstance(newDate, note))
             sortEvents()
             hideUpdateDialog()
             notifyWidgets()
@@ -244,7 +243,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
 
     fun addInstanceToEvent(eventId: String, name: String, instance: EventInstance) {
         viewModelScope.launch {
-            _unsortedEvents = repository.updateEvent(eventId, name.toTitleCase(), instance)
+            _unsortedEvents = repository.updateEvent(eventId, name, instance)
             sortEvents()
             notifyWidgets()
         }
@@ -264,7 +263,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             val index = currentEvents.indexOfFirst { it.id == eventId }
             if (index != -1) {
                 val event = currentEvents[index]
-                currentEvents[index] = event.copy(name = newName.trim().toTitleCase())
+                currentEvents[index] = event.copy(name = newName.trim())
                 repository.saveEvents(currentEvents)
                 _unsortedEvents = currentEvents
                 sortEvents()
