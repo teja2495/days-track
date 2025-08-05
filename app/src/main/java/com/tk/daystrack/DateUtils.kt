@@ -126,10 +126,7 @@ object DateUtils {
         }
     }
 
-    fun String.toTitleCase(): String =
-        split(" ").joinToString(" ") { word ->
-            word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-        }
+    fun String.toTitleCase(): String = trim()
 
     // Cached version of getDaysDifference for better performance
     private val daysDifferenceCache = mutableMapOf<LocalDate, Long>()
