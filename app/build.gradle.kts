@@ -12,8 +12,8 @@ android {
         applicationId = "com.tk.daystrack"
         minSdk = 24
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.3"
+        versionCode = 9
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation("androidx.compose.animation:animation")
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.gson)

@@ -27,6 +27,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import com.tk.daystrack.components.*
 import com.tk.daystrack.DateUtils
@@ -181,204 +188,239 @@ fun DayTrackAppWithExportImport(
             .fillMaxSize()
             .background(Gray900)
     ) {
-        when {
-            showSettings -> {
-                BackHandler(enabled = true) {
-                    showSettings = false
+        val screenKey = when {
+            showSettings -> 2
+            selectedEventForDetails != null -> 1
+            else -> 0
+        }
+
+        AnimatedContent(
+            targetState = screenKey,
+            transitionSpec = {
+                if (targetState > initialState) {
+                    slideInHorizontally(
+                        animationSpec = tween(durationMillis = 300),
+                        initialOffsetX = { fullWidth -> fullWidth }
+                    ) + fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(durationMillis = 300),
+                            targetOffsetX = { fullWidth -> -fullWidth / 3 }
+                        ) + fadeOut(animationSpec = tween(durationMillis = 300))
+                } else {
+                    slideInHorizontally(
+                        animationSpec = tween(durationMillis = 300),
+                        initialOffsetX = { fullWidth -> -fullWidth }
+                    ) + fadeIn(animationSpec = tween(durationMillis = 300)) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(durationMillis = 300),
+                            targetOffsetX = { fullWidth -> fullWidth / 3 }
+                        ) + fadeOut(animationSpec = tween(durationMillis = 300))
                 }
-                SettingsScreen(
-                    onBackPressed = { showSettings = false },
-                    currentSortOption = currentSortOption,
-                    onSortOptionSelected = { viewModel.setSortOption(it) },
-                    currentFontSize = currentFontSize,
-                    onFontSizeSelected = { viewModel.setFontSize(it) },
-                    onExportClick = onExport,
-                    onImportClick = onImport,
-                    hasEvents = events.isNotEmpty()
-                )
-            }
-            selectedEventForDetails != null -> {
-                BackHandler(enabled = true) {
-                    selectedEventId = null
-                }
-                EventDetailsScreen(
-                    event = selectedEventForDetails!!,
-                    onBack = { selectedEventId = null },
-                    onDelete = {
-                        viewModel.removeEvent(selectedEventForDetails!!.id)
-                        selectedEventId = null
-                    },
-                    onDeleteDate = { dateToDelete ->
-                        viewModel.deleteEventDate(selectedEventForDetails!!.id, dateToDelete)
-                    },
-                    onUpdateNote = { date, note ->
-                        viewModel.updateEventInstanceNote(selectedEventForDetails!!.id, date, note)
-                    },
-                    viewModel = viewModel,
-                    fontSize = currentFontSize,
-                    triggerAddInstance = triggerAddInstance
-                )
-            }
-            else -> {
-                if (isEditMode) {
+            },
+            label = "screen_slide_transition"
+        ) { target ->
+            when (target) {
+                2 -> {
                     BackHandler(enabled = true) {
-                        viewModel.setEditMode(false)
+                        showSettings = false
+                    }
+                    SettingsScreen(
+                        onBackPressed = { showSettings = false },
+                        currentSortOption = currentSortOption,
+                        onSortOptionSelected = { viewModel.setSortOption(it) },
+                        currentFontSize = currentFontSize,
+                        onFontSizeSelected = { viewModel.setFontSize(it) },
+                        onExportClick = onExport,
+                        onImportClick = onImport,
+                        hasEvents = events.isNotEmpty()
+                    )
+                }
+                1 -> {
+                    val detailsEvent = selectedEventForDetails
+                    if (detailsEvent != null) {
+                        BackHandler(enabled = true) {
+                            selectedEventId = null
+                        }
+                        EventDetailsScreen(
+                            event = detailsEvent,
+                            onBack = { selectedEventId = null },
+                            onDelete = {
+                                viewModel.removeEvent(detailsEvent.id)
+                                selectedEventId = null
+                            },
+                            onDeleteDate = { dateToDelete ->
+                                viewModel.deleteEventDate(detailsEvent.id, dateToDelete)
+                            },
+                            onUpdateNote = { date, note ->
+                                viewModel.updateEventInstanceNote(detailsEvent.id, date, note)
+                            },
+                            viewModel = viewModel,
+                            fontSize = currentFontSize,
+                            triggerAddInstance = triggerAddInstance
+                        )
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
-                ) {
-                    val context = LocalContext.current
-                    AppHeader(
-                        title = context.getString(R.string.main_title),
-                        onSettingsClick = {
-                            if (isEditMode) viewModel.setEditMode(false)
-                            showSettings = true
-                        }
-                    )
-                    
-                    if (viewModel.shouldShowEventListHintBanner.collectAsState().value) {
-                        HintBanner(
-                            message = context.getString(R.string.main_edit_hint),
-                            onDismiss = { viewModel.dismissEventListHintBanner() }
-                        )
-                    }
-                    
-                    if (shouldShowToggleHint) {
-                        HintBanner(
-                            message = context.getString(R.string.main_toggle_date_hint),
-                            onDismiss = { viewModel.dismissToggleDateHint() }
-                        )
-                    }
-                    
+                else -> {
                     if (isEditMode) {
-                        Text(
-                            text = context.getString(R.string.main_edit_mode_hint),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(vertical = Dimensions.paddingMedium)
-                        )
+                        BackHandler(enabled = true) {
+                            viewModel.setEditMode(false)
+                        }
                     }
-                    
-                    if (events.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            EmptyStateMessage(
-                                title = context.getString(R.string.main_empty_state_title),
-                                message = context.getString(R.string.main_empty_state_message)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
+                    ) {
+                        val context = LocalContext.current
+                        AppHeader(
+                            title = context.getString(R.string.main_title),
+                            onSettingsClick = {
+                                if (isEditMode) viewModel.setEditMode(false)
+                                showSettings = true
+                            }
+                        )
+                        
+                        if (viewModel.shouldShowEventListHintBanner.collectAsState().value) {
+                            HintBanner(
+                                message = context.getString(R.string.main_edit_hint),
+                                onDismiss = { viewModel.dismissEventListHintBanner() }
                             )
                         }
-                    } else {
-                        val reorderableState = rememberReorderableLazyListState(
-                            onMove = { from, to ->
-                                viewModel.reorderEvents(from.index, to.index)
-                            }
-                        )
                         
-                        // Create stable callback references to prevent unnecessary recompositions
-                        val onEventClick = remember { { eventId: String -> selectedEventId = eventId } }
-                        val onEventLongPress = remember { { viewModel.setEditMode(true) } }
-                        val onEventUpdate = remember { { event: Event -> eventForNewInstance = event } }
-                        val onEventDelete = remember { { eventId: String -> viewModel.removeEvent(eventId) } }
-                        val onDeleteAllExceptLatest = remember { { eventId: String -> viewModel.deleteAllInstancesExceptLatest(eventId) } }
-                        val onUpdateEventName = remember { { eventId: String, newName: String -> viewModel.updateEventName(eventId, newName) } }
-                        val onQuickAdd = remember { { event: Event -> viewModel.updateEvent(event) } }
+                        if (shouldShowToggleHint) {
+                            HintBanner(
+                                message = context.getString(R.string.main_toggle_date_hint),
+                                onDismiss = { viewModel.dismissToggleDateHint() }
+                            )
+                        }
                         
-                        EventList(
-                            events = events,
-                            isEditMode = isEditMode,
-                            reorderableState = reorderableState,
-                            onEventClick = onEventClick,
-                            onEventLongPress = onEventLongPress,
-                            onEventUpdate = onEventUpdate,
-                            onEventDelete = onEventDelete,
-                            onDeleteAllExceptLatest = onDeleteAllExceptLatest,
-                            onUpdateEventName = onUpdateEventName,
-                            fontSize = currentFontSize,
-                            onQuickAdd = onQuickAdd
-                        )
-                    }
-                }
-                
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 80.dp, end = Dimensions.paddingMedium),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    if (isEditMode) {
-                        DoneEditingFAB(onClick = { viewModel.setEditMode(false) })
-                    } else {
-                        AddEventFAB(onClick = { viewModel.showAddDialog() })
-                    }
-                }
-                
-                if (showAddDialog) {
-                    AddEventBottomSheet(
-                        onDismiss = { viewModel.hideAddDialog() },
-                        onSave = { name, _, _ ->
-                            viewModel.addEvent(name)
-                        },
-                        showDateField = false,
-                        allInstanceDates = emptyList(),
-                        existingEventNames = events.map { it.name }
-                    )
-                }
-                
-                if (eventForNewInstance != null) {
-                    AddEventBottomSheet(
-                        onDismiss = { eventForNewInstance = null },
-                        onSave = { name, date, note ->
-                            if (date != null) {
-                                viewModel.addInstanceToEvent(
-                                    eventForNewInstance!!.id,
-                                    name,
-                                    EventInstance(date, note)
+                        if (isEditMode) {
+                            Text(
+                                text = context.getString(R.string.main_edit_mode_hint),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary,
+                                modifier = Modifier.padding(vertical = Dimensions.paddingMedium)
+                            )
+                        }
+                        
+                        if (events.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                EmptyStateMessage(
+                                    title = context.getString(R.string.main_empty_state_title),
+                                    message = context.getString(R.string.main_empty_state_message)
                                 )
                             }
-                            eventForNewInstance = null
-                        },
-                        initialName = eventForNewInstance!!.name,
-                        initialDate = java.time.LocalDate.now(),
-                        title = eventForNewInstance!!.name,
-                        buttonLabel = "Save",
-                        editableName = false,
-                        showDateField = true,
-                        dateFieldLabel = "New Instance",
-                        allInstanceDates = eventForNewInstance!!.instances.map { it.date }
-                    )
-                }
-                
-                if (showUpdateDialog && eventToUpdate != null) {
-                    UpdateEventDialog(
-                        event = eventToUpdate!!,
-                        onDismiss = { viewModel.hideUpdateDialog() },
-                        onUpdate = { newName, newDate, note ->
-                            viewModel.updateEventInstance(newName, newDate, note)
-                        },
-                        onDelete = { eventId ->
-                            viewModel.removeEvent(eventId)
-                        },
-                        existingEventNames = events.map { it.name }
-                    )
-                }
-                
-                if (eventPendingDelete != null) {
-                    ConfirmationDialog(
-                        onDismiss = { eventPendingDelete = null },
-                        onConfirm = {
-                            viewModel.removeEvent(eventPendingDelete!!.id)
-                            eventPendingDelete = null
-                        },
-                        title = "Delete Event",
-                        message = "Are you sure you want to delete this event?",
-                        confirmText = "Delete",
-                        isDeleteDialog = true
-                    )
+                        } else {
+                            val reorderableState = rememberReorderableLazyListState(
+                                onMove = { from, to ->
+                                    viewModel.reorderEvents(from.index, to.index)
+                                }
+                            )
+                            
+                            // Create stable callback references to prevent unnecessary recompositions
+                            val onEventClick = remember { { eventId: String -> selectedEventId = eventId } }
+                            val onEventLongPress = remember { { viewModel.setEditMode(true) } }
+                            val onEventUpdate = remember { { event: Event -> eventForNewInstance = event } }
+                            val onEventDelete = remember { { eventId: String -> viewModel.removeEvent(eventId) } }
+                            val onDeleteAllExceptLatest = remember { { eventId: String -> viewModel.deleteAllInstancesExceptLatest(eventId) } }
+                            val onUpdateEventName = remember { { eventId: String, newName: String -> viewModel.updateEventName(eventId, newName) } }
+                            val onQuickAdd = remember { { event: Event -> viewModel.updateEvent(event) } }
+                            
+                            EventList(
+                                events = events,
+                                isEditMode = isEditMode,
+                                reorderableState = reorderableState,
+                                onEventClick = onEventClick,
+                                onEventLongPress = onEventLongPress,
+                                onEventUpdate = onEventUpdate,
+                                onEventDelete = onEventDelete,
+                                onDeleteAllExceptLatest = onDeleteAllExceptLatest,
+                                onUpdateEventName = onUpdateEventName,
+                                fontSize = currentFontSize,
+                                onQuickAdd = onQuickAdd
+                            )
+                        }
+                    }
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 80.dp, end = Dimensions.paddingMedium),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        if (isEditMode) {
+                            DoneEditingFAB(onClick = { viewModel.setEditMode(false) })
+                        } else {
+                            AddEventFAB(onClick = { viewModel.showAddDialog() })
+                        }
+                    }
+                    
+                    if (showAddDialog) {
+                        AddEventBottomSheet(
+                            onDismiss = { viewModel.hideAddDialog() },
+                            onSave = { name, _, _ ->
+                                viewModel.addEvent(name)
+                            },
+                            showDateField = false,
+                            allInstanceDates = emptyList(),
+                            existingEventNames = events.map { it.name }
+                        )
+                    }
+                    
+                    if (eventForNewInstance != null) {
+                        AddEventBottomSheet(
+                            onDismiss = { eventForNewInstance = null },
+                            onSave = { name, date, note ->
+                                if (date != null) {
+                                    viewModel.addInstanceToEvent(
+                                        eventForNewInstance!!.id,
+                                        name,
+                                        EventInstance(date, note)
+                                    )
+                                }
+                                eventForNewInstance = null
+                            },
+                            initialName = eventForNewInstance!!.name,
+                            initialDate = java.time.LocalDate.now(),
+                            title = eventForNewInstance!!.name,
+                            buttonLabel = "Save",
+                            editableName = false,
+                            showDateField = true,
+                            dateFieldLabel = "New Instance",
+                            allInstanceDates = eventForNewInstance!!.instances.map { it.date }
+                        )
+                    }
+                    
+                    if (showUpdateDialog && eventToUpdate != null) {
+                        UpdateEventDialog(
+                            event = eventToUpdate!!,
+                            onDismiss = { viewModel.hideUpdateDialog() },
+                            onUpdate = { newName, newDate, note ->
+                                viewModel.updateEventInstance(newName, newDate, note)
+                            },
+                            onDelete = { eventId ->
+                                viewModel.removeEvent(eventId)
+                            },
+                            existingEventNames = events.map { it.name }
+                        )
+                    }
+                    
+                    if (eventPendingDelete != null) {
+                        ConfirmationDialog(
+                            onDismiss = { eventPendingDelete = null },
+                            onConfirm = {
+                                viewModel.removeEvent(eventPendingDelete!!.id)
+                                eventPendingDelete = null
+                            },
+                            title = "Delete Event",
+                            message = "Are you sure you want to delete this event?",
+                            confirmText = "Delete",
+                            isDeleteDialog = true
+                        )
+                    }
                 }
             }
         }
