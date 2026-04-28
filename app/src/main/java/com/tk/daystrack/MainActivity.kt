@@ -130,6 +130,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private sealed interface DayTrackScreen {
+    data object Home : DayTrackScreen
+    data object Details : DayTrackScreen
+    data object Settings : DayTrackScreen
+}
+
+private fun DayTrackScreen.order(): Int = when (this) {
+    DayTrackScreen.Home -> 0
+    DayTrackScreen.Details -> 1
+    DayTrackScreen.Settings -> 2
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayTrackAppWithExportImport(
@@ -188,16 +200,16 @@ fun DayTrackAppWithExportImport(
             .fillMaxSize()
             .background(Gray900)
     ) {
-        val screenKey = when {
-            showSettings -> 2
-            selectedEventForDetails != null -> 1
-            else -> 0
+        val targetScreen = when {
+            showSettings -> DayTrackScreen.Settings
+            selectedEventForDetails != null -> DayTrackScreen.Details
+            else -> DayTrackScreen.Home
         }
 
         AnimatedContent(
-            targetState = screenKey,
+            targetState = targetScreen,
             transitionSpec = {
-                if (targetState > initialState) {
+                if (targetState.order() > initialState.order()) {
                     slideInHorizontally(
                         animationSpec = tween(durationMillis = 300),
                         initialOffsetX = { fullWidth -> fullWidth }
@@ -218,9 +230,9 @@ fun DayTrackAppWithExportImport(
                 }
             },
             label = "screen_slide_transition"
-        ) { target ->
-            when (target) {
-                2 -> {
+        ) { screen ->
+            when (screen) {
+                DayTrackScreen.Settings -> {
                     BackHandler(enabled = true) {
                         showSettings = false
                     }
@@ -235,7 +247,7 @@ fun DayTrackAppWithExportImport(
                         hasEvents = events.isNotEmpty()
                     )
                 }
-                1 -> {
+                DayTrackScreen.Details -> {
                     val detailsEvent = selectedEventForDetails
                     if (detailsEvent != null) {
                         BackHandler(enabled = true) {
@@ -260,7 +272,7 @@ fun DayTrackAppWithExportImport(
                         )
                     }
                 }
-                else -> {
+                DayTrackScreen.Home -> {
                     if (isEditMode) {
                         BackHandler(enabled = true) {
                             viewModel.setEditMode(false)
@@ -370,49 +382,51 @@ fun DayTrackAppWithExportImport(
                         )
                     }
                     
-                    if (eventForNewInstance != null) {
+                    eventForNewInstance?.let { event ->
                         AddEventBottomSheet(
                             onDismiss = { eventForNewInstance = null },
                             onSave = { name, date, note ->
                                 if (date != null) {
                                     viewModel.addInstanceToEvent(
-                                        eventForNewInstance!!.id,
+                                        event.id,
                                         name,
                                         EventInstance(date, note)
                                     )
                                 }
                                 eventForNewInstance = null
                             },
-                            initialName = eventForNewInstance!!.name,
+                            initialName = event.name,
                             initialDate = java.time.LocalDate.now(),
-                            title = eventForNewInstance!!.name,
+                            title = event.name,
                             buttonLabel = "Save",
                             editableName = false,
                             showDateField = true,
                             dateFieldLabel = "New Instance",
-                            allInstanceDates = eventForNewInstance!!.instances.map { it.date }
+                            allInstanceDates = event.instances.map { it.date }
                         )
                     }
                     
-                    if (showUpdateDialog && eventToUpdate != null) {
-                        UpdateEventDialog(
-                            event = eventToUpdate!!,
-                            onDismiss = { viewModel.hideUpdateDialog() },
-                            onUpdate = { newName, newDate, note ->
-                                viewModel.updateEventInstance(newName, newDate, note)
-                            },
-                            onDelete = { eventId ->
-                                viewModel.removeEvent(eventId)
-                            },
-                            existingEventNames = events.map { it.name }
-                        )
+                    if (showUpdateDialog) {
+                        eventToUpdate?.let { event ->
+                            UpdateEventDialog(
+                                event = event,
+                                onDismiss = { viewModel.hideUpdateDialog() },
+                                onUpdate = { newName, newDate, note ->
+                                    viewModel.updateEventInstance(newName, newDate, note)
+                                },
+                                onDelete = { eventId ->
+                                    viewModel.removeEvent(eventId)
+                                },
+                                existingEventNames = events.map { it.name }
+                            )
+                        }
                     }
                     
-                    if (eventPendingDelete != null) {
+                    eventPendingDelete?.let { event ->
                         ConfirmationDialog(
                             onDismiss = { eventPendingDelete = null },
                             onConfirm = {
-                                viewModel.removeEvent(eventPendingDelete!!.id)
+                                viewModel.removeEvent(event.id)
                                 eventPendingDelete = null
                             },
                             title = "Delete Event",
