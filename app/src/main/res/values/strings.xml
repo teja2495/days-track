@@ -66,6 +66,9 @@
     <string name="event_details_interval_days_earlier">%d days earlier</string>
     <string name="event_details_interval_same_day">Same day</string>
     <string name="event_details_interval_days_later">%d days later</string>
+    <string name="event_details_color_picker_title">Event Color</string>
+    <string name="event_details_color_picker_message">Pick a color accent for this event.</string>
+    <string name="event_details_color_picker_reset">Reset</string>
     
     <!-- Add Event Dialog -->
     <string name="add_event_title">Add Event</string>
@@ -107,6 +110,7 @@
     <string name="cd_sort_options">Sort options</string>
     <string name="cd_font_size_options">Font size options</string>
     <string name="cd_add_instance">Add Instance</string>
+    <string name="cd_change_event_color">Change Event Color</string>
     <string name="cd_delete_date">Delete Date</string>
     <string name="cd_delete_note">Delete Note</string>
     

@@ -16,6 +16,8 @@ data class Event(
     val id: String = UUID.randomUUID().toString(),
     @SerializedName("name")
     val name: String,
+    @SerializedName("colorHex")
+    val colorHex: String? = null,
     @SerializedName("instances")
     val instances: List<EventInstance>
-) 
+)

@@ -55,6 +55,9 @@ fun EventListItem(
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
     val PREF_KEY = remember(event.id) { "showDaysOnlyV2_${event.id}" }
+    val eventAccent = remember(event.colorHex) { eventAccentColor(event.colorHex) }
+    val eventCardColor = remember(event.colorHex) { eventCardBackgroundColor(event.colorHex) }
+    val eventAddButtonColor = remember(event.colorHex) { eventAddButtonBackgroundColor(event.colorHex) }
     var showDaysOnly by remember {
         mutableStateOf(prefs.getBoolean(PREF_KEY, false))
     }
@@ -152,7 +155,7 @@ fun EventListItem(
             },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Gray800
+            containerColor = eventCardColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -225,7 +228,7 @@ fun EventListItem(
                             Icon(
                                 imageVector = if (eventData.isFuture) Icons.Default.Schedule else Icons.Default.CalendarToday,
                                 contentDescription = if (eventData.isFuture) stringResource(R.string.event_list_item_clock) else stringResource(R.string.event_list_item_calendar),
-                                tint = DateTextColor,
+                                tint = eventAccent,
                                 modifier = Modifier.size(sizes.iconSize)
                             )
                             Text(
@@ -233,7 +236,7 @@ fun EventListItem(
                                 style = androidx.compose.ui.text.TextStyle(
                                     fontSize = sizes.dateFontSize,
                                     lineHeight = sizes.dateFontSize * 1.5f,
-                                    color = DateTextColor
+                                    color = eventAccent
                                 )
                             )
                         }
@@ -276,7 +279,7 @@ fun EventListItem(
             } else if (showAddButton) {
                 Surface(
                     shape = CircleShape,
-                    color = ButtonColor,
+                    color = eventAddButtonColor,
                     modifier = Modifier
                         .size(sizes.buttonSize)
                         .let {

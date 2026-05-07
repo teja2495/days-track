@@ -40,6 +40,7 @@ class EventRepository(context: Context) {
             val jsonObject = com.google.gson.JsonObject()
             jsonObject.addProperty("id", src.id)
             jsonObject.addProperty("name", src.name)
+            if (!src.colorHex.isNullOrBlank()) jsonObject.addProperty("colorHex", src.colorHex)
             val instancesArray = com.google.gson.JsonArray()
             src.instances.forEach { instance ->
                 val instanceJson = com.google.gson.JsonObject()
@@ -54,6 +55,11 @@ class EventRepository(context: Context) {
             val jsonObject = json.asJsonObject
             val id = jsonObject.get("id").asString
             val name = jsonObject.get("name").asString
+            val colorHex = if (jsonObject.has("colorHex") && !jsonObject.get("colorHex").isJsonNull) {
+                jsonObject.get("colorHex").asString
+            } else {
+                null
+            }
             if (jsonObject.has("instances")) {
                 val instancesArray = jsonObject.getAsJsonArray("instances")
                 val instances = instancesArray.map { element ->
@@ -62,13 +68,13 @@ class EventRepository(context: Context) {
                     val note = if (obj.has("note")) obj.get("note").asString else null
                     EventInstance(date, note)
                 }
-                Event(id = id, name = name, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances)
             } else if (jsonObject.has("dates")) {
                 val datesArray = jsonObject.getAsJsonArray("dates")
                 val instances = datesArray.map { element ->
                     EventInstance(LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE))
                 }
-                Event(id = id, name = name, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances)
             } else {
                 val date = LocalDate.parse(jsonObject.get("date").asString, DateTimeFormatter.ISO_LOCAL_DATE)
                 val instances = mutableListOf<EventInstance>()
@@ -77,7 +83,7 @@ class EventRepository(context: Context) {
                     val previousDate = LocalDate.parse(jsonObject.get("previousDate").asString, DateTimeFormatter.ISO_LOCAL_DATE)
                     instances.add(0, EventInstance(previousDate))
                 }
-                Event(id = id, name = name, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances)
             }
         })
         .create()

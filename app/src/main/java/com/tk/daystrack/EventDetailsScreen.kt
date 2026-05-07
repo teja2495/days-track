@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -36,10 +38,7 @@ import com.tk.daystrack.components.*
 import com.tk.daystrack.ui.theme.*
 import java.time.LocalDate
 import androidx.compose.foundation.background
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
+import androidx.compose.foundation.shape.CircleShape
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import android.widget.Toast
@@ -69,6 +68,7 @@ fun EventDetailsScreen(
     val showBanner = remember { mutableStateOf(false) }
     val show50InstancesLimitBanner = remember { mutableStateOf(false) }
     val showAddInstanceSheet = remember { mutableStateOf(false) }
+    val showColorPickerDialog = remember { mutableStateOf(false) }
     val deletedInstance = remember { mutableStateOf<EventInstance?>(null) }
     val deletedNote = remember { mutableStateOf<Pair<LocalDate, String>?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -141,24 +141,29 @@ fun EventDetailsScreen(
                     }
                 },
                 actions = {
-                    if (event.instances.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 28.dp)
-                                .combinedClickable(
+                    Row(
+                        modifier = Modifier.padding(end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { showColorPickerDialog.value = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Palette,
+                                contentDescription = context.getString(R.string.cd_change_event_color),
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        if (event.instances.isNotEmpty()) {
+                            Box(
+                                modifier = Modifier.combinedClickable(
                                     onClick = { showAddInstanceSheet.value = true },
-                                    onLongClick = { 
+                                    onLongClick = {
                                         // Quick add: Long press the + button to add today's date as a new instance
                                         val today = java.time.LocalDate.now()
-                                        
-                                        // Check if today's instance already exists
+
                                         if (event.instances.any { it.date == today }) {
                                             Toast.makeText(context, context.getString(R.string.quick_add_already_exists, event.name), Toast.LENGTH_SHORT).show()
                                         } else {
                                             val newInstance = EventInstance(date = today)
-                                            val updatedEvent = event.copy(
-                                                instances = event.instances + newInstance
-                                            )
                                             if (viewModel != null) {
                                                 viewModel.addInstanceToEvent(event.id, event.name, newInstance)
                                             } else {
@@ -168,14 +173,15 @@ fun EventDetailsScreen(
                                         }
                                     }
                                 ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Add,
-                                contentDescription = context.getString(R.string.cd_add_instance),
-                                tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.size(Dimensions.iconSizeExtraLarge)
-                            )
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = context.getString(R.string.cd_add_instance),
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(Dimensions.iconSizeExtraLarge)
+                                )
+                            }
                         }
                     }
                 },
@@ -451,7 +457,7 @@ fun EventDetailsScreen(
                                                 Text(
                                                     text = intervalText,
                                                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                                    color = ThemeTextColor,
+                                                    color = eventAccentColor(event.colorHex),
                                                     modifier = Modifier.padding(top = 0.dp),
                                                     fontWeight = FontWeight.Normal
                                                 )
@@ -535,11 +541,20 @@ fun EventDetailsScreen(
                 isDeleteDialog = true
             )
         }
-        
 
-        
+        if (showColorPickerDialog.value) {
+            EventColorPickerDialog(
+                selectedColorHex = event.colorHex,
+                onColorSelected = { colorHex ->
+                    if (viewModel != null) {
+                        viewModel.updateEvent(event.copy(colorHex = colorHex))
+                    }
+                    showColorPickerDialog.value = false
+                },
+                onDismiss = { showColorPickerDialog.value = false }
+            )
+        }
 
-        
         // Always show AddEventBottomSheet if requested
         if (showAddInstanceSheet.value) {
             AddEventBottomSheet(
@@ -641,4 +656,78 @@ fun EventDetailsScreen(
             }
         }
     }
-} 
+}
+
+@Composable
+private fun EventColorPickerDialog(
+    selectedColorHex: String?,
+    onColorSelected: (String?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Gray800,
+        shape = Shapes.dialogShape,
+        title = {
+            Text(
+                text = context.getString(R.string.event_details_color_picker_title),
+                color = White,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = context.getString(R.string.event_details_color_picker_message),
+                    color = TextSecondary
+                )
+                EventColorPresets.chunked(4).forEach { rowColors ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        repeat(4) { index ->
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val preset = rowColors.getOrNull(index)
+                                if (preset != null) {
+                                    val swatchColor = eventAccentColor(preset.hex)
+                                    val isSelected = selectedColorHex.equals(preset.hex, ignoreCase = true)
+                                    Surface(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clickable { onColorSelected(preset.hex) },
+                                        shape = CircleShape,
+                                        color = swatchColor,
+                                        border = if (isSelected) {
+                                            BorderStroke(2.dp, White)
+                                        } else {
+                                            null
+                                        }
+                                    ) {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onColorSelected(null) }) {
+                Text(
+                    text = context.getString(R.string.event_details_color_picker_reset),
+                    color = ThemeTextColor
+                )
+            }
+        },
+        dismissButton = {
+            SecondaryButton(
+                onClick = onDismiss,
+                text = context.getString(R.string.action_done)
+            )
+        }
+    )
+}
