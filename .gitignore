@@ -260,6 +260,10 @@ Temporary Items
 *.exe
 *.app
 
+# Android release outputs
+app/release/output-metadata.json
+app/release/baselineProfiles/*/app-release.dm
+
 # Additional log files
 *.log.*
 *.log.gz
