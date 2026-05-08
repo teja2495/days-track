@@ -4,8 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +29,6 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import com.tk.daystrack.components.*
-import androidx.compose.ui.unit.dp
 
 data class SortOptionInfo(
     val label: String,
@@ -42,7 +47,40 @@ fun SettingsScreen(
     onImportClick: () -> Unit = {},
     hasEvents: Boolean = true
 ) {
+    var sortDialogOpen by remember { mutableStateOf(false) }
+    var fontDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val versionName = try {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        packageInfo.versionName ?: ""
+    } catch (e: Exception) {
+        ""
+    }
+
+    val openFeedbackEmail = {
+        val androidVersion = android.os.Build.VERSION.RELEASE
+        val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+        val emailBody = context.getString(R.string.feedback_body_template, versionName, androidVersion, deviceModel)
+        val subject = context.getString(R.string.feedback_subject)
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:${context.getString(R.string.feedback_email)}?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(emailBody))
+        }
+        try {
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            // Ignore if no email app is installed.
+        }
+    }
+
+    val openAuthorLink = {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://teja2495.github.io/teja-karlapudi-links/"))
+        try {
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            // Ignore if no browser is installed.
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -73,113 +111,291 @@ fun SettingsScreen(
             Text(
                 text = context.getString(R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = White
             )
         }
-        
-        // Settings content
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 0.dp),
+                .weight(1f),
             verticalArrangement = Arrangement.spacedBy(Dimensions.paddingLarge)
         ) {
-            // Sort Events Section
-            Column {
-                SectionTitle(text = context.getString(R.string.settings_sort_events))
-                CustomSortDropdown(
-                    currentSortOption = currentSortOption,
-                    onSortOptionSelected = onSortOptionSelected
-                )
-            }
-
-            // Font Size Section
-            Column {
-                SectionTitle(text = context.getString(R.string.settings_font_card_size))
-                CustomFontSizeDropdown(
-                    currentFontSize = currentFontSize,
-                    onFontSizeSelected = onFontSizeSelected
-                )
-            }
-
-            // Data Management Section
-            Column {
-                SectionTitle(text = context.getString(R.string.settings_data_backup))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.paddingMedium)
-                ) {
-                    Button(
-                        onClick = onImportClick,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Gray800)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Gray800)
+            ) {
+                Column(modifier = Modifier.padding(Dimensions.paddingLarge)) {
+                    Text(
+                        text = context.getString(R.string.settings_data_backup),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = White,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = context.getString(R.string.settings_data_backup_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(Dimensions.paddingMedium))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.paddingMedium)
                     ) {
-                        Text(context.getString(R.string.settings_import), color = White, fontWeight = FontWeight.Bold)
+                        OutlinedButton(
+                            onClick = onImportClick,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(28.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(
+                                brush = androidx.compose.ui.graphics.SolidColor(BorderColor)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudDownload,
+                                contentDescription = context.getString(R.string.settings_import),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(context.getString(R.string.settings_import), fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                if (hasEvents) {
+                                    onExportClick()
+                                } else {
+                                    Toast.makeText(context, context.getString(R.string.settings_export_no_events_toast), Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(28.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(
+                                brush = androidx.compose.ui.graphics.SolidColor(BorderColor)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudUpload,
+                                contentDescription = context.getString(R.string.settings_export),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(context.getString(R.string.settings_export), fontWeight = FontWeight.SemiBold)
+                        }
                     }
-                    Button(
-                        onClick = {
-                            if (hasEvents) {
-                                onExportClick()
-                            } else {
-                                Toast.makeText(context, context.getString(R.string.settings_export_no_events_toast), Toast.LENGTH_SHORT).show()
-                            }
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Gray800)
+            ) {
+                Column {
+                    SettingsMenuRow(
+                        title = context.getString(R.string.settings_sort_events),
+                        subtitle = when (currentSortOption) {
+                            SortOption.CUSTOM -> context.getString(R.string.sort_custom)
+                            SortOption.DATE_ASCENDING -> context.getString(R.string.sort_date_oldest_first)
+                            SortOption.DATE_DESCENDING -> context.getString(R.string.sort_date_newest_first)
+                            SortOption.ALPHABETICAL -> context.getString(R.string.sort_alphabetical)
                         },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = Gray800)
-                    ) {
-                        Text(context.getString(R.string.settings_export), color = White, fontWeight = FontWeight.Bold)
-                    }
+                        icon = Icons.Default.Sort,
+                        onClick = { sortDialogOpen = true }
+                    )
+                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
+                    SettingsMenuRow(
+                        title = context.getString(R.string.settings_font_card_size),
+                        subtitle = when (currentFontSize) {
+                            FontSize.SMALL -> context.getString(R.string.settings_font_small)
+                            FontSize.MEDIUM -> context.getString(R.string.settings_font_medium)
+                            FontSize.LARGE -> context.getString(R.string.settings_font_large)
+                        },
+                        icon = Icons.Default.TextFields,
+                        onClick = { fontDialogOpen = true }
+                    )
+                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
+                    SettingsMenuRow(
+                        title = context.getString(R.string.settings_send_feedback),
+                        subtitle = context.getString(R.string.settings_send_feedback_subtitle),
+                        icon = Icons.Default.MailOutline,
+                        onClick = openFeedbackEmail,
+                        showDivider = false
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+                ,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = context.getString(R.string.settings_version_footer, versionName),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextSecondary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Text(
+                        text = context.getString(R.string.settings_made_by_prefix),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary
+                    )
+                    Text(
+                        text = context.getString(R.string.settings_made_by_name),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = ThemeTextColor,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .padding(start = 6.dp)
+                            .clickable(onClick = openAuthorLink)
+                    )
                 }
             }
         }
-        
-        // Version and feedback section
-        Spacer(modifier = Modifier.weight(1f))
-        val versionName = try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName ?: ""
-        } catch (e: Exception) {
-            ""
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Dimensions.paddingExtraLarge),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = context.getString(R.string.settings_version, versionName),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-            Text(
-                text = "  •  ",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-            Text(
-                text = context.getString(R.string.settings_send_feedback),
-                style = MaterialTheme.typography.bodySmall,
-                color = ThemeTextColor,
-                modifier = Modifier.clickable {
-                    val androidVersion = android.os.Build.VERSION.RELEASE
-                    val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-                    val emailBody = context.getString(R.string.feedback_body_template, versionName, androidVersion, deviceModel)
-                    val subject = context.getString(R.string.feedback_subject)
-                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:${context.getString(R.string.feedback_email)}?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(emailBody))
-                    }
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        // Handle case where no email app is installed
+    }
+
+    if (sortDialogOpen) {
+        var tempSelected by remember { mutableStateOf(currentSortOption) }
+        val sortOptions = listOf(
+            SortOption.CUSTOM to SortOptionInfo(context.getString(R.string.sort_custom), context.getString(R.string.sort_custom_desc)),
+            SortOption.DATE_ASCENDING to SortOptionInfo(context.getString(R.string.sort_date_oldest_first), context.getString(R.string.sort_date_oldest_desc)),
+            SortOption.DATE_DESCENDING to SortOptionInfo(context.getString(R.string.sort_date_newest_first), context.getString(R.string.sort_date_newest_desc)),
+            SortOption.ALPHABETICAL to SortOptionInfo(context.getString(R.string.sort_alphabetical), context.getString(R.string.sort_alphabetical_desc))
+        )
+        AlertDialog(
+            onDismissRequest = { sortDialogOpen = false },
+            containerColor = Gray800,
+            title = { Text(context.getString(R.string.sort_choose_title), color = White, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    sortOptions.forEach { (option, info) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { tempSelected = option }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = tempSelected == option,
+                                onClick = { tempSelected = option },
+                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = TextSecondary)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(info.label, color = White)
+                                Text(info.description, color = TextSecondary, fontSize = 12.sp)
+                            }
+                        }
                     }
                 }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onSortOptionSelected(tempSelected)
+                    sortDialogOpen = false
+                }) { Text(context.getString(R.string.settings_ok), color = ThemeTextColor) }
+            },
+            dismissButton = {
+                TextButton(onClick = { sortDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = TextSecondary) }
+            }
+        )
+    }
+
+    if (fontDialogOpen) {
+        var tempSelected by remember { mutableStateOf(currentFontSize) }
+        val fontSizeOptions = listOf(
+            FontSize.SMALL to context.getString(R.string.settings_font_small),
+            FontSize.MEDIUM to context.getString(R.string.settings_font_medium),
+            FontSize.LARGE to context.getString(R.string.settings_font_large)
+        )
+        AlertDialog(
+            onDismissRequest = { fontDialogOpen = false },
+            containerColor = Gray800,
+            title = { Text(context.getString(R.string.settings_font_choose_title), color = White, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    fontSizeOptions.forEach { (option, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { tempSelected = option }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = tempSelected == option,
+                                onClick = { tempSelected = option },
+                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = TextSecondary)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(label, color = White)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onFontSizeSelected(tempSelected)
+                    fontDialogOpen = false
+                }) { Text(context.getString(R.string.settings_ok), color = ThemeTextColor) }
+            },
+            dismissButton = {
+                TextButton(onClick = { fontDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = TextSecondary) }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SettingsMenuRow(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    showDivider: Boolean = true
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = Dimensions.paddingLarge, vertical = 18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = TextSecondary,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = White
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
             )
         }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = title,
+            tint = TextSecondary,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 

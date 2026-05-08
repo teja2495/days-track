@@ -31,12 +31,17 @@
     <string name="settings_sort_events">Sort Events</string>
     <string name="settings_font_card_size">Font &amp; Card Size</string>
     <string name="settings_data_backup">Events Data Backup</string>
+    <string name="settings_data_backup_subtitle">Export or import your app settings</string>
     <string name="settings_import">Import</string>
     <string name="settings_export">Export</string>
 
     <string name="settings_export_no_events_toast">No events available to export</string>
     <string name="settings_version">Version %s</string>
+    <string name="settings_version_footer">Days Track v%s</string>
     <string name="settings_send_feedback">Send Feedback</string>
+    <string name="settings_send_feedback_subtitle">Report bugs or request features</string>
+    <string name="settings_made_by_prefix">Made by </string>
+    <string name="settings_made_by_name">Teja Karlapudi</string>
     <string name="settings_font_choose_title">Choose Font &amp; Card Size</string>
     <string name="settings_font_small">Small</string>
     <string name="settings_font_medium">Medium</string>
