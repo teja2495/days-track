@@ -272,8 +272,21 @@ class EventRepository(context: Context) {
     fun setFontSize(fontSize: FontSize) {
         sharedPreferences.edit().putString("fontSize", fontSize.name).apply()
     }
+
+    fun getSortOption(): SortOption {
+        val sortOptionString = sharedPreferences.getString("sortOption", "CUSTOM") ?: "CUSTOM"
+        return try {
+            SortOption.valueOf(sortOptionString)
+        } catch (e: IllegalArgumentException) {
+            SortOption.CUSTOM
+        }
+    }
+
+    fun setSortOption(sortOption: SortOption) {
+        sharedPreferences.edit().putString("sortOption", sortOption.name).apply()
+    }
     
     fun notifyWidgetsToUpdate(context: Context) {
         EventWidgetProvider.updateAllWidgets(context)
     }
-} 
+}

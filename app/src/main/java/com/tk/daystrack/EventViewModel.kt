@@ -77,8 +77,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     }
     
     init {
-        loadEvents()
+        loadSortOption()
         loadFontSize()
+        loadEvents()
     }
     
     private fun loadEvents() {
@@ -90,6 +91,10 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private fun loadFontSize() {
         _currentFontSize.value = repository.getFontSize()
+    }
+
+    private fun loadSortOption() {
+        _currentSortOption.value = repository.getSortOption()
     }
     
     fun setFontSize(fontSize: FontSize) {
@@ -182,6 +187,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     fun setSortOption(sortOption: SortOption) {
         if (_currentSortOption.value != sortOption) {
             _currentSortOption.value = sortOption
+            repository.setSortOption(sortOption)
             sortEvents()
         }
     }
@@ -194,6 +200,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
             _unsortedEvents = mutableList
             repository.saveEvents(_unsortedEvents)
             _currentSortOption.value = SortOption.CUSTOM
+            repository.setSortOption(SortOption.CUSTOM)
             sortEvents(forceNoSort = true)
             notifyWidgets()
         }
