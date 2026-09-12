@@ -32,7 +32,7 @@ fun EventList(
     onEventUpdate: (Event) -> Unit,
     onEventDelete: (String) -> Unit,
     onDeleteAllExceptLatest: (String) -> Unit,
-    onUpdateEventName: ((String, String) -> Unit)? = null,
+    onEditEvent: ((Event) -> Unit)? = null,
     fontSize: FontSize,
     modifier: Modifier = Modifier,
     showAddButton: Boolean = true,
@@ -64,7 +64,7 @@ fun EventList(
                 ),
                 // Add content padding for better scroll experience
                 contentPadding = PaddingValues(
-                    top = 8.dp,
+                    top = 0.dp,
                     bottom = 140.dp
                 ),
                 // Optimize for better performance
@@ -91,7 +91,7 @@ fun EventList(
                                 reorderableState = reorderableState,
                                 onDelete = { onEventDelete(event.id) },
                                 onDeleteAllExceptLatest = { onDeleteAllExceptLatest(event.id) },
-                                onUpdateEventName = onUpdateEventName,
+                                onEdit = onEditEvent,
                                 index = index,
                                 fontSize = fontSize,
                                 existingEventNames = existingEventNames,
@@ -108,7 +108,7 @@ fun EventList(
                             modifier = itemModifier,
                             editMode = false,
                             reorderableState = null,
-                            onUpdateEventName = onUpdateEventName,
+                            onEdit = onEditEvent,
                             index = index,
                             fontSize = fontSize,
                             existingEventNames = existingEventNames,

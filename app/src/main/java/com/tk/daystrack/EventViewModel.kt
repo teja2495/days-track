@@ -112,17 +112,26 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         context?.let { repository.notifyWidgetsToUpdate(it) }
     }
     
-    fun addEvent(name: String) {
+    fun addEvent(
+        name: String,
+        description: String? = null,
+        onSaved: ((Event) -> Unit)? = null
+    ) {
         val trimmedName = name.trim()
         if (trimmedName.isBlank()) return
         
         viewModelScope.launch {
             try {
-                val newEvent = Event(name = trimmedName, instances = emptyList())
+                val newEvent = Event(
+                    name = trimmedName,
+                    instances = emptyList(),
+                    description = description?.trim()?.ifBlank { null }
+                )
                 _unsortedEvents = repository.addEvent(newEvent)
                 sortEvents()
                 _showAddDialog.value = false
                 notifyWidgets()
+                onSaved?.invoke(newEvent)
             } catch (e: Exception) {
                 android.util.Log.e("EventViewModel", "Error adding event: ${e.message}", e)
                 // Don't hide dialog on error, let user try again

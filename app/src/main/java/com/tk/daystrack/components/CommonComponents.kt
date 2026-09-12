@@ -130,6 +130,7 @@ fun StyledOutlinedTextField(
     label: String,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    minLines: Int = 1,
     maxLines: Int = 1,
     focusRequester: androidx.compose.ui.focus.FocusRequester? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -158,6 +159,8 @@ fun StyledOutlinedTextField(
             if (focusRequester != null) it.focusRequester(focusRequester) else it 
         },
         colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Gray900.copy(alpha = 0.45f),
+            unfocusedContainerColor = Gray900.copy(alpha = 0.28f),
             focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else FocusedBorderColor,
             unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else White.copy(alpha = 0.3f),
             focusedLabelColor = if (isError) MaterialTheme.colorScheme.error else FocusedLabelColor,
@@ -167,7 +170,9 @@ fun StyledOutlinedTextField(
             unfocusedTextColor = White
         ),
         singleLine = singleLine,
+        minLines = minLines,
         maxLines = maxLines,
+        shape = Shapes.textFieldShape,
         trailingIcon = trailingIcon,
         readOnly = readOnly,
         isError = isError
@@ -213,4 +218,4 @@ fun EmptyStateMessage(
             textAlign = TextAlign.Center
         )
     }
-} 
+}

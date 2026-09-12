@@ -19,5 +19,7 @@ data class Event(
     @SerializedName("colorHex")
     val colorHex: String? = null,
     @SerializedName("instances")
-    val instances: List<EventInstance>
+    val instances: List<EventInstance>,
+    @SerializedName("description")
+    val description: String? = null
 )

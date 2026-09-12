@@ -151,6 +151,7 @@ fun DayTrackAppWithExportImport(
     onExport: () -> Unit,
     onImport: () -> Unit
 ) {
+    val context = LocalContext.current
     val events by viewModel.events.collectAsState()
     val showAddDialog by viewModel.showAddDialog.collectAsState()
     val currentSortOption by viewModel.currentSortOption.collectAsState()
@@ -166,6 +167,7 @@ fun DayTrackAppWithExportImport(
     var showSettings by remember { mutableStateOf(false) }
     var selectedEventId by remember { mutableStateOf<String?>(selectedEventIdFromWidget) }
     var eventForNewInstance by remember { mutableStateOf<Event?>(null) }
+    var eventForEdit by remember { mutableStateOf<Event?>(null) }
     var eventPendingDelete by remember { mutableStateOf<Event?>(null) }
     var triggerAddInstance by remember { mutableStateOf(false) }
 
@@ -306,15 +308,6 @@ fun DayTrackAppWithExportImport(
                             )
                         }
                         
-                        if (isEditMode) {
-                            Text(
-                                text = context.getString(R.string.main_edit_mode_hint),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary,
-                                modifier = Modifier.padding(vertical = Dimensions.paddingMedium)
-                            )
-                        }
-                        
                         if (events.isEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -338,7 +331,7 @@ fun DayTrackAppWithExportImport(
                             val onEventUpdate = remember { { event: Event -> eventForNewInstance = event } }
                             val onEventDelete = remember { { eventId: String -> viewModel.removeEvent(eventId) } }
                             val onDeleteAllExceptLatest = remember { { eventId: String -> viewModel.deleteAllInstancesExceptLatest(eventId) } }
-                            val onUpdateEventName = remember { { eventId: String, newName: String -> viewModel.updateEventName(eventId, newName) } }
+                            val onEditEvent = remember { { event: Event -> eventForEdit = event } }
                             val onQuickAdd = remember { { event: Event -> viewModel.updateEvent(event) } }
                             
                             EventList(
@@ -350,7 +343,7 @@ fun DayTrackAppWithExportImport(
                                 onEventUpdate = onEventUpdate,
                                 onEventDelete = onEventDelete,
                                 onDeleteAllExceptLatest = onDeleteAllExceptLatest,
-                                onUpdateEventName = onUpdateEventName,
+                                onEditEvent = onEditEvent,
                                 fontSize = currentFontSize,
                                 onQuickAdd = onQuickAdd
                             )
@@ -373,19 +366,42 @@ fun DayTrackAppWithExportImport(
                     if (showAddDialog) {
                         AddEventBottomSheet(
                             onDismiss = { viewModel.hideAddDialog() },
-                            onSave = { name, _, _ ->
-                                viewModel.addEvent(name)
+                            onSave = { name, description, _, _ ->
+                                viewModel.addEvent(name, description)
                             },
                             showDateField = false,
                             allInstanceDates = emptyList(),
-                            existingEventNames = events.map { it.name }
+                            existingEventNames = events.map { it.name },
+                            onSaveAndAddInstance = { name, description ->
+                                viewModel.addEvent(name, description) { event ->
+                                    eventForNewInstance = event
+                                }
+                            }
+                        )
+                    }
+
+                    eventForEdit?.let { event ->
+                        AddEventBottomSheet(
+                            onDismiss = { eventForEdit = null },
+                            onSave = { name, description, _, _ ->
+                                viewModel.updateEvent(event.copy(
+                                    name = name.trim(),
+                                    description = description
+                                ))
+                                eventForEdit = null
+                            },
+                            initialName = event.name,
+                            initialDescription = event.description.orEmpty(),
+                            title = context.getString(R.string.update_event_title),
+                            buttonLabel = context.getString(R.string.update_event_update),
+                            existingEventNames = events.filter { it.id != event.id }.map { it.name }
                         )
                     }
                     
                     eventForNewInstance?.let { event ->
                         AddEventBottomSheet(
                             onDismiss = { eventForNewInstance = null },
-                            onSave = { name, date, note ->
+                            onSave = { name, _, date, note ->
                                 if (date != null) {
                                     viewModel.addInstanceToEvent(
                                         event.id,

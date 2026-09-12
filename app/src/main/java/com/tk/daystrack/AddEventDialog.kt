@@ -3,6 +3,8 @@ package com.tk.daystrack
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
@@ -19,13 +21,15 @@ import com.tk.daystrack.ui.theme.*
 import com.tk.daystrack.components.*
 import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventBottomSheet(
     onDismiss: () -> Unit,
-    onSave: (String, LocalDate?, String?) -> Unit,
+    onSave: (String, String?, LocalDate?, String?) -> Unit,
     initialName: String = "",
+    initialDescription: String = "",
     initialDate: LocalDate = LocalDate.now(),
     title: String = "New Event",
     buttonLabel: String = "Save",
@@ -33,9 +37,11 @@ fun AddEventBottomSheet(
     showDateField: Boolean = false,
     dateFieldLabel: String = "Event Date",
     allInstanceDates: List<LocalDate> = emptyList(),
-    existingEventNames: List<String> = emptyList()
+    existingEventNames: List<String> = emptyList(),
+    onSaveAndAddInstance: ((String, String?) -> Unit)? = null
 ) {
     var eventName by remember { mutableStateOf(initialName) }
+    var eventDescription by remember { mutableStateOf(initialDescription) }
     var selectedDate by remember { mutableStateOf(initialDate) }
     var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -45,10 +51,26 @@ fun AddEventBottomSheet(
     var showDuplicateNameError by remember { mutableStateOf(false) }
     var hasAttemptedSave by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+
+    val canSave = (if (editableName) eventName.isNotBlank() else true) && !showDuplicateDateError
+
+    fun saveEvent(onSaved: (String, String?) -> Unit) {
+        if (editableName) {
+            if (eventName.isBlank()) return
+
+            hasAttemptedSave = true
+            val trimmedName = eventName.trim()
+            val isDuplicate = existingEventNames.any { it.equals(trimmedName, ignoreCase = true) }
+            if (!isDuplicate) onSaved(eventName, eventDescription.trim().ifBlank { null })
+        } else {
+            onSaved(initialName, null)
+        }
+    }
 
     // Check for duplicate date when selectedDate changes
     LaunchedEffect(selectedDate) {
@@ -94,12 +116,25 @@ fun AddEventBottomSheet(
                 .padding(Dimensions.bottomSheetPadding),
             verticalArrangement = Arrangement.spacedBy(Dimensions.spacingExtraLarge)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = White
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = White
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = context.getString(R.string.cd_close),
+                        tint = White
+                    )
+                }
+            }
 
             if (showDateField && allInstanceDates.isNotEmpty() && !noteFieldFocused) {
                 TimelineInstanceDates3(
@@ -133,6 +168,18 @@ fun AddEventBottomSheet(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
+
+                StyledOutlinedTextField(
+                    value = eventDescription,
+                    onValueChange = { value ->
+                        eventDescription = value.split('\n').take(2).joinToString("\n")
+                    },
+                    label = context.getString(R.string.add_event_description_label),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 2,
+                    maxLines = 2
+                )
             }
             
             if (showDateField) {
@@ -179,38 +226,34 @@ fun AddEventBottomSheet(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SecondaryButton(onClick = onDismiss, text = context.getString(R.string.action_cancel))
-                Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
+                if (onSaveAndAddInstance != null && editableName) {
+                    PrimaryButton(
+                        onClick = { saveEvent(onSaveAndAddInstance) },
+                        enabled = canSave,
+                        text = context.getString(R.string.add_event_save_and_add_instance)
+                    )
+                    Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
+                }
                 PrimaryButton(
                     onClick = {
-                        if (editableName) {
-                            if (eventName.isNotBlank()) {
-                                // Set hasAttemptedSave to true to trigger validation
-                                hasAttemptedSave = true
-                                
-                                // Check for duplicate name
-                                val trimmedName = eventName.trim()
-                                val isDuplicate = existingEventNames.any { it.equals(trimmedName, ignoreCase = true) }
-                                
-                                if (!isDuplicate) {
-                                    onSave(eventName, if (showDateField) selectedDate else null, note.ifBlank { null })
-                                }
-                            }
-                        } else {
-                            onSave(initialName, if (showDateField) selectedDate else null, note.ifBlank { null })
+                        saveEvent { name, description ->
+                            onSave(name, description, if (showDateField) selectedDate else null, note.ifBlank { null })
                         }
                     },
-                    enabled = (if (editableName) eventName.isNotBlank() else true) && 
-                             !showDuplicateDateError,
+                    enabled = canSave,
                     text = buttonLabel
                 )
             }
         }
     }
 
-    // Request focus when the bottom sheet is displayed
-    LaunchedEffect(Unit) {
-        if (editableName) focusRequester.requestFocus()
+    // Wait for the sheet to be on screen before opening the keyboard. Requesting
+    // focus while it is still animating in makes the keyboard arrive first.
+    LaunchedEffect(sheetState.currentValue) {
+        if (editableName && sheetState.currentValue == SheetValue.Expanded) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
 
     if (showDatePicker) {
@@ -283,7 +326,7 @@ fun TimelineConnector() {
                 shape = RoundedCornerShape(50)
             )
     )
-} 
+}
 
 // Add new composable for 3-item timeline
 @Composable

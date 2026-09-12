@@ -136,7 +136,7 @@ fun WidgetConfigScreen(
                 onEventUpdate = { /* No update action needed for widget config */ },
                 onEventDelete = { /* No delete action needed for widget config */ },
                 onDeleteAllExceptLatest = { /* No delete all except latest action needed for widget config */ },
-                onUpdateEventName = null,
+                onEditEvent = null,
                 fontSize = FontSize.MEDIUM,
                 modifier = Modifier.fillMaxSize(),
                 showAddButton = false,

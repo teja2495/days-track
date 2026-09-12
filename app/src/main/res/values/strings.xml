@@ -6,7 +6,6 @@
     <string name="main_empty_state_title">No events yet</string>
     <string name="main_empty_state_message">Tap the Add Event button to add your first event and start tracking dates</string>
     <string name="main_edit_hint">Hint: Long press an event to enter edit mode, where you can delete and reorder events.</string>
-    <string name="main_edit_mode_hint">Tap on the event name to edit it</string>
     <string name="main_toggle_date_hint">Hint: Tap the date text to switch between days and months/years.</string>
     <string name="main_import_warning_title">Warning</string>
     <string name="main_import_warning_message">Importing will overwrite all your existing events data. Are you sure you want to continue?</string>
@@ -55,7 +54,7 @@
     <string name="event_details_average_frequency">Average frequency: %s days</string>
     <string name="event_details_instances_count">%d instances</string>
     <string name="event_details_note_hint">Hint: Tap on the instance card to add a note for it.</string>
-    <string name="event_details_50_instances_limit_hint">You\'ve reached the 50 instances limit for this event, your oldest events will be overwritten by new instances.</string>
+    <string name="event_details_instances_limit_hint">You\'ve reached the 500 instances limit for this event. Your oldest instances will be overwritten by new ones.</string>
     <string name="event_details_add_note">Add note</string>
     <string name="event_details_edit_note">Edit Note</string>
     <string name="event_details_note_label">Note</string>
@@ -78,9 +77,11 @@
     <!-- Add Event Dialog -->
     <string name="add_event_title">Add Event</string>
     <string name="add_event_name_label">Event Name</string>
+    <string name="add_event_description_label">Description (Optional)</string>
     <string name="add_event_date_label">Date</string>
     <string name="add_event_note_label">Note (Optional)</string>
     <string name="add_event_save">Save</string>
+    <string name="add_event_save_and_add_instance">Save and Add Instance</string>
     <string name="add_event_new_instance_label">New Instance</string>
     <string name="add_event_duplicate_date_error">This date already exists for this event</string>
     <string name="add_event_duplicate_name_error">An event with this name already exists</string>

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -66,7 +67,7 @@ fun EventDetailsScreen(
     val context = LocalContext.current
     val repository = remember { EventRepository(context) }
     val showBanner = remember { mutableStateOf(false) }
-    val show50InstancesLimitBanner = remember { mutableStateOf(false) }
+    val showInstancesLimitBanner = remember { mutableStateOf(false) }
     val showAddInstanceSheet = remember { mutableStateOf(false) }
     val showColorPickerDialog = remember { mutableStateOf(false) }
     val deletedInstance = remember { mutableStateOf<EventInstance?>(null) }
@@ -76,7 +77,8 @@ fun EventDetailsScreen(
     
     LaunchedEffect(Unit) {
         showBanner.value = !repository.getHasSeenNoteHintBanner()
-        show50InstancesLimitBanner.value = !repository.getHasSeen50InstancesLimitHint() && event.instances.size >= 50
+        showInstancesLimitBanner.value = !repository.getHasSeenInstancesLimitHint() &&
+            event.instances.size >= EventRepository.MAX_INSTANCE_COUNT
     }
     
     // Trigger add instance dialog if requested
@@ -251,12 +253,12 @@ fun EventDetailsScreen(
                             )
                         }
                         
-                        if (show50InstancesLimitBanner.value) {
+                        if (showInstancesLimitBanner.value) {
                             HintBanner(
-                                message = context.getString(R.string.event_details_50_instances_limit_hint),
+                                message = context.getString(R.string.event_details_instances_limit_hint),
                                 onDismiss = {
-                                    show50InstancesLimitBanner.value = false
-                                    repository.setHasSeen50InstancesLimitHint(true)
+                                    showInstancesLimitBanner.value = false
+                                    repository.setHasSeenInstancesLimitHint(true)
                                 }
                             )
                         }
@@ -305,9 +307,11 @@ fun EventDetailsScreen(
                             ) {
                                 items(sortedInstances.size) { index ->
                                     val instance = sortedInstances[index]
+                                    val instanceCardShape = Shapes.cardShape
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
+                                            .clip(instanceCardShape)
                                             .clickable {
                                                 val note = instance.note ?: ""
                                                 editingNoteText.value = note
@@ -317,7 +321,8 @@ fun EventDetailsScreen(
                                             },
                                         colors = CardDefaults.cardColors(
                                             containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                        )
+                                        ),
+                                        shape = instanceCardShape
                                     ) {
                                         Column(
                                             modifier = Modifier
@@ -375,11 +380,16 @@ fun EventDetailsScreen(
                                     
                                     // Show note in a separate card extending from the date card
                                     if (!instance.note.isNullOrBlank()) {
+                                        val noteCardShape = RoundedCornerShape(
+                                            bottomStart = Dimensions.cardCornerRadius,
+                                            bottomEnd = Dimensions.cardCornerRadius
+                                        )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(start = 12.dp, end = 12.dp)
+                                                .clip(noteCardShape)
                                                 .clickable {
                                                     val note = instance.note ?: ""
                                                     editingNoteText.value = note
@@ -390,7 +400,7 @@ fun EventDetailsScreen(
                                             colors = CardDefaults.cardColors(
                                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                                             ),
-                                            shape = RoundedCornerShape(bottomStart = Dimensions.cardCornerRadius, bottomEnd = Dimensions.cardCornerRadius)
+                                            shape = noteCardShape
                                         ) {
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -559,7 +569,7 @@ fun EventDetailsScreen(
         if (showAddInstanceSheet.value) {
             AddEventBottomSheet(
                 onDismiss = { showAddInstanceSheet.value = false },
-                onSave = { name, date, note ->
+                onSave = { name, _, date, note ->
                     if (date != null && viewModel != null) {
                         viewModel.addInstanceToEvent(
                             event.id,

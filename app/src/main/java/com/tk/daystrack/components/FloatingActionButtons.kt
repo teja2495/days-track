@@ -1,6 +1,7 @@
 package com.tk.daystrack.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.daystrack.ui.theme.*
@@ -59,14 +59,14 @@ fun DoneEditingFAB(
     ExtendedFloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(50),
-        containerColor = PrimaryLightColor,
-        contentColor = Color.Black,
+        containerColor = Gray900,
+        contentColor = White,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp,
             hoveredElevation = 10.dp
         ),
-        modifier = modifier,
+        modifier = modifier.border(1.dp, PrimaryColor, RoundedCornerShape(50)),
         icon = {
             Icon(
                 imageVector = Icons.Default.Check,

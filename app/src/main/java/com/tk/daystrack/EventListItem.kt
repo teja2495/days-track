@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import androidx.compose.ui.focus.focusRequester
@@ -45,7 +47,7 @@ fun EventListItem(
     reorderableState: ReorderableLazyListState? = null,
     onDelete: (() -> Unit)? = null,
     onDeleteAllExceptLatest: (() -> Unit)? = null,
-    onUpdateEventName: ((String, String) -> Unit)? = null,
+    onEdit: ((Event) -> Unit)? = null,
     index: Int = 0,
     fontSize: FontSize = FontSize.MEDIUM,
     existingEventNames: List<String> = emptyList(),
@@ -135,16 +137,13 @@ fun EventListItem(
         )
     }
     
-    var showEditNameSheet by remember { mutableStateOf(false) }
-    var editedName by remember { mutableStateOf(event.name) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDeleteAllExceptLatestDialog by remember { mutableStateOf(false) }
-    var showDuplicateNameError by remember { mutableStateOf(false) }
-    var hasAttemptedSave by remember { mutableStateOf(false) }
     
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
             .let {
                 if (onClick != null || onLongPress != null) {
                     it.combinedClickable(
@@ -189,10 +188,9 @@ fun EventListItem(
                         text = event.name,
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = sizes.titleFontSize),
                         fontWeight = FontWeight.Bold,
-                        color = ThemeTextColor,
+                        color = White,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.clickable { showEditNameSheet = true }
+                        overflow = TextOverflow.Ellipsis
                     )
                 } else {
                     Text(
@@ -201,6 +199,16 @@ fun EventListItem(
                         fontWeight = FontWeight.Bold,
                         color = White,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                event.description?.takeIf { it.isNotBlank() }?.let { description ->
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -253,28 +261,35 @@ fun EventListItem(
                 }
             }
             
-            // Trailing icon: + (normal) or delete (edit mode)
+            // Trailing icons: edit and delete in edit mode, or + normally.
             if (editMode) {
-                Box(
-                    modifier = Modifier
-                        .size(sizes.buttonSize)
-                        .padding(start = 8.dp)
-                        .combinedClickable(
-                            onClick = { showDeleteDialog = true },
-                            onLongClick = { 
-                                if (event.instances.size > 1) {
-                                    showDeleteAllExceptLatestDialog = true
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { onEdit?.invoke(event) }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.event_list_item_update_event),
+                            tint = White
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(sizes.buttonSize)
+                            .padding(start = 8.dp)
+                            .combinedClickable(
+                                onClick = { showDeleteDialog = true },
+                                onLongClick = {
+                                    if (event.instances.size > 1) showDeleteAllExceptLatestDialog = true
                                 }
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.event_list_item_delete_event),
-                        tint = DeleteButtonColor,
-                        modifier = Modifier.size(24.dp)
-                    )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.event_list_item_delete_event),
+                            tint = DeleteButtonColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             } else if (showAddButton) {
                 Surface(
@@ -282,6 +297,7 @@ fun EventListItem(
                     color = eventAddButtonColor,
                     modifier = Modifier
                         .size(sizes.buttonSize)
+                        .clip(CircleShape)
                         .let {
                             if (onQuickAdd != null) {
                                 it.combinedClickable(
@@ -319,122 +335,6 @@ fun EventListItem(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                }
-            }
-        }
-    }
-    
-    if (showEditNameSheet) {
-        val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
-        val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
-        val sheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = true
-        )
-        
-        LaunchedEffect(showEditNameSheet) {
-            if (showEditNameSheet) {
-                focusRequester.requestFocus()
-                keyboardController?.show()
-            }
-        }
-        
-        // Scroll to maximum when error appears
-        LaunchedEffect(showDuplicateNameError) {
-            if (showDuplicateNameError) {
-                sheetState.expand()
-            }
-        }
-        
-        // Check for duplicate name when editedName changes (only if user has attempted to save)
-        LaunchedEffect(editedName, hasAttemptedSave) {
-            if (hasAttemptedSave) {
-                val trimmedName = editedName.trim()
-                // Exclude the current event from the duplicate check
-                val otherEventNames = existingEventNames.filter { it != event.name }
-                showDuplicateNameError = trimmedName.isNotBlank() && 
-                    otherEventNames.any { it.equals(trimmedName, ignoreCase = true) }
-            } else {
-                showDuplicateNameError = false
-            }
-        }
-        
-        ModalBottomSheet(
-            onDismissRequest = { showEditNameSheet = false },
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            containerColor = Gray800,
-            tonalElevation = 4.dp,
-            dragHandle = {},
-            sheetState = sheetState
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.event_list_item_edit_name_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = White
-                )
-                
-                StyledOutlinedTextField(
-                    value = editedName,
-                    onValueChange = { 
-                        editedName = it
-                        // Reset validation when user edits the name
-                        if (hasAttemptedSave) {
-                            hasAttemptedSave = false
-                        }
-                    },
-                    label = stringResource(R.string.event_list_item_name_label),
-                    modifier = Modifier.fillMaxWidth(),
-                    focusRequester = focusRequester,
-                    isError = showDuplicateNameError
-                )
-                
-                // Show error message if duplicate name
-                if (showDuplicateNameError) {
-                    Text(
-                        text = stringResource(R.string.add_event_duplicate_name_error),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                    )
-                }
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SecondaryButton(onClick = { showEditNameSheet = false }, text = stringResource(R.string.event_list_item_cancel))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    PrimaryButton(
-                        onClick = {
-                            val trimmed = editedName.trim()
-                            if (trimmed.isNotBlank()) {
-                                // Set hasAttemptedSave to true to trigger validation
-                                hasAttemptedSave = true
-                                
-                                // Check for duplicate name (excluding current event)
-                                val otherEventNames = existingEventNames.filter { it != event.name }
-                                val isDuplicate = otherEventNames.any { it.equals(trimmed, ignoreCase = true) }
-                                
-                                if (!isDuplicate) {
-                                    showEditNameSheet = false
-                                    if (editMode && onUpdateEventName != null) {
-                                        onUpdateEventName(event.id, trimmed)
-                                    } else {
-                                        onUpdate(event.copy(name = trimmed))
-                                    }
-                                }
-                            }
-                        },
-                        enabled = editedName.trim().isNotBlank(),
-                        text = stringResource(R.string.event_list_item_save)
-                    )
                 }
             }
         }

@@ -13,6 +13,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class EventRepository(context: Context) {
+
+    companion object {
+        // Stored locally and rendered with a LazyColumn, so this remains a modest per-event payload.
+        const val MAX_INSTANCE_COUNT = 500
+    }
     
     private val sharedPreferences: SharedPreferences = 
         context.getSharedPreferences("events_prefs", Context.MODE_PRIVATE)
@@ -41,6 +46,7 @@ class EventRepository(context: Context) {
             jsonObject.addProperty("id", src.id)
             jsonObject.addProperty("name", src.name)
             if (!src.colorHex.isNullOrBlank()) jsonObject.addProperty("colorHex", src.colorHex)
+            if (!src.description.isNullOrBlank()) jsonObject.addProperty("description", src.description)
             val instancesArray = com.google.gson.JsonArray()
             src.instances.forEach { instance ->
                 val instanceJson = com.google.gson.JsonObject()
@@ -60,6 +66,11 @@ class EventRepository(context: Context) {
             } else {
                 null
             }
+            val description = if (jsonObject.has("description") && !jsonObject.get("description").isJsonNull) {
+                jsonObject.get("description").asString
+            } else {
+                null
+            }
             if (jsonObject.has("instances")) {
                 val instancesArray = jsonObject.getAsJsonArray("instances")
                 val instances = instancesArray.map { element ->
@@ -68,13 +79,13 @@ class EventRepository(context: Context) {
                     val note = if (obj.has("note")) obj.get("note").asString else null
                     EventInstance(date, note)
                 }
-                Event(id = id, name = name, colorHex = colorHex, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances, description = description)
             } else if (jsonObject.has("dates")) {
                 val datesArray = jsonObject.getAsJsonArray("dates")
                 val instances = datesArray.map { element ->
                     EventInstance(LocalDate.parse(element.asString, DateTimeFormatter.ISO_LOCAL_DATE))
                 }
-                Event(id = id, name = name, colorHex = colorHex, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances, description = description)
             } else {
                 val date = LocalDate.parse(jsonObject.get("date").asString, DateTimeFormatter.ISO_LOCAL_DATE)
                 val instances = mutableListOf<EventInstance>()
@@ -83,7 +94,7 @@ class EventRepository(context: Context) {
                     val previousDate = LocalDate.parse(jsonObject.get("previousDate").asString, DateTimeFormatter.ISO_LOCAL_DATE)
                     instances.add(0, EventInstance(previousDate))
                 }
-                Event(id = id, name = name, colorHex = colorHex, instances = instances)
+                Event(id = id, name = name, colorHex = colorHex, instances = instances, description = description)
             }
         })
         .create()
@@ -142,8 +153,8 @@ class EventRepository(context: Context) {
         if (index != -1) {
             val event = currentEvents[index]
             val updatedInstances = if (event.instances.isEmpty() || !event.instances.any { it.date == newInstance.date }) {
-                // Check if adding this instance would exceed 50 instances
-                if (event.instances.size >= 50) {
+                // Keep the most recent MAX_INSTANCE_COUNT instances for each event.
+                if (event.instances.size >= MAX_INSTANCE_COUNT) {
                     // Find the oldest instance and replace it with the new one
                     val sortedInstances = event.instances.sortedBy { it.date }
                     val oldestInstance = sortedInstances.first()
@@ -252,12 +263,12 @@ class EventRepository(context: Context) {
         sharedPreferences.edit().putBoolean("hasSeenToggleDateHint", value).apply()
     }
     
-    fun getHasSeen50InstancesLimitHint(): Boolean {
-        return sharedPreferences.getBoolean("hasSeen50InstancesLimitHint", false)
+    fun getHasSeenInstancesLimitHint(): Boolean {
+        return sharedPreferences.getBoolean("hasSeenInstancesLimitHint", false)
     }
     
-    fun setHasSeen50InstancesLimitHint(value: Boolean) {
-        sharedPreferences.edit().putBoolean("hasSeen50InstancesLimitHint", value).apply()
+    fun setHasSeenInstancesLimitHint(value: Boolean) {
+        sharedPreferences.edit().putBoolean("hasSeenInstancesLimitHint", value).apply()
     }
     
     fun getFontSize(): FontSize {

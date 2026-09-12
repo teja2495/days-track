@@ -7,12 +7,10 @@ import java.time.LocalDate
 class EventRepositoryTest {
     
     @Test
-    fun testReplaceOldestInstanceWhenOver50Instances() {
-        // Create an event with 50 instances
-        val instances = (1..31).map { day ->
-            EventInstance(LocalDate.of(2023, 1, day))
-        } + (1..19).map { day ->
-            EventInstance(LocalDate.of(2023, 2, day))
+    fun testReplaceOldestInstanceWhenAtLimit() {
+        val firstDate = LocalDate.of(2023, 1, 1)
+        val instances = List(EventRepository.MAX_INSTANCE_COUNT) { day ->
+            EventInstance(firstDate.plusDays(day.toLong()))
         }
         
         val event = Event(
@@ -22,10 +20,10 @@ class EventRepositoryTest {
         )
         
         // Create a new instance to add
-        val newInstance = EventInstance(LocalDate.of(2023, 12, 31))
+        val newInstance = EventInstance(LocalDate.of(2025, 12, 31))
         
         // Simulate the logic from updateEvent method
-        val updatedInstances = if (event.instances.size >= 50) {
+        val updatedInstances = if (event.instances.size >= EventRepository.MAX_INSTANCE_COUNT) {
             // Find the oldest instance and replace it with the new one
             val sortedInstances = event.instances.sortedBy { it.date }
             val oldestInstance = sortedInstances.first()
@@ -37,22 +35,20 @@ class EventRepositoryTest {
         }
         
         // Verify the result
-        assertEquals(50, updatedInstances.size) // Should still have 50 instances
+        assertEquals(EventRepository.MAX_INSTANCE_COUNT, updatedInstances.size)
         assertTrue(updatedInstances.contains(newInstance)) // Should contain the new instance
-        assertFalse(updatedInstances.contains(EventInstance(LocalDate.of(2023, 1, 1)))) // Oldest instance should be replaced
+        assertFalse(updatedInstances.contains(EventInstance(firstDate))) // Oldest instance should be replaced
         
         // Verify the oldest instance is now the second oldest from original
         val sortedUpdatedInstances = updatedInstances.sortedBy { it.date }
-        assertEquals(LocalDate.of(2023, 1, 2), sortedUpdatedInstances.first().date)
+        assertEquals(firstDate.plusDays(1), sortedUpdatedInstances.first().date)
     }
     
     @Test
-    fun testNormalAdditionWhenUnder50Instances() {
-        // Create an event with 49 instances
-        val instances = (1..31).map { day ->
-            EventInstance(LocalDate.of(2023, 1, day))
-        } + (1..18).map { day ->
-            EventInstance(LocalDate.of(2023, 2, day))
+    fun testNormalAdditionWhenUnderLimit() {
+        val firstDate = LocalDate.of(2023, 1, 1)
+        val instances = List(EventRepository.MAX_INSTANCE_COUNT - 1) { day ->
+            EventInstance(firstDate.plusDays(day.toLong()))
         }
         
         val event = Event(
@@ -62,10 +58,10 @@ class EventRepositoryTest {
         )
         
         // Create a new instance to add
-        val newInstance = EventInstance(LocalDate.of(2023, 12, 31))
+        val newInstance = EventInstance(LocalDate.of(2025, 12, 31))
         
         // Simulate the logic from updateEvent method
-        val updatedInstances = if (event.instances.size >= 50) {
+        val updatedInstances = if (event.instances.size >= EventRepository.MAX_INSTANCE_COUNT) {
             // Find the oldest instance and replace it with the new one
             val sortedInstances = event.instances.sortedBy { it.date }
             val oldestInstance = sortedInstances.first()
@@ -77,8 +73,8 @@ class EventRepositoryTest {
         }
         
         // Verify the result
-        assertEquals(50, updatedInstances.size) // Should now have 50 instances
+        assertEquals(EventRepository.MAX_INSTANCE_COUNT, updatedInstances.size)
         assertTrue(updatedInstances.contains(newInstance)) // Should contain the new instance
-        assertTrue(updatedInstances.contains(EventInstance(LocalDate.of(2023, 1, 1)))) // Oldest instance should still be there
+        assertTrue(updatedInstances.contains(EventInstance(firstDate))) // Oldest instance should still be there
     }
-} 
+}

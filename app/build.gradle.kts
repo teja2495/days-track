@@ -12,8 +12,8 @@ android {
         applicationId = "com.tk.daystrack"
         minSdk = 24
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.5"
+        versionCode = 14
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
