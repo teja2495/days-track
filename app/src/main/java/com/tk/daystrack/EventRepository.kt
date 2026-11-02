@@ -271,6 +271,14 @@ class EventRepository(context: Context) {
         sharedPreferences.edit().putBoolean("hasSeenInstancesLimitHint", value).apply()
     }
     
+    fun getNotificationsEnabled(): Boolean {
+        return sharedPreferences.getBoolean("notificationsEnabled", false)
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean("notificationsEnabled", enabled).apply()
+    }
+
     fun getFontSize(): FontSize {
         val fontSizeString = sharedPreferences.getString("fontSize", "MEDIUM") ?: "MEDIUM"
         return try {

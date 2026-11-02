@@ -39,6 +39,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _currentFontSize = MutableStateFlow(FontSize.MEDIUM)
     val currentFontSize: StateFlow<FontSize> = _currentFontSize.asStateFlow()
+
+    private val _notificationsEnabled = MutableStateFlow(false)
+    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
     
     private val _showUpdateDialog = MutableStateFlow(false)
     val showUpdateDialog: StateFlow<Boolean> = _showUpdateDialog.asStateFlow()
@@ -79,6 +82,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     init {
         loadSortOption()
         loadFontSize()
+        loadNotificationsEnabled()
         loadEvents()
     }
     
@@ -91,6 +95,15 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private fun loadFontSize() {
         _currentFontSize.value = repository.getFontSize()
+    }
+
+    private fun loadNotificationsEnabled() {
+        _notificationsEnabled.value = repository.getNotificationsEnabled()
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        _notificationsEnabled.value = enabled
+        repository.setNotificationsEnabled(enabled)
     }
 
     private fun loadSortOption() {

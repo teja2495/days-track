@@ -27,6 +27,9 @@
     
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_subtitle">Get notified about upcoming events</string>
+    <string name="settings_notifications_alarm_warning">Alarms &amp; Reminders access is needed for precise notifications. Tap to grant.</string>
     <string name="settings_sort_events">Sort Events</string>
     <string name="settings_font_card_size">Font &amp; Card Size</string>
     <string name="settings_data_backup">Events Data Backup</string>

@@ -1,34 +1,47 @@
 package com.tk.daystrack
 
+import android.Manifest
+import android.app.AlarmManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
-import com.tk.daystrack.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.tk.daystrack.components.*
+import com.tk.daystrack.ui.theme.*
 
 data class SortOptionInfo(
     val label: String,
@@ -42,6 +55,8 @@ fun SettingsScreen(
     onSortOptionSelected: (SortOption) -> Unit,
     currentFontSize: FontSize,
     onFontSizeSelected: (FontSize) -> Unit,
+    notificationsEnabled: Boolean,
+    onNotificationsToggled: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onExportClick: () -> Unit = {},
     onImportClick: () -> Unit = {},
@@ -50,6 +65,59 @@ fun SettingsScreen(
     var sortDialogOpen by remember { mutableStateOf(false) }
     var fontDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val notifPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            onNotificationsToggled(true)
+            requestExactAlarmPermissionIfNeeded(context)
+        } else {
+            onNotificationsToggled(false)
+        }
+    }
+
+    fun handleNotificationsToggle(checked: Boolean) {
+        if (!checked) {
+            onNotificationsToggled(false)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission) {
+                notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return
+            }
+        }
+        onNotificationsToggled(true)
+        requestExactAlarmPermissionIfNeeded(context)
+    }
+
+    fun needsAlarmPermission(): Boolean {
+        if (!notificationsEnabled) return false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        return !alarmManager.canScheduleExactAlarms()
+    }
+
+    var showAlarmWarning by remember { mutableStateOf(needsAlarmPermission()) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                showAlarmWarning = needsAlarmPermission()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(notificationsEnabled) {
+        showAlarmWarning = needsAlarmPermission()
+    }
     val versionName = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         packageInfo.versionName ?: ""
@@ -195,6 +263,29 @@ fun SettingsScreen(
                 colors = CardDefaults.cardColors(containerColor = Gray800)
             ) {
                 Column {
+                    SettingsToggleRow(
+                        title = context.getString(R.string.settings_notifications),
+                        subtitle = context.getString(R.string.settings_notifications_subtitle),
+                        icon = Icons.Default.Notifications,
+                        checked = notificationsEnabled,
+                        onCheckedChange = { handleNotificationsToggle(it) }
+                    )
+                    if (showAlarmWarning) {
+                        Text(
+                            text = context.getString(R.string.settings_notifications_alarm_warning),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFFBBF24),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { requestExactAlarmPermissionIfNeeded(context) }
+                                .padding(
+                                    start = Dimensions.paddingLarge + 22.dp + 16.dp,
+                                    end = Dimensions.paddingLarge,
+                                    bottom = 14.dp
+                                )
+                        )
+                    }
+                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
                     SettingsMenuRow(
                         title = context.getString(R.string.settings_sort_events),
                         subtitle = when (currentSortOption) {
@@ -396,6 +487,66 @@ private fun SettingsMenuRow(
             tint = TextSecondary,
             modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+@Composable
+private fun SettingsToggleRow(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = Dimensions.paddingLarge, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = TextSecondary,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = White
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = White,
+                checkedTrackColor = ThemeTextColor,
+                uncheckedThumbColor = TextSecondary,
+                uncheckedTrackColor = Gray700
+            )
+        )
+    }
+}
+
+private fun requestExactAlarmPermissionIfNeeded(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (!alarmManager.canScheduleExactAlarms()) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.parse("package:${context.packageName}")
+            }
+            context.startActivity(intent)
+        }
     }
 }
 

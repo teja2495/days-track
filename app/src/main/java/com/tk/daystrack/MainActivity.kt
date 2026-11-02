@@ -156,6 +156,7 @@ fun DayTrackAppWithExportImport(
     val showAddDialog by viewModel.showAddDialog.collectAsState()
     val currentSortOption by viewModel.currentSortOption.collectAsState()
     val currentFontSize by viewModel.currentFontSize.collectAsState()
+    val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
@@ -244,6 +245,8 @@ fun DayTrackAppWithExportImport(
                         onSortOptionSelected = { viewModel.setSortOption(it) },
                         currentFontSize = currentFontSize,
                         onFontSizeSelected = { viewModel.setFontSize(it) },
+                        notificationsEnabled = notificationsEnabled,
+                        onNotificationsToggled = { viewModel.setNotificationsEnabled(it) },
                         onExportClick = onExport,
                         onImportClick = onImport,
                         hasEvents = events.isNotEmpty()
