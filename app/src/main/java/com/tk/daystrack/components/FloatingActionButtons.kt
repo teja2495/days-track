@@ -27,7 +27,7 @@ fun AddEventFAB(
         onClick = onClick,
         shape = RoundedCornerShape(50),
         containerColor = PrimaryColor,
-        contentColor = Gray900,
+        contentColor = ButtonContentColor,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp,
@@ -59,8 +59,8 @@ fun DoneEditingFAB(
     ExtendedFloatingActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(50),
-        containerColor = Gray900,
-        contentColor = White,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp,

@@ -26,7 +26,7 @@ import com.tk.daystrack.components.EventList
 import com.tk.daystrack.components.AppHeader
 import com.tk.daystrack.components.EmptyStateMessage
 import com.tk.daystrack.FontSize
-import com.tk.daystrack.ui.theme.Gray900
+import com.tk.daystrack.ui.theme.DayTrackTheme
 import com.tk.daystrack.ui.theme.Dimensions
 
 class WidgetConfigActivity : ComponentActivity() {
@@ -50,10 +50,10 @@ class WidgetConfigActivity : ComponentActivity() {
         }
         
         setContent {
-            MaterialTheme {
+            DayTrackTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Gray900
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     WidgetConfigScreen(
                         appWidgetId = appWidgetId,
@@ -111,7 +111,7 @@ fun WidgetConfigScreen(
                 text = context.getString(R.string.widget_config_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = Dimensions.paddingSmall, top = 16.dp, bottom = 16.dp)
             )
         }

@@ -29,7 +29,7 @@ fun AppHeader(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = White,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(start = Dimensions.paddingSmall)
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -41,7 +41,7 @@ fun AppHeader(
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
-                    tint = White,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(Dimensions.iconSizeLarge)
                 )
             }

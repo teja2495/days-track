@@ -1,6 +1,8 @@
 package com.tk.daystrack.ui.theme
 
 import android.graphics.Color as AndroidColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 
@@ -24,17 +26,28 @@ val EventColorPresets = listOf(
 )
 
 fun eventAccentColor(colorHex: String?): Color {
-    return colorHex.toComposeColorOrNull() ?: ThemeTextColor
+    return colorHex.toComposeColorOrNull() ?: Emerald400
 }
 
+// Accent used for text/icons on event cards; darkened in light mode to keep contrast
+@Composable
+fun eventTextAccentColor(colorHex: String?): Color {
+    val accent = colorHex.toComposeColorOrNull() ?: return ThemeTextColor
+    return if (isDarkScheme) accent else lerp(accent, Color.Black, 0.45f)
+}
+
+@Composable
 fun eventCardBackgroundColor(colorHex: String?): Color {
-    val accent = colorHex.toComposeColorOrNull() ?: return Gray800
-    return lerp(Gray800, accent, 0.22f)
+    val base = MaterialTheme.colorScheme.surface
+    val accent = colorHex.toComposeColorOrNull() ?: return base
+    return lerp(base, accent, if (isDarkScheme) 0.22f else 0.16f)
 }
 
+@Composable
 fun eventAddButtonBackgroundColor(colorHex: String?): Color {
-    val accent = colorHex.toComposeColorOrNull() ?: return ButtonColor
-    return lerp(ButtonColor, accent, 0.7f)
+    val base = if (isDarkScheme) ButtonColor else MaterialTheme.colorScheme.surfaceVariant
+    val accent = colorHex.toComposeColorOrNull() ?: return base
+    return lerp(base, accent, if (isDarkScheme) 0.7f else 0.45f)
 }
 
 private fun String?.toComposeColorOrNull(): Color? {

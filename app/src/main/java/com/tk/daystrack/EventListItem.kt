@@ -57,9 +57,9 @@ fun EventListItem(
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("event_list_item_prefs", Context.MODE_PRIVATE) }
     val PREF_KEY = remember(event.id) { "showDaysOnlyV2_${event.id}" }
-    val eventAccent = remember(event.colorHex) { eventAccentColor(event.colorHex) }
-    val eventCardColor = remember(event.colorHex) { eventCardBackgroundColor(event.colorHex) }
-    val eventAddButtonColor = remember(event.colorHex) { eventAddButtonBackgroundColor(event.colorHex) }
+    val eventAccent = eventTextAccentColor(event.colorHex)
+    val eventCardColor = eventCardBackgroundColor(event.colorHex)
+    val eventAddButtonColor = eventAddButtonBackgroundColor(event.colorHex)
     var showDaysOnly by remember {
         mutableStateOf(prefs.getBoolean(PREF_KEY, false))
     }
@@ -169,7 +169,7 @@ fun EventListItem(
                 Icon(
                     imageVector = Icons.Filled.DragHandle,
                     contentDescription = stringResource(R.string.event_list_item_drag_handle),
-                    tint = White,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(sizes.dragHandleSize)
                         .padding(end = 16.dp)
@@ -188,7 +188,7 @@ fun EventListItem(
                         text = event.name,
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = sizes.titleFontSize),
                         fontWeight = FontWeight.Bold,
-                        color = White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -197,7 +197,7 @@ fun EventListItem(
                         text = event.name,
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = sizes.titleFontSize),
                         fontWeight = FontWeight.Bold,
-                        color = White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -207,7 +207,7 @@ fun EventListItem(
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -268,7 +268,7 @@ fun EventListItem(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.event_list_item_update_event),
-                            tint = White
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Box(
@@ -331,7 +331,7 @@ fun EventListItem(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = stringResource(R.string.event_list_item_update_event),
-                            tint = White,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
                         )
                     }

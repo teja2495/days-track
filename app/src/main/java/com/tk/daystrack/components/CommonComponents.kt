@@ -35,9 +35,9 @@ fun PrimaryButton(
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
             containerColor = ButtonContainerColor,
-            contentColor = Color.Black,
+            contentColor = ButtonContentColor,
             disabledContainerColor = ButtonDisabledColor,
-            disabledContentColor = Color.Black.copy(alpha = 0.7f)
+            disabledContentColor = ButtonContentColor.copy(alpha = 0.7f)
         ),
         shape = Shapes.buttonShape
     ) {
@@ -59,7 +59,7 @@ fun SecondaryButton(
         onClick = onClick,
         modifier = modifier
     ) {
-        Text(text, color = White.copy(alpha = 0.7f))
+        Text(text, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
     }
 }
 
@@ -73,7 +73,7 @@ fun DangerButton(
         onClick = onClick,
         modifier = modifier
     ) {
-        Text(text, color = White)
+        Text(text, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -89,16 +89,16 @@ fun ConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Gray800,
-        title = { 
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = {
             Text(
-                title, 
-                color = White, 
-                style = MaterialTheme.typography.headlineSmall, 
+                title,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
-            ) 
+            )
         },
-        text = { Text(message, color = White) },
+        text = { Text(message, color = MaterialTheme.colorScheme.onSurface) },
         confirmButton = {
             if (isDeleteDialog) {
                 TextButton(
@@ -154,20 +154,20 @@ fun StyledOutlinedTextField(
             textFieldValue = it
             onValueChange(it.text) 
         },
-        label = { Text(label, color = White.copy(alpha = 0.7f)) },
-        modifier = modifier.let { 
-            if (focusRequester != null) it.focusRequester(focusRequester) else it 
+        label = { Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) },
+        modifier = modifier.let {
+            if (focusRequester != null) it.focusRequester(focusRequester) else it
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Gray900.copy(alpha = 0.45f),
-            unfocusedContainerColor = Gray900.copy(alpha = 0.28f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
             focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else FocusedBorderColor,
-            unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else White.copy(alpha = 0.3f),
+            unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
             focusedLabelColor = if (isError) MaterialTheme.colorScheme.error else FocusedLabelColor,
-            unfocusedLabelColor = if (isError) MaterialTheme.colorScheme.error else White.copy(alpha = 0.7f),
+            unfocusedLabelColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
             cursorColor = CursorColor,
-            focusedTextColor = White,
-            unfocusedTextColor = White
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
         ),
         singleLine = singleLine,
         minLines = minLines,
@@ -188,7 +188,7 @@ fun SectionTitle(
         text = text,
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold,
-        color = White,
+        color = MaterialTheme.colorScheme.onBackground,
         modifier = modifier.padding(bottom = Dimensions.spacingLarge)
     )
 }
@@ -208,13 +208,13 @@ fun EmptyStateMessage(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Medium,
-            color = White,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             textAlign = TextAlign.Center
         )
     }

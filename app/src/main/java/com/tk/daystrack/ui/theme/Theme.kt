@@ -18,38 +18,41 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = White,
-    secondary = White,
-    tertiary = PrimaryColor,
+    primary = Emerald400,
+    secondary = Emerald400,
+    tertiary = Emerald500,
     background = Gray900,
-    surface = Gray900,
+    surface = Gray800,
     surfaceVariant = Gray800,
-    onSurfaceVariant = White,
     onBackground = White,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White
+    onSurface = White,
+    onSurfaceVariant = White,
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black
 )
 
-private val LightColorScheme = darkColorScheme(  // Force dark theme to match design
-    primary = White,
-    secondary = White,
-    tertiary = PrimaryColor,
-    background = Gray900,
-    surface = Gray900,
-    surfaceVariant = Gray800,
-    onSurfaceVariant = White,
-    onBackground = White,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White
+private val LightColorScheme = lightColorScheme(
+    primary = Emerald700,
+    secondary = Emerald700,
+    tertiary = Emerald600,
+    background = Color(0xFFF0F7F3),
+    surface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFFE3F0E9),
+    onBackground = Color(0xFF111827),
+    onSurface = Color(0xFF111827),
+    onSurfaceVariant = Color(0xFF374151),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    primaryContainer = Color(0xFFD1FAE5),
+    onPrimaryContainer = Color(0xFF065F46)
 )
 
 @Composable
 fun DayTrackTheme(
-    darkTheme: Boolean = true, // Force dark theme to match design
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false, // Disable dynamic color to ensure consistent design
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -71,8 +74,8 @@ fun DayTrackTheme(
             WindowCompat.setDecorFitsSystemWindows(window, false)
             // Use window insets controller to handle system bars
             WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = false
-                isAppearanceLightNavigationBars = false
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
             }
         }
     }
@@ -87,7 +90,8 @@ fun DayTrackTheme(
 @Composable
 fun dayTrackBackgroundBrush(): Brush {
     // Use solid color instead of gradient to match the design
+    val background = MaterialTheme.colorScheme.background
     return Brush.verticalGradient(
-        colors = listOf(Gray900, Gray900)
+        colors = listOf(background, background)
     )
 }

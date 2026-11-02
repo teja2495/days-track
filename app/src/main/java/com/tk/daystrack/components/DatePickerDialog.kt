@@ -22,16 +22,16 @@ fun StyledDatePickerDialog(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         colors = DatePickerDefaults.colors(
-            containerColor = Gray800,
-            titleContentColor = White,
-            headlineContentColor = White,
-            weekdayContentColor = White.copy(alpha = 0.7f),
-            subheadContentColor = White,
-            yearContentColor = White,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            headlineContentColor = MaterialTheme.colorScheme.onSurface,
+            weekdayContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            subheadContentColor = MaterialTheme.colorScheme.onSurface,
+            yearContentColor = MaterialTheme.colorScheme.onSurface,
             currentYearContentColor = CalendarYearContentColor,
-            selectedYearContentColor = Color.Black,
+            selectedYearContentColor = ButtonContentColor,
             selectedYearContainerColor = CalendarSelectedColor,
-            dayContentColor = White,
+            dayContentColor = MaterialTheme.colorScheme.onSurface,
             todayContentColor = CalendarTodayColor,
             todayDateBorderColor = CalendarTodayBorderColor
         ),
@@ -53,22 +53,22 @@ fun StyledDatePickerDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = White.copy(alpha = 0.7f))
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             }
         }
     ) {
         DatePicker(
             state = datePickerState,
             colors = DatePickerDefaults.colors(
-                containerColor = Gray800,
-                selectedDayContentColor = Color.Black,
+                containerColor = MaterialTheme.colorScheme.surface,
+                selectedDayContentColor = ButtonContentColor,
                 selectedDayContainerColor = CalendarSelectedColor,
-                dayContentColor = White,
+                dayContentColor = MaterialTheme.colorScheme.onSurface,
                 todayContentColor = CalendarTodayColor,
                 todayDateBorderColor = CalendarTodayBorderColor,
-                yearContentColor = White,
+                yearContentColor = MaterialTheme.colorScheme.onSurface,
                 currentYearContentColor = CalendarYearContentColor,
-                selectedYearContentColor = Color.Black,
+                selectedYearContentColor = ButtonContentColor,
                 selectedYearContainerColor = CalendarSelectedColor
             )
         )

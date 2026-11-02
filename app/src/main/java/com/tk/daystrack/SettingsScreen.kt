@@ -15,11 +15,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.MailOutline
@@ -30,6 +33,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +61,8 @@ fun SettingsScreen(
     onFontSizeSelected: (FontSize) -> Unit,
     notificationsEnabled: Boolean,
     onNotificationsToggled: (Boolean) -> Unit,
+    currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
+    onThemeModeSelected: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier,
     onExportClick: () -> Unit = {},
     onImportClick: () -> Unit = {},
@@ -152,7 +158,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Gray900)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = Dimensions.paddingMedium, vertical = Dimensions.paddingExtraLarge)
     ) {
         // Header with back button
@@ -169,44 +175,66 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = context.getString(R.string.cd_back),
-                    tint = White,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(28.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(Dimensions.paddingMedium))
-            
+
             Text(
                 text = context.getString(R.string.settings_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = White
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(Dimensions.paddingLarge)
         ) {
+            // Appearance / Theme card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Gray800)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(Dimensions.paddingLarge)) {
+                    Text(
+                        text = context.getString(R.string.settings_theme),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(Dimensions.paddingMedium))
+                    ThemeSegmentedControl(
+                        selectedMode = currentThemeMode,
+                        onModeSelected = onThemeModeSelected
+                    )
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(Dimensions.paddingLarge)) {
                     Text(
                         text = context.getString(R.string.settings_data_backup),
                         style = MaterialTheme.typography.titleMedium,
-                        color = White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = context.getString(R.string.settings_data_backup_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                     Spacer(modifier = Modifier.height(Dimensions.paddingMedium))
                     Row(
@@ -217,9 +245,11 @@ fun SettingsScreen(
                             onClick = onImportClick,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(28.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
                             border = ButtonDefaults.outlinedButtonBorder.copy(
-                                brush = androidx.compose.ui.graphics.SolidColor(BorderColor)
+                                brush = androidx.compose.ui.graphics.SolidColor(
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                )
                             )
                         ) {
                             Icon(
@@ -240,9 +270,11 @@ fun SettingsScreen(
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(28.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
                             border = ButtonDefaults.outlinedButtonBorder.copy(
-                                brush = androidx.compose.ui.graphics.SolidColor(BorderColor)
+                                brush = androidx.compose.ui.graphics.SolidColor(
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                )
                             )
                         ) {
                             Icon(
@@ -260,7 +292,7 @@ fun SettingsScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Gray800)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column {
                     SettingsToggleRow(
@@ -274,7 +306,7 @@ fun SettingsScreen(
                         Text(
                             text = context.getString(R.string.settings_notifications_alarm_warning),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFBBF24),
+                            color = WarningTextColor,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { requestExactAlarmPermissionIfNeeded(context) }
@@ -285,7 +317,7 @@ fun SettingsScreen(
                                 )
                         )
                     }
-                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                     SettingsMenuRow(
                         title = context.getString(R.string.settings_sort_events),
                         subtitle = when (currentSortOption) {
@@ -297,7 +329,7 @@ fun SettingsScreen(
                         icon = Icons.Default.Sort,
                         onClick = { sortDialogOpen = true }
                     )
-                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                     SettingsMenuRow(
                         title = context.getString(R.string.settings_font_card_size),
                         subtitle = when (currentFontSize) {
@@ -308,7 +340,7 @@ fun SettingsScreen(
                         icon = Icons.Default.TextFields,
                         onClick = { fontDialogOpen = true }
                     )
-                    HorizontalDivider(color = Gray700.copy(alpha = 0.4f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                     SettingsMenuRow(
                         title = context.getString(R.string.settings_send_feedback),
                         subtitle = context.getString(R.string.settings_send_feedback_subtitle),
@@ -322,22 +354,23 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-                ,
+                    .padding(vertical = Dimensions.paddingLarge),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = context.getString(R.string.settings_version_footer, versionName),
                     style = MaterialTheme.typography.titleLarge,
-                    color = TextSecondary
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     Text(
                         text = context.getString(R.string.settings_made_by_prefix),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                     )
                     Text(
                         text = context.getString(R.string.settings_made_by_name),
@@ -363,8 +396,8 @@ fun SettingsScreen(
         )
         AlertDialog(
             onDismissRequest = { sortDialogOpen = false },
-            containerColor = Gray800,
-            title = { Text(context.getString(R.string.sort_choose_title), color = White, fontWeight = FontWeight.Bold) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(context.getString(R.string.sort_choose_title), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     sortOptions.forEach { (option, info) ->
@@ -378,12 +411,12 @@ fun SettingsScreen(
                             RadioButton(
                                 selected = tempSelected == option,
                                 onClick = { tempSelected = option },
-                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = TextSecondary)
+                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text(info.label, color = White)
-                                Text(info.description, color = TextSecondary, fontSize = 12.sp)
+                                Text(info.label, color = MaterialTheme.colorScheme.onSurface)
+                                Text(info.description, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
                             }
                         }
                     }
@@ -396,7 +429,7 @@ fun SettingsScreen(
                 }) { Text(context.getString(R.string.settings_ok), color = ThemeTextColor) }
             },
             dismissButton = {
-                TextButton(onClick = { sortDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = TextSecondary) }
+                TextButton(onClick = { sortDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) }
             }
         )
     }
@@ -410,8 +443,8 @@ fun SettingsScreen(
         )
         AlertDialog(
             onDismissRequest = { fontDialogOpen = false },
-            containerColor = Gray800,
-            title = { Text(context.getString(R.string.settings_font_choose_title), color = White, fontWeight = FontWeight.Bold) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(context.getString(R.string.settings_font_choose_title), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     fontSizeOptions.forEach { (option, label) ->
@@ -425,10 +458,10 @@ fun SettingsScreen(
                             RadioButton(
                                 selected = tempSelected == option,
                                 onClick = { tempSelected = option },
-                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = TextSecondary)
+                                colors = RadioButtonDefaults.colors(selectedColor = ThemeTextColor, unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(label, color = White)
+                            Text(label, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
@@ -440,7 +473,7 @@ fun SettingsScreen(
                 }) { Text(context.getString(R.string.settings_ok), color = ThemeTextColor) }
             },
             dismissButton = {
-                TextButton(onClick = { fontDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = TextSecondary) }
+                TextButton(onClick = { fontDialogOpen = false }) { Text(context.getString(R.string.settings_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) }
             }
         )
     }
@@ -464,7 +497,7 @@ private fun SettingsMenuRow(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = TextSecondary,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -472,19 +505,19 @@ private fun SettingsMenuRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = White
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = title,
-            tint = TextSecondary,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
             modifier = Modifier.size(24.dp)
         )
     }
@@ -508,7 +541,7 @@ private fun SettingsToggleRow(
         Icon(
             imageVector = icon,
             contentDescription = title,
-            tint = TextSecondary,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -516,25 +549,85 @@ private fun SettingsToggleRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = White
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
         }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = White,
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
                 checkedTrackColor = ThemeTextColor,
-                uncheckedThumbColor = TextSecondary,
-                uncheckedTrackColor = Gray700
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
             )
         )
+    }
+}
+
+@Composable
+private fun ThemeSegmentedControl(
+    selectedMode: ThemeMode,
+    onModeSelected: (ThemeMode) -> Unit
+) {
+    val context = LocalContext.current
+    val options = listOf(
+        ThemeMode.SYSTEM to context.getString(R.string.settings_theme_system),
+        ThemeMode.LIGHT to context.getString(R.string.settings_theme_light),
+        ThemeMode.DARK to context.getString(R.string.settings_theme_dark)
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(28.dp)
+            )
+    ) {
+        options.forEachIndexed { index, (mode, label) ->
+            val isSelected = selectedMode == mode
+            if (index > 0) {
+                VerticalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(
+                        if (isSelected) ThemeTextColor.copy(alpha = 0.15f)
+                        else Color.Transparent
+                    )
+                    .clickable { onModeSelected(mode) },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = ThemeTextColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isSelected) ThemeTextColor else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -590,9 +683,9 @@ fun CustomSortDropdown(
             ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Gray800
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        onClick = { 
+        onClick = {
             dialogOpen = true
             isPressed = true
         },
@@ -607,14 +700,14 @@ fun CustomSortDropdown(
             Text(
                 text = selectedText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = context.getString(R.string.cd_sort_options),
-                tint = if (dialogOpen) ThemeTextColor else White,
+                tint = if (dialogOpen) ThemeTextColor else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(Dimensions.iconSizeMedium)
             )
         }
@@ -623,13 +716,13 @@ fun CustomSortDropdown(
     if (dialogOpen) {
         var tempSelected by remember { mutableStateOf(currentSortOption) }
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 dialogOpen = false
                 isPressed = false
             },
-            containerColor = Gray800,
-            titleContentColor = White,
-            textContentColor = White,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             title = {
                 Text(context.getString(R.string.sort_choose_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             },
@@ -648,23 +741,23 @@ fun CustomSortDropdown(
                                 onClick = { tempSelected = option },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = ThemeTextColor,
-                                    unselectedColor = TextSecondary
+                                    unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            
+
                             // Text content
                             Column {
                                 Text(
                                     text = sortInfo.label,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = if (tempSelected == option) ThemeTextColor else White,
+                                    color = if (tempSelected == option) ThemeTextColor else MaterialTheme.colorScheme.onSurface,
                                     fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
                                 )
                                 Text(
                                     text = sortInfo.description,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = if (tempSelected == option) ThemeTextColor.copy(alpha = 0.7f) else TextSecondary,
+                                    color = if (tempSelected == option) ThemeTextColor.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                     fontSize = 12.sp
                                 )
                             }
@@ -682,11 +775,11 @@ fun CustomSortDropdown(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text(context.getString(R.string.settings_cancel), color = TextSecondary)
+                    Text(context.getString(R.string.settings_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 }
             }
         )
@@ -731,9 +824,9 @@ fun CustomFontSizeDropdown(
             ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Gray800
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        onClick = { 
+        onClick = {
             dialogOpen = true
             isPressed = true
         },
@@ -748,14 +841,14 @@ fun CustomFontSizeDropdown(
             Text(
                 text = selectedText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = context.getString(R.string.cd_font_size_options),
-                tint = if (dialogOpen) ThemeTextColor else White,
+                tint = if (dialogOpen) ThemeTextColor else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(Dimensions.iconSizeMedium)
             )
         }
@@ -764,13 +857,13 @@ fun CustomFontSizeDropdown(
     if (dialogOpen) {
         var tempSelected by remember { mutableStateOf(currentFontSize) }
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 dialogOpen = false
                 isPressed = false
             },
-            containerColor = Gray800,
-            titleContentColor = White,
-            textContentColor = White,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             title = {
                 Text(context.getString(R.string.settings_font_choose_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             },
@@ -789,15 +882,15 @@ fun CustomFontSizeDropdown(
                                 onClick = { tempSelected = option },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = ThemeTextColor,
-                                    unselectedColor = TextSecondary
+                                    unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            
+
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = if (tempSelected == option) ThemeTextColor else White,
+                                color = if (tempSelected == option) ThemeTextColor else MaterialTheme.colorScheme.onSurface,
                                 fontWeight = if (tempSelected == option) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -814,11 +907,11 @@ fun CustomFontSizeDropdown(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     dialogOpen = false
                     isPressed = false
                 }) {
-                    Text(context.getString(R.string.settings_cancel), color = TextSecondary)
+                    Text(context.getString(R.string.settings_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 }
             }
         )

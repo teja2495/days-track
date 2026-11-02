@@ -30,6 +30,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -119,8 +121,8 @@ fun EventDetailsScreen(
                 snackbar = { snackbarData ->
                     Snackbar(
                         snackbarData = snackbarData,
-                        containerColor = Gray800,
-                        contentColor = White,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                         actionColor = ThemeTextColor,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
@@ -224,11 +226,11 @@ fun EventDetailsScreen(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = context.getString(R.string.cd_add_instance),
-                            tint = Color.Black,
+                            tint = ButtonContentColor,
                             modifier = Modifier.size(Dimensions.iconSizeSmall)
                         )
                         Spacer(modifier = Modifier.width(Dimensions.spacingMedium))
-                        Text(context.getString(R.string.event_details_add_instance), color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(context.getString(R.string.event_details_add_instance), color = ButtonContentColor, fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
@@ -284,12 +286,12 @@ fun EventDetailsScreen(
                                             "%.2f".format(avgFrequency).removeSuffix(".00").removeSuffix("0")
                                         },
                                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                        color = White
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                     Text(
                                         text = " days",
                                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                        color = White
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                 }
                             }
@@ -467,7 +469,7 @@ fun EventDetailsScreen(
                                                 Text(
                                                     text = intervalText,
                                                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = bodyFontSize),
-                                                    color = eventAccentColor(event.colorHex),
+                                                    color = eventTextAccentColor(event.colorHex),
                                                     modifier = Modifier.padding(top = 0.dp),
                                                     fontWeight = FontWeight.Normal
                                                 )
@@ -597,24 +599,28 @@ fun EventDetailsScreen(
     if (showEditNoteSheet.value && editingNoteDate.value != null) {
         val focusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
-        
-        LaunchedEffect(showEditNoteSheet.value) {
-            if (showEditNoteSheet.value) {
-                focusRequester.requestFocus()
-                keyboardController?.show()
-            }
-        }
-        
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
         ModalBottomSheet(
             onDismissRequest = {
                 showEditNoteSheet.value = false
                 editingNoteDate.value = null
             },
             shape = Shapes.bottomSheetShape,
-            containerColor = Gray800,
+            containerColor = MaterialTheme.colorScheme.surface,
             tonalElevation = Elevations.bottomSheet,
+            sheetState = sheetState,
             dragHandle = {},
         ) {
+            // Wait for the sheet to be fully on screen before showing the keyboard,
+            // same pattern as AddEventBottomSheet to avoid keyboard appearing first.
+            LaunchedEffect(sheetState.currentValue) {
+                if (sheetState.currentValue == SheetValue.Expanded) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -625,7 +631,7 @@ fun EventDetailsScreen(
                     text = if (initialNoteText.value.isBlank()) context.getString(R.string.event_details_add_note) else context.getString(R.string.event_details_edit_note),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 StyledOutlinedTextField(
@@ -677,12 +683,12 @@ private fun EventColorPickerDialog(
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Gray800,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = Shapes.dialogShape,
         title = {
             Text(
                 text = context.getString(R.string.event_details_color_picker_title),
-                color = White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -690,7 +696,7 @@ private fun EventColorPickerDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = context.getString(R.string.event_details_color_picker_message),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
                 EventColorPresets.chunked(4).forEach { rowColors ->
                     Row(
@@ -713,7 +719,7 @@ private fun EventColorPickerDialog(
                                         shape = CircleShape,
                                         color = swatchColor,
                                         border = if (isSelected) {
-                                            BorderStroke(2.dp, White)
+                                            BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface)
                                         } else {
                                             null
                                         }

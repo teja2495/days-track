@@ -27,6 +27,12 @@
     
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_import_success">Data successfully imported</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_subtitle">Get notified about upcoming events</string>
     <string name="settings_notifications_alarm_warning">Alarms &amp; Reminders access is needed for precise notifications. Tap to grant.</string>

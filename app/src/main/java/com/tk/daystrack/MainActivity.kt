@@ -40,6 +40,8 @@ import com.tk.daystrack.DateUtils
 import java.time.LocalDate
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.isSystemInDarkTheme
+import android.widget.Toast
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,10 +57,17 @@ class MainActivity : ComponentActivity() {
         val selectedEventIdFromWidget = intent?.getStringExtra("selected_event_id")
         val openAddInstance = intent?.getBooleanExtra("open_add_instance", false) ?: false
         setContent {
-            DayTrackTheme {
-                val repository = EventRepository(this)
-                val viewModel: EventViewModel = viewModel { EventViewModel(repository) }
-                
+            val repository = EventRepository(this)
+            val viewModel: EventViewModel = viewModel { EventViewModel(repository) }
+            val themeMode by viewModel.themeMode.collectAsState()
+            val systemDark = isSystemInDarkTheme()
+            val isDark = when (themeMode) {
+                ThemeMode.SYSTEM -> systemDark
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }
+
+            DayTrackTheme(darkTheme = isDark) {
                 // Set context for widget updates
                 LaunchedEffect(Unit) {
                     viewModel.setContext(this@MainActivity)
@@ -83,7 +92,13 @@ class MainActivity : ComponentActivity() {
                     uri?.let {
                         contentResolver.openInputStream(it)?.use { input ->
                             val json = input.bufferedReader().readText()
-                            viewModel.importEventsJson(json)
+                            viewModel.importEventsJson(json) {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    getString(R.string.settings_import_success),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }
@@ -157,10 +172,18 @@ fun DayTrackAppWithExportImport(
     val currentSortOption by viewModel.currentSortOption.collectAsState()
     val currentFontSize by viewModel.currentFontSize.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val currentThemeMode by viewModel.themeMode.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
     val eventToUpdate by viewModel.eventToUpdate.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val showToggleDateHint by viewModel.showToggleDateHint.collectAsState()
+
+    // Hoist reorderableState here so scroll position survives screen transitions
+    val reorderableState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            viewModel.reorderEvents(from.index, to.index)
+        }
+    )
     val shouldShowToggleHint = showToggleDateHint && events.any { event ->
         event.instances.isNotEmpty() && DateUtils.isAtLeastOneMonth(event.instances.maxByOrNull { it.date }?.date ?: java.time.LocalDate.MIN)
     }
@@ -201,7 +224,7 @@ fun DayTrackAppWithExportImport(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Gray900)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         val targetScreen = when {
             showSettings -> DayTrackScreen.Settings
@@ -247,6 +270,8 @@ fun DayTrackAppWithExportImport(
                         onFontSizeSelected = { viewModel.setFontSize(it) },
                         notificationsEnabled = notificationsEnabled,
                         onNotificationsToggled = { viewModel.setNotificationsEnabled(it) },
+                        currentThemeMode = currentThemeMode,
+                        onThemeModeSelected = { viewModel.setThemeMode(it) },
                         onExportClick = onExport,
                         onImportClick = onImport,
                         hasEvents = events.isNotEmpty()
@@ -322,12 +347,6 @@ fun DayTrackAppWithExportImport(
                                 )
                             }
                         } else {
-                            val reorderableState = rememberReorderableLazyListState(
-                                onMove = { from, to ->
-                                    viewModel.reorderEvents(from.index, to.index)
-                                }
-                            )
-                            
                             // Create stable callback references to prevent unnecessary recompositions
                             val onEventClick = remember { { eventId: String -> selectedEventId = eventId } }
                             val onEventLongPress = remember { { viewModel.setEditMode(true) } }
@@ -480,8 +499,8 @@ fun SortDropdown(
     Surface(
         onClick = { expanded = true },
         shape = RoundedCornerShape(24.dp),
-        color = Gray800,
-        contentColor = White,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     ) {
         Row(

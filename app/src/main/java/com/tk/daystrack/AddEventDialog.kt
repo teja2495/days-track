@@ -105,7 +105,7 @@ fun AddEventBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = Shapes.bottomSheetShape,
-        containerColor = Gray800,
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = Elevations.bottomSheet,
         sheetState = sheetState,
         dragHandle = {},
@@ -125,13 +125,13 @@ fun AddEventBottomSheet(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = context.getString(R.string.cd_close),
-                        tint = White
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -299,14 +299,14 @@ fun TimelineDateItem(date: LocalDate, label: String, highlight: Boolean = false,
     ) {
         Text(
             text = date.format(formatter),
-            color = if (highlight) ThemeTextColor else White,
+            color = if (highlight) ThemeTextColor else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (highlight) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         if (label.isNotBlank()) {
             Text(
                 text = label,
-                color = White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -322,7 +322,7 @@ fun TimelineConnector() {
             .height(40.dp)
             .padding(vertical = 12.dp)
             .background(
-                White.copy(alpha = 0.3f),
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(50)
             )
     )

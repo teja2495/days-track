@@ -75,7 +75,7 @@ fun UpdateEventDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = Shapes.bottomSheetShape,
-        containerColor = Gray800,
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = Elevations.bottomSheet,
         sheetState = sheetState,
         dragHandle = {},
@@ -90,7 +90,7 @@ fun UpdateEventDialog(
                 text = context.getString(R.string.update_event_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = White
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             StyledOutlinedTextField(

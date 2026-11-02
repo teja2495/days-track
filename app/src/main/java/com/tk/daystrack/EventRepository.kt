@@ -304,6 +304,19 @@ class EventRepository(context: Context) {
     fun setSortOption(sortOption: SortOption) {
         sharedPreferences.edit().putString("sortOption", sortOption.name).apply()
     }
+
+    fun getThemeMode(): ThemeMode {
+        val themeModeString = sharedPreferences.getString("themeMode", "SYSTEM") ?: "SYSTEM"
+        return try {
+            ThemeMode.valueOf(themeModeString)
+        } catch (e: IllegalArgumentException) {
+            ThemeMode.SYSTEM
+        }
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        sharedPreferences.edit().putString("themeMode", mode.name).apply()
+    }
     
     fun notifyWidgetsToUpdate(context: Context) {
         EventWidgetProvider.updateAllWidgets(context)

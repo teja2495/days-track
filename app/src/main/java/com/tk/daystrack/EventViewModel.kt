@@ -23,6 +23,12 @@ enum class FontSize {
     LARGE
 }
 
+enum class ThemeMode {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
+
 class EventViewModel(private val repository: EventRepository) : ViewModel() {
     
     private val _events = MutableStateFlow<List<Event>>(emptyList())
@@ -42,6 +48,9 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
 
     private val _notificationsEnabled = MutableStateFlow(false)
     val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
+
+    private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+    val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
     
     private val _showUpdateDialog = MutableStateFlow(false)
     val showUpdateDialog: StateFlow<Boolean> = _showUpdateDialog.asStateFlow()
@@ -83,6 +92,7 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         loadSortOption()
         loadFontSize()
         loadNotificationsEnabled()
+        loadThemeMode()
         loadEvents()
     }
     
@@ -99,6 +109,15 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
 
     private fun loadNotificationsEnabled() {
         _notificationsEnabled.value = repository.getNotificationsEnabled()
+    }
+
+    private fun loadThemeMode() {
+        _themeMode.value = repository.getThemeMode()
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        _themeMode.value = mode
+        repository.setThemeMode(mode)
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
@@ -249,13 +268,14 @@ class EventViewModel(private val repository: EventRepository) : ViewModel() {
         return repository.exportEventsJson()
     }
 
-    fun importEventsJson(json: String) {
+    fun importEventsJson(json: String, onSuccess: (() -> Unit)? = null) {
         viewModelScope.launch {
             val success = repository.importEventsJson(json)
             if (success) {
                 _unsortedEvents = repository.loadEvents()
                 sortEvents()
                 notifyWidgets()
+                onSuccess?.invoke()
             }
         }
     }
